@@ -1,0 +1,242 @@
+// ============================================================
+//  SCHÉMA DE LA BASE DE DONNÉES — LIMAK
+//  Chaque "model" ci-dessous = une table de la base.
+//  Les liens entre tables (relations) sont indiqués en commentaire.
+// ============================================================
+
+// --- Ces deux blocs étaient déjà là, on n'y touche pas ---
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================
+//  ÉNUMÉRATIONS (listes de valeurs possibles, fixées à l'avance)
+// ============================================================
+
+// Rôle d'un utilisateur : client normal ou administrateur
+enum Role {
+  CUSTOMER // client
+  ADMIN    // administrateur (accès au panneau d'admin)
+}
+
+// Étapes de vie d'une commande
+enum OrderStatus {
+  PENDING   // créée, en attente de traitement
+  CONFIRMED // confirmée
+  SHIPPED   // expédiée
+  DELIVERED // livrée
+  CANCELLED // annulée
+}
+
+// Moyen de paiement (on démarre avec le paiement à la livraison)
+enum PaymentMethod {
+  CASH_ON_DELIVERY // paiement à la livraison
+  MOBILE_MONEY     // Wave / Orange Money / MTN (intégré plus tard)
+}
+
+// État du paiement d'une commande
+enum PaymentStatus {
+  PENDING  // pas encore payé
+  PAID     // payé
+  FAILED   // échec
+  REFUNDED // remboursé
+}
+
+// ============================================================
+//  UTILISATEURS & ADRESSES
+// ============================================================
+
+// Un compte (client ou admin)
+model User {
+  id        String   @id @default(cuid()) // identifiant unique
+  email     String   @unique              // email unique (pas deux comptes identiques)
+  name      String?                       // le "?" veut dire : facultatif
+  role      Role     @default(CUSTOMER)   // client par défaut
+  createdAt DateTime @default(now())      // date de création automatique
+  updatedAt DateTime @updatedAt           // date de dernière modification automatique
+
+  // Liens : un utilisateur peut avoir plusieurs adresses, commandes, avis
+  addresses Address[]
+  orders    Order[]
+  reviews   Review[]
+}
+
+// Une adresse de livraison appartenant à un utilisateur
+model Address {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName  String
+  phone     String
+  line1     String  // adresse ligne 1
+  line2     String? // complément (facultatif)
+  city      String
+  country   String  @default("Côte d'Ivoire")
+  isDefault Boolean @default(false) // adresse par défaut ?
+
+  orders Order[] // commandes livrées à cette adresse
+
+  @@index([userId]) // accélère la recherche des adresses d'un utilisateur
+}
+
+// ============================================================
+//  VENDEURS  (préparé dès maintenant pour le multi-vendeurs)
+//  Au départ : un seul vendeur (LIMAK). Plus tard : plusieurs.
+// ============================================================
+
+model Vendor {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique // identifiant lisible pour l'URL (ex: "limak")
+  createdAt DateTime @default(now())
+
+  products Product[] // les produits de ce vendeur
+}
+
+// ============================================================
+//  CATALOGUE : catégories, produits, images, variantes
+// ============================================================
+
+// Catégorie (avec sous-catégories grâce au lien "parent")
+model Category {
+  id       String  @id @default(cuid())
+  name     String
+  slug     String  @unique
+  imageUrl String?
+
+  // Auto-relation : une catégorie peut avoir une catégorie parente
+  // (ex : "Sacs à main" a pour parent "Sacs")
+  parentId String?
+  parent   Category?  @relation("CategorieSousCategorie", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategorieSousCategorie")
+
+  products Product[]
+
+  @@index([parentId])
+}
+
+// Un produit
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique // pour des URLs propres (ex: /produits/sac-vague)
+  description String?
+  brand       String?  // marque (facultatif)
+  isActive    Boolean  @default(true) // affiché sur le site ou non
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Chaque produit appartient à un vendeur (multi-vendeurs ready)
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+
+  // Chaque produit peut appartenir à une catégorie
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  images   ProductImage[]
+  variants ProductVariant[] // un produit a TOUJOURS au moins une variante
+  reviews  Review[]
+
+  @@index([vendorId])
+  @@index([categoryId])
+}
+
+// Une image d'un produit (un produit peut en avoir plusieurs)
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String  // adresse de l'image (stockage cloud)
+  alt       String? // texte alternatif (accessibilité / SEO)
+  position  Int     @default(0) // ordre d'affichage
+
+  @@index([productId])
+}
+
+// Une variante d'un produit : c'est ICI que vivent le prix et le stock.
+// Produit simple  -> une seule variante "Standard".
+// Produit décliné -> plusieurs variantes (ex: "Rouge / L", "Bleu / M").
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku       String? @unique // référence interne (facultatif)
+  name      String  @default("Standard") // libellé de la variante
+  price     Int     // prix en FCFA (le franc CFA n'a pas de centimes)
+  stock     Int     @default(0) // quantité disponible
+
+  orderItems OrderItem[]
+
+  @@index([productId])
+}
+
+// ============================================================
+//  COMMANDES
+// ============================================================
+
+model Order {
+  id            String        @id @default(cuid())
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  addressId     String?
+  address       Address?      @relation(fields: [addressId], references: [id], onDelete: SetNull)
+  status        OrderStatus   @default(PENDING)
+  paymentMethod PaymentMethod @default(CASH_ON_DELIVERY)
+  paymentStatus PaymentStatus @default(PENDING)
+
+  // Infos de livraison du client (commande "invité", avant les comptes)
+  customerName    String
+  customerPhone   String
+  shippingAddress String
+  shippingCity    String
+
+  subtotal      Int           // total des articles (FCFA)
+  shipping      Int           @default(0) // frais de livraison
+  total         Int           // subtotal + shipping
+  currency      String        @default("XOF") // code du franc CFA
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  items OrderItem[]
+
+  @@index([userId])
+}
+
+// Une ligne de commande. On COPIE le nom et le prix au moment de l'achat
+// pour que la commande reste exacte même si le produit change ensuite.
+model OrderItem {
+  id          String          @id @default(cuid())
+  orderId     String
+  order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId   String?
+  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  productName String // copie figée du nom
+  unitPrice   Int    // copie figée du prix unitaire (FCFA)
+  quantity    Int
+
+  @@index([orderId])
+}
+
+// ============================================================
+//  AVIS CLIENTS
+// ============================================================
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int      // note de 1 à 5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@unique([productId, userId]) // un seul avis par produit et par utilisateur
+  @@index([productId])
+}

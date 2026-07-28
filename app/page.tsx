@@ -215,7 +215,7 @@ export default async function Accueil() {
             </div>
             <div className="text-sm text-neutral-600">
               <p className="font-semibold text-neutral-800">Une question ?</p>
-              <p className="mt-2">Email : contact@limak.ci</p>
+              <p className="mt-2">Email : limak.shopall@gmail.com</p>
               <p>WhatsApp : +225 07 17 67 87 84</p>
               <p className="mt-1 text-xs text-neutral-400">
                 (pour vos questions — les commandes se passent sur le site)

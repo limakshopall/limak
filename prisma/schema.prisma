@@ -182,6 +182,7 @@ model ProductVariant {
 
 model Order {
   id            String        @id @default(cuid())
+  clerkUserId   String?
   userId        String?
   user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   addressId     String?

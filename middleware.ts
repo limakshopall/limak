@@ -1,29 +1,33 @@
 // ============================================================
-//  MIDDLEWARE — garde l'entrée de l'espace admin
-//  S'exécute avant chaque page /admin. Si l'utilisateur n'est pas
-//  connecté en admin, il est renvoyé vers la page de connexion.
+//  MIDDLEWARE — Clerk (comptes clients) + protection admin maison
+//  Clerk ne protège aucune route par défaut : commander sans
+//  compte reste possible. On garde notre cookie pour /admin.
 // ============================================================
 
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
-  const token = request.cookies.get("limak_admin")?.value;
-  const isLoggedIn = token === process.env.ADMIN_SESSION_TOKEN;
-  const isLoginPage = request.nextUrl.pathname === "/admin/login";
+// Les pages d'admin (sauf la page de connexion admin)
+const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 
-  // Pas connecté et pas sur la page de connexion -> vers la connexion
-  if (!isLoggedIn && !isLoginPage) {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
+export default clerkMiddleware(async (auth, req) => {
+  const pathname = req.nextUrl.pathname;
+
+  // --- Notre protection admin (cookie), indépendante de Clerk ---
+  if (isAdminRoute(req) && pathname !== "/admin/login") {
+    const token = req.cookies.get("limak_admin")?.value;
+    if (token !== process.env.ADMIN_SESSION_TOKEN) {
+      return NextResponse.redirect(new URL("/admin/login", req.url));
+    }
   }
-  // Déjà connecté mais sur la page de connexion -> vers l'admin
-  if (isLoggedIn && isLoginPage) {
-    return NextResponse.redirect(new URL("/admin", request.url));
-  }
-  return NextResponse.next();
-}
+  // Pour tout le reste : Clerk laisse passer (rien n'est protégé).
+});
 
-// Ce middleware ne s'applique qu'aux adresses /admin...
 export const config = {
-  matcher: ["/admin", "/admin/:path*"],
+  matcher: [
+    // Toutes les pages sauf les fichiers internes/statesques
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Toujours pour les routes API
+    "/(api|trpc)(.*)",
+  ],
 };

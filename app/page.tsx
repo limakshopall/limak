@@ -1,65 +1,232 @@
-import Image from "next/image";
+// ============================================================
+//  PAGE D'ACCUEIL  ->  /
+//  Carrousel + réassurance + catégories + nouveautés +
+//  rangées par catégorie + pied de page.
+// ============================================================
 
-export default function Home() {
+import Link from "next/link";
+import { prisma } from "./lib/prisma";
+import HeroCarousel from "./components/HeroCarousel";
+
+function CarteProduit({
+  slug,
+  name,
+  price,
+  imageUrl,
+  imageAlt,
+}: {
+  slug: string;
+  name: string;
+  price: number;
+  imageUrl: string | null;
+  imageAlt: string | null;
+}) {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <Link
+      href={`/produits/${slug}`}
+      className="group overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+    >
+      <div className="flex aspect-square items-center justify-center overflow-hidden bg-neutral-100 text-xs text-neutral-400">
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageUrl}
+            alt={imageAlt ?? name}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          />
+        ) : (
+          "photo à venir"
+        )}
+      </div>
+      <div className="p-3">
+        <h3 className="truncate text-sm font-medium text-neutral-800">{name}</h3>
+        <p className="mt-1 font-bold text-neutral-900">
+          {new Intl.NumberFormat("fr-FR").format(price)} FCFA
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+export default async function Accueil() {
+  const categories = await prisma.category.findMany({
+    include: {
+      products: {
+        where: { isActive: true },
+        include: {
+          images: { orderBy: { position: "asc" }, take: 1 },
+          variants: { orderBy: { price: "asc" }, take: 1 },
+        },
+        take: 4,
+      },
+    },
+    orderBy: { name: "asc" },
+  });
+
+  const nouveautes = await prisma.product.findMany({
+    where: { isActive: true },
+    include: {
+      images: { orderBy: { position: "asc" }, take: 1 },
+      variants: { orderBy: { price: "asc" }, take: 1 },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 8,
+  });
+
+  const categoriesAvecProduits = categories.filter((c) => c.products.length > 0);
+
+  return (
+    <div className="bg-neutral-50">
+      {/* ---------- CARROUSEL ---------- */}
+      <HeroCarousel />
+
+      {/* ---------- RÉASSURANCE ---------- */}
+      <section className="mt-8 border-y border-neutral-200 bg-white">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 px-4 py-6 text-sm sm:grid-cols-4">
+          {[
+            ["🚚", "Livraison rapide", "Partout en Côte d'Ivoire"],
+            ["💵", "Paiement à la livraison", "Payez à réception"],
+            ["✅", "Produits de qualité", "Sélection vérifiée"],
+            ["🔒", "Commande sécurisée", "Directement sur le site"],
+          ].map(([emoji, titre, sous]) => (
+            <div key={titre} className="flex items-center gap-3">
+              <span className="text-2xl">{emoji}</span>
+              <div>
+                <p className="font-semibold text-neutral-800">{titre}</p>
+                <p className="text-neutral-500">{sous}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ---------- CATÉGORIES ---------- */}
+      <section className="mx-auto max-w-6xl px-4 py-14">
+        <h2 className="mb-6 text-2xl font-bold text-neutral-900">
+          Explorez nos catégories
+        </h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {categories.map((c) => {
+            const cover = c.products[0]?.images[0]?.url ?? null;
+            return (
+              <Link
+                key={c.id}
+                href={`/produits?categorie=${c.slug}`}
+                className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-neutral-200"
+              >
+                {cover ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={cover}
+                    alt={c.name}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                  />
+                ) : null}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                <span className="absolute bottom-3 left-3 text-lg font-bold text-white drop-shadow">
+                  {c.name}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ---------- NOUVEAUTÉS ---------- */}
+      <section className="mx-auto max-w-6xl px-4 pb-8">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-neutral-900">Nouveautés</h2>
+          <Link
+            href="/produits"
+            className="text-sm font-medium text-[#e67e22] hover:underline"
+          >
+            Voir tout →
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+          {nouveautes.map((p) => (
+            <CarteProduit
+              key={p.id}
+              slug={p.slug}
+              name={p.name}
+              price={p.variants[0]?.price ?? 0}
+              imageUrl={p.images[0]?.url ?? null}
+              imageAlt={p.images[0]?.alt ?? null}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* ---------- UNE RANGÉE PAR CATÉGORIE ---------- */}
+      {categoriesAvecProduits.map((c) => (
+        <section key={c.id} className="mx-auto max-w-6xl px-4 py-8">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-neutral-900">{c.name}</h2>
+            <Link
+              href={`/produits?categorie=${c.slug}`}
+              className="text-sm font-medium text-[#e67e22] hover:underline"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+              Voir tout →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+            {c.products.map((p) => (
+              <CarteProduit
+                key={p.id}
+                slug={p.slug}
+                name={p.name}
+                price={p.variants[0]?.price ?? 0}
+                imageUrl={p.images[0]?.url ?? null}
+                imageAlt={p.images[0]?.alt ?? null}
+              />
+            ))}
+          </div>
+        </section>
+      ))}
+
+      {/* ---------- APPEL FINAL ---------- */}
+      <section className="mx-auto max-w-6xl px-4 py-14">
+        <div className="rounded-2xl bg-[#0f1724] px-6 py-12 text-center text-white">
+          <h2 className="text-2xl font-bold sm:text-3xl">
+            Prêt à faire vos achats ?
+          </h2>
+          <p className="mx-auto mt-2 max-w-md text-neutral-300">
+            Parcourez tout le catalogue et commandez en quelques clics.
+          </p>
+          <Link
+            href="/produits"
+            className="mt-6 inline-block rounded-full bg-[#e67e22] px-8 py-3 font-semibold text-white transition hover:bg-[#d35400]"
+          >
+            Voir tous les produits
+          </Link>
+        </div>
+      </section>
+
+      {/* ---------- PIED DE PAGE ---------- */}
+      <footer className="border-t border-neutral-200 bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-10">
+          <div className="flex flex-col gap-6 sm:flex-row sm:justify-between">
+            <div>
+              <p className="text-xl font-extrabold text-neutral-900">LIMAK</p>
+              <p className="mt-2 max-w-xs text-sm text-neutral-500">
+                Votre boutique en ligne en Côte d&apos;Ivoire. Paiement à la
+                livraison.
+              </p>
+            </div>
+            <div className="text-sm text-neutral-600">
+              <p className="font-semibold text-neutral-800">Une question ?</p>
+              <p className="mt-2">Email : contact@limak.ci</p>
+              <p>WhatsApp : +225 07 17 67 87 84</p>
+              <p className="mt-1 text-xs text-neutral-400">
+                (pour vos questions — les commandes se passent sur le site)
+              </p>
+            </div>
+          </div>
+          <p className="mt-8 border-t border-neutral-100 pt-6 text-center text-xs text-neutral-400">
+            © {new Date().getFullYear()} LIMAK. Tous droits réservés.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </footer>
     </div>
   );
 }

@@ -1,12 +1,13 @@
 // ============================================================
 //  PAGE D'ACCUEIL  ->  /
 //  Carrousel + réassurance + catégories + nouveautés +
-//  rangées par catégorie + pied de page.
+//  rangées par catégorie + pied de page. Images optimisées.
 // ============================================================
 
 import Link from "next/link";
 import { prisma } from "./lib/prisma";
 import HeroCarousel from "./components/HeroCarousel";
+import ProductThumb from "./components/ProductThumb";
 
 function CarteProduit({
   slug,
@@ -26,17 +27,8 @@ function CarteProduit({
       href={`/produits/${slug}`}
       className="group overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
     >
-      <div className="flex aspect-square items-center justify-center overflow-hidden bg-neutral-100 text-xs text-neutral-400">
-        {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imageUrl}
-            alt={imageAlt ?? name}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-          />
-        ) : (
-          "photo à venir"
-        )}
+      <div className="relative aspect-square overflow-hidden bg-neutral-100">
+        <ProductThumb src={imageUrl} alt={imageAlt ?? name} />
       </div>
       <div className="p-3">
         <h3 className="truncate text-sm font-medium text-neutral-800">{name}</h3>
@@ -77,10 +69,9 @@ export default async function Accueil() {
 
   return (
     <div className="bg-neutral-50">
-      {/* ---------- CARROUSEL ---------- */}
       <HeroCarousel />
 
-      {/* ---------- RÉASSURANCE ---------- */}
+      {/* RÉASSURANCE */}
       <section className="mt-8 border-y border-neutral-200 bg-white">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 px-4 py-6 text-sm sm:grid-cols-4">
           {[
@@ -100,7 +91,7 @@ export default async function Accueil() {
         </div>
       </section>
 
-      {/* ---------- CATÉGORIES ---------- */}
+      {/* CATÉGORIES */}
       <section className="mx-auto max-w-6xl px-4 py-14">
         <h2 className="mb-6 text-2xl font-bold text-neutral-900">
           Explorez nos catégories
@@ -114,16 +105,9 @@ export default async function Accueil() {
                 href={`/produits?categorie=${c.slug}`}
                 className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-neutral-200"
               >
-                {cover ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={cover}
-                    alt={c.name}
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-                  />
-                ) : null}
+                <ProductThumb src={cover} alt={c.name} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                <span className="absolute bottom-3 left-3 text-lg font-bold text-white drop-shadow">
+                <span className="absolute bottom-3 left-3 z-10 text-lg font-bold text-white drop-shadow">
                   {c.name}
                 </span>
               </Link>
@@ -132,14 +116,11 @@ export default async function Accueil() {
         </div>
       </section>
 
-      {/* ---------- NOUVEAUTÉS ---------- */}
+      {/* NOUVEAUTÉS */}
       <section className="mx-auto max-w-6xl px-4 pb-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-neutral-900">Nouveautés</h2>
-          <Link
-            href="/produits"
-            className="text-sm font-medium text-[#e67e22] hover:underline"
-          >
+          <Link href="/produits" className="text-sm font-medium text-[#e67e22] hover:underline">
             Voir tout →
           </Link>
         </div>
@@ -157,15 +138,12 @@ export default async function Accueil() {
         </div>
       </section>
 
-      {/* ---------- UNE RANGÉE PAR CATÉGORIE ---------- */}
+      {/* RANGÉE PAR CATÉGORIE */}
       {categoriesAvecProduits.map((c) => (
         <section key={c.id} className="mx-auto max-w-6xl px-4 py-8">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-neutral-900">{c.name}</h2>
-            <Link
-              href={`/produits?categorie=${c.slug}`}
-              className="text-sm font-medium text-[#e67e22] hover:underline"
-            >
+            <Link href={`/produits?categorie=${c.slug}`} className="text-sm font-medium text-[#e67e22] hover:underline">
               Voir tout →
             </Link>
           </div>
@@ -184,38 +162,32 @@ export default async function Accueil() {
         </section>
       ))}
 
-      {/* ---------- APPEL FINAL ---------- */}
+      {/* APPEL FINAL */}
       <section className="mx-auto max-w-6xl px-4 py-14">
         <div className="rounded-2xl bg-[#0f1724] px-6 py-12 text-center text-white">
-          <h2 className="text-2xl font-bold sm:text-3xl">
-            Prêt à faire vos achats ?
-          </h2>
+          <h2 className="text-2xl font-bold sm:text-3xl">Prêt à faire vos achats ?</h2>
           <p className="mx-auto mt-2 max-w-md text-neutral-300">
             Parcourez tout le catalogue et commandez en quelques clics.
           </p>
-          <Link
-            href="/produits"
-            className="mt-6 inline-block rounded-full bg-[#e67e22] px-8 py-3 font-semibold text-white transition hover:bg-[#d35400]"
-          >
+          <Link href="/produits" className="mt-6 inline-block rounded-full bg-[#e67e22] px-8 py-3 font-semibold text-white transition hover:bg-[#d35400]">
             Voir tous les produits
           </Link>
         </div>
       </section>
 
-      {/* ---------- PIED DE PAGE ---------- */}
+      {/* PIED DE PAGE */}
       <footer className="border-t border-neutral-200 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-10">
           <div className="flex flex-col gap-6 sm:flex-row sm:justify-between">
             <div>
               <p className="text-xl font-extrabold text-neutral-900">LIMAK</p>
               <p className="mt-2 max-w-xs text-sm text-neutral-500">
-                Votre boutique en ligne en Côte d&apos;Ivoire. Paiement à la
-                livraison.
+                Votre boutique en ligne en Côte d&apos;Ivoire. Paiement à la livraison.
               </p>
             </div>
             <div className="text-sm text-neutral-600">
               <p className="font-semibold text-neutral-800">Une question ?</p>
-              <p className="mt-2">Email : limak.shopall@gmail.com</p>
+              <p className="mt-2">Email : contact@limak.ci</p>
               <p>WhatsApp : +225 07 17 67 87 84</p>
               <p className="mt-1 text-xs text-neutral-400">
                 (pour vos questions — les commandes se passent sur le site)

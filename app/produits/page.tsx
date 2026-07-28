@@ -1,11 +1,12 @@
 // ============================================================
 //  PAGE "NOS PRODUITS"  ->  /produits
-//  Avec recherche, filtre par catégorie et tri (via l'URL).
+//  Recherche + filtre catégorie + tri. Images optimisées.
 // ============================================================
 
 import Link from "next/link";
 import { prisma } from "../lib/prisma";
 import ProduitsFiltres from "../components/ProduitsFiltres";
+import ProductThumb from "../components/ProductThumb";
 
 export default async function ProduitsPage({
   searchParams,
@@ -14,15 +15,13 @@ export default async function ProduitsPage({
 }) {
   const { q, categorie, tri } = await searchParams;
 
-  // Construit le tri en fonction du paramètre
   const orderBy =
     tri === "prix-asc"
-      ? { name: "asc" as const } // (tri par prix géré plus bas si besoin)
+      ? { name: "asc" as const }
       : tri === "prix-desc"
         ? { name: "desc" as const }
         : { createdAt: "desc" as const };
 
-  // Récupère les produits filtrés
   const produits = await prisma.product.findMany({
     where: {
       isActive: true,
@@ -36,8 +35,6 @@ export default async function ProduitsPage({
     orderBy,
   });
 
-  // Tri par prix (basé sur la 1re variante) — fait ici car le prix
-  // est sur la variante, pas directement sur le produit.
   const liste = [...produits];
   if (tri === "prix-asc") {
     liste.sort((a, b) => (a.variants[0]?.price ?? 0) - (b.variants[0]?.price ?? 0));
@@ -45,7 +42,6 @@ export default async function ProduitsPage({
     liste.sort((a, b) => (b.variants[0]?.price ?? 0) - (a.variants[0]?.price ?? 0));
   }
 
-  // Catégories pour le menu de filtre
   const categories = await prisma.category.findMany({
     orderBy: { name: "asc" },
     select: { slug: true, name: true },
@@ -72,17 +68,8 @@ export default async function ProduitsPage({
                 href={`/produits/${produit.slug}`}
                 className="group overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
-                <div className="flex aspect-square items-center justify-center overflow-hidden bg-neutral-100 text-xs text-neutral-400">
-                  {image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={image.url}
-                      alt={image.alt ?? produit.name}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    "photo à venir"
-                  )}
+                <div className="relative aspect-square overflow-hidden bg-neutral-100">
+                  <ProductThumb src={image?.url ?? null} alt={image?.alt ?? produit.name} />
                 </div>
                 <div className="p-3">
                   <h2 className="truncate text-sm font-medium text-neutral-800">

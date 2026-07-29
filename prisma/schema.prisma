@@ -63,7 +63,6 @@ model User {
   // Liens : un utilisateur peut avoir plusieurs adresses, commandes, avis
   addresses Address[]
   orders    Order[]
-  reviews   Review[]
 }
 
 // Une adresse de livraison appartenant à un utilisateur
@@ -229,15 +228,16 @@ model OrderItem {
 // ============================================================
 
 model Review {
-  id        String   @id @default(cuid())
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  rating    Int      // note de 1 à 5
-  comment   String?
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  clerkUserId String   // le client connecté (compte Clerk)
+  authorName  String   // nom d'affichage, figé au moment de l'avis
+  rating      Int      // note de 1 à 5
+  comment     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@unique([productId, userId]) // un seul avis par produit et par utilisateur
+  @@unique([productId, clerkUserId]) // un seul avis par produit et par client
   @@index([productId])
 }

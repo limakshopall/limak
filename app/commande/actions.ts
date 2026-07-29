@@ -1,15 +1,16 @@
 // ============================================================
 //  ACTION SERVEUR — enregistre une commande dans la base
-//  Recalcule les prix côté serveur. Si le client est connecté
-//  (Clerk), on rattache la commande à son compte.
-//  Envoie un SMS de confirmation au client après enregistrement.
+//  - Recalcule les prix côté serveur
+//  - Vérifie ET diminue le stock de façon sûre (pas de survente)
+//  - Rattache au compte Clerk si connecté
+//  - Envoie 2 SMS : confirmation au client + alerte à l'admin
 // ============================================================
 
 "use server";
 
 import { prisma } from "../lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { sendOrderConfirmationSms } from "../lib/sms";
+import { sendOrderConfirmationSms, sendAdminOrderAlertSms } from "../lib/sms";
 
 type CartLine = { productId: string; quantity: number };
 
@@ -20,6 +21,9 @@ type OrderInput = {
   shippingCity: string;
   items: CartLine[];
 };
+
+// Petite erreur "maison" pour transporter un message de stock lisible.
+class StockError extends Error {}
 
 export async function createOrder(input: OrderInput) {
   const name = input.customerName?.trim();
@@ -74,36 +78,72 @@ export async function createOrder(input: OrderInput) {
   const shipping = 0;
   const total = subtotal + shipping;
 
-  const order = await prisma.order.create({
-    data: {
-      clerkUserId: userId ?? null, // rattaché au compte si connecté
-      status: "PENDING",
-      paymentMethod: "CASH_ON_DELIVERY",
-      paymentStatus: "PENDING",
-      customerName: name,
-      customerPhone: phone,
-      shippingAddress: address,
-      shippingCity: city,
-      subtotal,
-      shipping,
-      total,
-      currency: "XOF",
-      items: { create: orderItems },
-    },
-  });
+  // --- Transaction : vérifier+diminuer le stock, puis créer la commande ---
+  // Si un seul article manque de stock, TOUT est annulé (rien n'est débité).
+  let order;
+  try {
+    order = await prisma.$transaction(async (tx) => {
+      for (const item of orderItems) {
+        // On ne diminue QUE si le stock est suffisant (stock >= quantité).
+        // updateMany renvoie le nombre de lignes modifiées : 1 = OK, 0 = stock insuffisant.
+        const res = await tx.productVariant.updateMany({
+          where: { id: item.variantId, stock: { gte: item.quantity } },
+          data: { stock: { decrement: item.quantity } },
+        });
+        if (res.count === 0) {
+          throw new StockError(
+            `« ${item.productName} » n'est plus disponible en quantité suffisante.`
+          );
+        }
+      }
 
-  // --- SMS de confirmation au client ---------------------------------
-  // Référence courte et lisible (les 6 derniers caractères de l'id).
-  // sendOrderConfirmationSms ne lève jamais d'erreur : si le SMS échoue,
-  // la commande reste enregistrée normalement.
+      // Tous les stocks ont été retirés avec succès : on crée la commande.
+      return tx.order.create({
+        data: {
+          clerkUserId: userId ?? null,
+          status: "PENDING",
+          paymentMethod: "CASH_ON_DELIVERY",
+          paymentStatus: "PENDING",
+          customerName: name,
+          customerPhone: phone,
+          shippingAddress: address,
+          shippingCity: city,
+          subtotal,
+          shipping,
+          total,
+          currency: "XOF",
+          items: { create: orderItems },
+        },
+      });
+    });
+  } catch (err) {
+    // Erreur de stock -> message clair pour le client, commande non créée.
+    if (err instanceof StockError) {
+      return { ok: false as const, error: err.message };
+    }
+    // Autre erreur inattendue -> on la laisse remonter.
+    throw err;
+  }
+
+  // --- Notifications SMS (après commande réussie ; ne bloquent jamais) ---
   const orderRef = order.id.slice(-6).toUpperCase();
+  const itemCount = orderItems.reduce((n, i) => n + i.quantity, 0);
+
   await sendOrderConfirmationSms({
     phone,
     orderId: orderRef,
     customerName: name,
     total,
   });
-  // -------------------------------------------------------------------
+
+  await sendAdminOrderAlertSms({
+    orderId: orderRef,
+    customerName: name,
+    customerPhone: phone,
+    shippingCity: city,
+    total,
+    itemCount,
+  });
 
   return { ok: true as const, orderId: order.id, total };
 }

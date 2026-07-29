@@ -15,6 +15,7 @@ export type CartItem = {
   price: number; // en FCFA
   image: string | null;
   quantity: number;
+  stock?: number; // stock connu au moment de l'ajout (facultatif)
 };
 
 // Ce que le panier met à disposition dans toute l'application
@@ -55,14 +56,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items, loaded]);
 
-  // Ajouter un article (s'il y est déjà, on augmente la quantité de 1).
+  // Ajouter un article (s'il y est déjà, on augmente la quantité de 1,
+  // sans jamais dépasser le stock connu).
   function addItem(item: Omit<CartItem, "quantity">) {
     setItems((prev) => {
       const existing = prev.find((i) => i.productId === item.productId);
       if (existing) {
+        const max = item.stock ?? existing.stock ?? Infinity;
         return prev.map((i) =>
           i.productId === item.productId
-            ? { ...i, quantity: i.quantity + 1 }
+            ? {
+                ...i,
+                quantity: Math.min(i.quantity + 1, max),
+                stock: item.stock ?? i.stock, // on rafraîchit le stock connu
+              }
             : i
         );
       }
@@ -74,13 +81,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((prev) => prev.filter((i) => i.productId !== productId));
   }
 
+  // Modifier la quantité, sans jamais dépasser le stock connu de l'article.
   function updateQuantity(productId: string, quantity: number) {
     if (quantity <= 0) {
       removeItem(productId);
       return;
     }
     setItems((prev) =>
-      prev.map((i) => (i.productId === productId ? { ...i, quantity } : i))
+      prev.map((i) => {
+        if (i.productId !== productId) return i;
+        const max = i.stock ?? Infinity;
+        return { ...i, quantity: Math.min(quantity, max) };
+      })
     );
   }
 

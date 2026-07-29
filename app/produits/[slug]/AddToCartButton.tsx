@@ -35,15 +35,14 @@ export default function AddToCartButton({
     setQuantite((q) => Math.max(1, q - 1));
   }
   function augmenter() {
-    setQuantite((q) => Math.min(stock, q + 1)); // jamais au-dessus du stock
+    setQuantite((q) => Math.min(stock, q + 1));
   }
 
   function handleClick() {
     if (epuise) return;
-    // Sécurité : on n'ajoute jamais plus que le stock.
     const qteFinale = Math.min(quantite, stock);
     for (let i = 0; i < qteFinale; i++) {
-      addItem({ productId, slug, name, price, image });
+      addItem({ productId, slug, name, price, image, stock }); // on transmet le stock
     }
     setAjoute(true);
     setTimeout(() => setAjoute(false), 1500);
@@ -51,14 +50,12 @@ export default function AddToCartButton({
 
   return (
     <div className="mt-8">
-      {/* Repère "il reste peu" quand le stock est faible (mais > 0) */}
       {!epuise && stock <= 5 && (
         <p className="mb-3 text-sm font-medium text-orange-600">
           Plus que {stock} en stock — commandez vite !
         </p>
       )}
 
-      {/* Sélecteur de quantité (caché si épuisé) */}
       {!epuise && (
         <div className="mb-4 flex items-center gap-4">
           <span className="text-sm text-gray-600">Quantité</span>

@@ -2,15 +2,15 @@
 //  CARROUSEL D'ACCUEIL — Client Component
 //  Mélange images de pub + bannières avec texte.
 //  Défile automatiquement (5s) + flèches + points.
+//  Images optimisées avec next/image.
 // ============================================================
 
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
-// Les panneaux du carrousel.
-// type "image" = une de tes pubs ; type "texte" = une bannière avec accroche.
 type Slide =
   | { type: "image"; src: string; alt: string; href: string }
   | {
@@ -66,7 +66,6 @@ export default function HeroCarousel() {
     [total]
   );
 
-  // Défilement automatique toutes les 5 secondes
   useEffect(() => {
     const t = setInterval(suivant, 5000);
     return () => clearInterval(t);
@@ -75,7 +74,6 @@ export default function HeroCarousel() {
   return (
     <section className="relative mx-auto max-w-6xl px-4 pt-6">
       <div className="relative aspect-[16/7] overflow-hidden rounded-2xl bg-[#0f1724] sm:aspect-[16/6]">
-        {/* Les panneaux, empilés ; seul l'actif est visible */}
         {SLIDES.map((slide, i) => (
           <Link
             key={i}
@@ -85,11 +83,13 @@ export default function HeroCarousel() {
             }`}
           >
             {slide.type === "image" ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={slide.src}
                 alt={slide.alt}
-                className="h-full w-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 1152px"
+                priority={i === 0} // la 1re image se charge en priorité
+                className="object-cover"
               />
             ) : (
               <div className="relative flex h-full flex-col justify-center overflow-hidden px-8 sm:px-14">
@@ -116,7 +116,6 @@ export default function HeroCarousel() {
           </Link>
         ))}
 
-        {/* Flèche gauche */}
         <button
           onClick={precedent}
           aria-label="Précédent"
@@ -124,7 +123,6 @@ export default function HeroCarousel() {
         >
           ‹
         </button>
-        {/* Flèche droite */}
         <button
           onClick={suivant}
           aria-label="Suivant"
@@ -133,7 +131,6 @@ export default function HeroCarousel() {
           ›
         </button>
 
-        {/* Points */}
         <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-2">
           {SLIDES.map((_, i) => (
             <button

@@ -4,6 +4,7 @@
 //  Affiche la note moyenne (étoiles) sur chaque carte.
 // ============================================================
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "../lib/prisma";
 import ProduitsFiltres from "../components/ProduitsFiltres";
@@ -22,6 +23,12 @@ function Stars({ value }: { value: number }) {
     </span>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Nos produits",
+  description:
+    "Parcourez tout le catalogue LIMAK : montres, sacs, beauté, électroménager, librairie et plus. Paiement à la livraison en Côte d'Ivoire.",
+};
 
 export default async function ProduitsPage({
   searchParams,

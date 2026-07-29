@@ -1,44 +1,14 @@
 // ============================================================
 //  PAGE D'ACCUEIL  ->  /
 //  Carrousel + réassurance + catégories + nouveautés +
-//  rangées par catégorie + pied de page. Images optimisées.
+//  rangées par catégorie + pied de page. Cartes réutilisables.
 // ============================================================
 
 import Link from "next/link";
 import { prisma } from "./lib/prisma";
 import HeroCarousel from "./components/HeroCarousel";
 import ProductThumb from "./components/ProductThumb";
-
-function CarteProduit({
-  slug,
-  name,
-  price,
-  imageUrl,
-  imageAlt,
-}: {
-  slug: string;
-  name: string;
-  price: number;
-  imageUrl: string | null;
-  imageAlt: string | null;
-}) {
-  return (
-    <Link
-      href={`/produits/${slug}`}
-      className="group overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-    >
-      <div className="relative aspect-square overflow-hidden bg-neutral-100">
-        <ProductThumb src={imageUrl} alt={imageAlt ?? name} />
-      </div>
-      <div className="p-3">
-        <h3 className="truncate text-sm font-medium text-neutral-800">{name}</h3>
-        <p className="mt-1 font-bold text-neutral-900">
-          {new Intl.NumberFormat("fr-FR").format(price)} FCFA
-        </p>
-      </div>
-    </Link>
-  );
-}
+import ProductCard from "./components/ProductCard";
 
 export default async function Accueil() {
   const categories = await prisma.category.findMany({
@@ -66,6 +36,25 @@ export default async function Accueil() {
   });
 
   const categoriesAvecProduits = categories.filter((c) => c.products.length > 0);
+
+  // Notes moyennes de TOUS les produits affichés (nouveautés + rangées)
+  const idsAffiches = Array.from(
+    new Set([
+      ...nouveautes.map((p) => p.id),
+      ...categories.flatMap((c) => c.products.map((p) => p.id)),
+    ])
+  );
+  const notes = idsAffiches.length
+    ? await prisma.review.groupBy({
+        by: ["productId"],
+        where: { productId: { in: idsAffiches } },
+        _avg: { rating: true },
+        _count: { rating: true },
+      })
+    : [];
+  const notesParProduit = new Map(
+    notes.map((n) => [n.productId, { moyenne: n._avg.rating ?? 0, nb: n._count.rating }])
+  );
 
   return (
     <div className="bg-neutral-50">
@@ -126,13 +115,14 @@ export default async function Accueil() {
         </div>
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
           {nouveautes.map((p) => (
-            <CarteProduit
+            <ProductCard
               key={p.id}
               slug={p.slug}
               name={p.name}
               price={p.variants[0]?.price ?? 0}
               imageUrl={p.images[0]?.url ?? null}
               imageAlt={p.images[0]?.alt ?? null}
+              note={notesParProduit.get(p.id)}
             />
           ))}
         </div>
@@ -149,13 +139,14 @@ export default async function Accueil() {
           </div>
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
             {c.products.map((p) => (
-              <CarteProduit
+              <ProductCard
                 key={p.id}
                 slug={p.slug}
                 name={p.name}
                 price={p.variants[0]?.price ?? 0}
                 imageUrl={p.images[0]?.url ?? null}
                 imageAlt={p.images[0]?.alt ?? null}
+                note={notesParProduit.get(p.id)}
               />
             ))}
           </div>

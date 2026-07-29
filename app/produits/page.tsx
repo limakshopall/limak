@@ -1,12 +1,27 @@
 // ============================================================
 //  PAGE "NOS PRODUITS"  ->  /produits
 //  Recherche + filtre catégorie + tri. Images optimisées.
+//  Affiche la note moyenne (étoiles) sur chaque carte.
 // ============================================================
 
 import Link from "next/link";
 import { prisma } from "../lib/prisma";
 import ProduitsFiltres from "../components/ProduitsFiltres";
 import ProductThumb from "../components/ProductThumb";
+
+// Petit affichage d'étoiles (non interactif) pour une note donnée.
+function Stars({ value }: { value: number }) {
+  const rounded = Math.round(value);
+  return (
+    <span className="leading-none">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <span key={n} className={n <= rounded ? "text-orange-500" : "text-neutral-300"}>
+          ★
+        </span>
+      ))}
+    </span>
+  );
+}
 
 export default async function ProduitsPage({
   searchParams,
@@ -42,6 +57,24 @@ export default async function ProduitsPage({
     liste.sort((a, b) => (b.variants[0]?.price ?? 0) - (a.variants[0]?.price ?? 0));
   }
 
+  // --- Notes moyennes par produit (pour les étoiles sur les cartes) ---
+  const ids = liste.map((p) => p.id);
+  const notes = ids.length
+    ? await prisma.review.groupBy({
+        by: ["productId"],
+        where: { productId: { in: ids } },
+        _avg: { rating: true },
+        _count: { rating: true },
+      })
+    : [];
+  // On range les notes dans une "table de correspondance" produit -> note.
+  const notesParProduit = new Map(
+    notes.map((n) => [
+      n.productId,
+      { moyenne: n._avg.rating ?? 0, nb: n._count.rating },
+    ])
+  );
+
   const categories = await prisma.category.findMany({
     orderBy: { name: "asc" },
     select: { slug: true, name: true },
@@ -62,6 +95,7 @@ export default async function ProduitsPage({
           {liste.map((produit) => {
             const prix = produit.variants[0]?.price ?? 0;
             const image = produit.images[0];
+            const note = notesParProduit.get(produit.id);
             return (
               <Link
                 key={produit.id}
@@ -78,6 +112,14 @@ export default async function ProduitsPage({
                   <p className="mt-1 font-bold text-neutral-900">
                     {new Intl.NumberFormat("fr-FR").format(prix)} FCFA
                   </p>
+
+                  {/* Note moyenne, seulement s'il y a au moins un avis */}
+                  {note && note.nb > 0 && (
+                    <div className="mt-1 flex items-center gap-1 text-xs">
+                      <Stars value={note.moyenne} />
+                      <span className="text-neutral-500">({note.nb})</span>
+                    </div>
+                  )}
                 </div>
               </Link>
             );

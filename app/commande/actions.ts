@@ -22,7 +22,6 @@ type OrderInput = {
   items: CartLine[];
 };
 
-// Petite erreur "maison" pour transporter un message de stock lisible.
 class StockError extends Error {}
 
 export async function createOrder(input: OrderInput) {
@@ -38,7 +37,6 @@ export async function createOrder(input: OrderInput) {
     return { ok: false as const, error: "Votre panier est vide." };
   }
 
-  // Identifiant du client connecté (null si commande "invité")
   const { userId } = await auth();
 
   const productIds = input.items.map((i) => i.productId);
@@ -78,14 +76,10 @@ export async function createOrder(input: OrderInput) {
   const shipping = 0;
   const total = subtotal + shipping;
 
-  // --- Transaction : vérifier+diminuer le stock, puis créer la commande ---
-  // Si un seul article manque de stock, TOUT est annulé (rien n'est débité).
   let order;
   try {
     order = await prisma.$transaction(async (tx) => {
       for (const item of orderItems) {
-        // On ne diminue QUE si le stock est suffisant (stock >= quantité).
-        // updateMany renvoie le nombre de lignes modifiées : 1 = OK, 0 = stock insuffisant.
         const res = await tx.productVariant.updateMany({
           where: { id: item.variantId, stock: { gte: item.quantity } },
           data: { stock: { decrement: item.quantity } },
@@ -97,7 +91,6 @@ export async function createOrder(input: OrderInput) {
         }
       }
 
-      // Tous les stocks ont été retirés avec succès : on crée la commande.
       return tx.order.create({
         data: {
           clerkUserId: userId ?? null,
@@ -117,15 +110,12 @@ export async function createOrder(input: OrderInput) {
       });
     });
   } catch (err) {
-    // Erreur de stock -> message clair pour le client, commande non créée.
     if (err instanceof StockError) {
       return { ok: false as const, error: err.message };
     }
-    // Autre erreur inattendue -> on la laisse remonter.
     throw err;
   }
 
-  // --- Notifications SMS (après commande réussie ; ne bloquent jamais) ---
   const orderRef = order.id.slice(-6).toUpperCase();
   const itemCount = orderItems.reduce((n, i) => n + i.quantity, 0);
 

@@ -95,3 +95,24 @@ export async function sendAdminOrderAlertSms(input: AdminAlertInput): Promise<vo
     `${itemCount} article(s), total ${Number(total).toLocaleString("fr-FR")} FCFA.`;
   await sendSms(adminPhone, message, "admin");
 }
+// 3) SMS de suivi envoyé au CLIENT quand le statut de sa commande change.
+type StatusSmsInput = {
+  phone: string;
+  orderId: string | number;
+  status: "CONFIRMED" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+};
+
+export async function sendOrderStatusSms(input: StatusSmsInput): Promise<void> {
+  const { phone, orderId, status } = input;
+
+  // Un message adapté à chaque statut. PENDING n'envoie rien (déjà couvert
+  // par le SMS de confirmation à la commande).
+  const messages: Record<StatusSmsInput["status"], string> = {
+    CONFIRMED: `Bonne nouvelle ! Votre commande LIMAK n°${orderId} est confirmée. Nous la préparons.`,
+    SHIPPED: `Votre commande LIMAK n°${orderId} est en route ! Vous serez livré très bientôt. Paiement à la livraison.`,
+    DELIVERED: `Votre commande LIMAK n°${orderId} a été livrée. Merci pour votre confiance et à bientôt !`,
+    CANCELLED: `Votre commande LIMAK n°${orderId} a été annulée. Pour toute question, contactez-nous.`,
+  };
+
+  await sendSms(phone, messages[status], `statut-${status}`);
+}

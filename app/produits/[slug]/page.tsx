@@ -24,6 +24,42 @@ function Stars({ value }: { value: number }) {
   );
 }
 
+import type { Metadata } from "next";
+
+// Métadonnées dynamiques : titre + aperçu de partage propres à chaque produit.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+
+  const produit = await prisma.product.findUnique({
+    where: { slug },
+    include: { images: { orderBy: { position: "asc" }, take: 1 } },
+  });
+
+  if (!produit) {
+    return { title: "Produit introuvable" };
+  }
+
+  const image = produit.images[0]?.url;
+  const description =
+    produit.description?.slice(0, 160) ||
+    `${produit.name} disponible sur LIMAK. Paiement à la livraison en Côte d'Ivoire.`;
+
+  return {
+    title: produit.name, // deviendra "Nom du produit | LIMAK" grâce au template
+    description,
+    openGraph: {
+      title: produit.name,
+      description,
+      type: "website",
+      images: image ? [{ url: image }] : undefined,
+    },
+  };
+}
+
 export default async function FicheProduit({
   params,
 }: {

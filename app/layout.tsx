@@ -17,8 +17,34 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LIMAK",
-  description: "Boutique en ligne LIMAK",
+  // Base des URLs (pour que les aperçus de partage fonctionnent).
+  metadataBase: new URL("https://limak-two.vercel.app"),
+
+  // Titre : "default" s'affiche sur l'accueil ; "template" ajoute
+  // "| LIMAK" derrière le titre des autres pages (ex. "Montre Tissot | LIMAK").
+  title: {
+    default: "LIMAK — Boutique en ligne en Côte d'Ivoire",
+    template: "%s | LIMAK",
+  },
+  description:
+    "LIMAK, votre boutique en ligne en Côte d'Ivoire : montres, sacs, beauté, électroménager, librairie et plus. Paiement à la livraison partout en CI.",
+  keywords: [
+    "LIMAK",
+    "boutique en ligne",
+    "Côte d'Ivoire",
+    "e-commerce",
+    "paiement à la livraison",
+  ],
+
+  // Aperçu quand on partage un lien (WhatsApp, Facebook…)
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    siteName: "LIMAK",
+    title: "LIMAK — Boutique en ligne en Côte d'Ivoire",
+    description:
+      "Montres, sacs, beauté, électroménager, librairie… Paiement à la livraison partout en Côte d'Ivoire.",
+  },
 };
 
 export default function RootLayout({
@@ -27,8 +53,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // ClerkProvider rend l'authentification disponible partout.
-    // frFR : les fenêtres de connexion/inscription seront en français.
     <ClerkProvider localization={frFR}>
       <html
         lang="fr"

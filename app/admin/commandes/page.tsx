@@ -1,13 +1,38 @@
 // ============================================================
 //  ADMIN — LISTE DES COMMANDES  ->  /admin/commandes
+//  Avec recherche (nom / téléphone) + filtre par statut.
 // ============================================================
 
 import Link from "next/link";
 import { prisma } from "../../lib/prisma";
 import OrderStatusForm from "./OrderStatusForm";
+import CommandesFiltres from "./CommandesFiltres";
 
-export default async function AdminCommandes() {
+export default async function AdminCommandes({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; statut?: string }>;
+}) {
+  const { q, statut } = await searchParams;
+
+  const statutsValides = ["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"];
+
   const commandes = await prisma.order.findMany({
+    where: {
+      // Filtre statut (seulement si valide)
+      ...(statut && statutsValides.includes(statut)
+        ? { status: statut as "PENDING" | "CONFIRMED" | "SHIPPED" | "DELIVERED" | "CANCELLED" }
+        : {}),
+      // Recherche sur le nom OU le téléphone du client
+      ...(q
+        ? {
+            OR: [
+              { customerName: { contains: q, mode: "insensitive" as const } },
+              { customerPhone: { contains: q } },
+            ],
+          }
+        : {}),
+    },
     include: { items: true },
     orderBy: { createdAt: "desc" },
   });
@@ -23,8 +48,10 @@ export default async function AdminCommandes() {
 
       <h1 className="mb-8 text-2xl font-bold">Commandes</h1>
 
+      <CommandesFiltres />
+
       {commandes.length === 0 ? (
-        <p className="text-gray-500">Aucune commande pour le moment.</p>
+        <p className="text-gray-500">Aucune commande ne correspond.</p>
       ) : (
         <div className="space-y-4">
           {commandes.map((cmd) => (
@@ -71,7 +98,6 @@ export default async function AdminCommandes() {
                 ))}
               </div>
 
-              {/* Formulaire de statut (interactif, avec rafraîchissement auto) */}
               <OrderStatusForm orderId={cmd.id} currentStatus={cmd.status} />
             </div>
           ))}

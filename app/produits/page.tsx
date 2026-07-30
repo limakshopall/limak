@@ -1,28 +1,12 @@
 // ============================================================
 //  PAGE "NOS PRODUITS"  ->  /produits
-//  Recherche + filtre catégorie + tri. Images optimisées.
-//  Affiche la note moyenne (étoiles) sur chaque carte.
+//  Recherche + filtre catégorie + tri. Cartes réutilisables (ProductCard).
 // ============================================================
 
 import type { Metadata } from "next";
-import Link from "next/link";
 import { prisma } from "../lib/prisma";
 import ProduitsFiltres from "../components/ProduitsFiltres";
-import ProductThumb from "../components/ProductThumb";
-
-// Petit affichage d'étoiles (non interactif) pour une note donnée.
-function Stars({ value }: { value: number }) {
-  const rounded = Math.round(value);
-  return (
-    <span className="leading-none">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <span key={n} className={n <= rounded ? "text-orange-500" : "text-neutral-300"}>
-          ★
-        </span>
-      ))}
-    </span>
-  );
-}
+import ProductCard from "../components/ProductCard";
 
 export const metadata: Metadata = {
   title: "Nos produits",
@@ -64,7 +48,7 @@ export default async function ProduitsPage({
     liste.sort((a, b) => (b.variants[0]?.price ?? 0) - (a.variants[0]?.price ?? 0));
   }
 
-  // --- Notes moyennes par produit (pour les étoiles sur les cartes) ---
+  // Notes moyennes par produit (pour les étoiles sur les cartes)
   const ids = liste.map((p) => p.id);
   const notes = ids.length
     ? await prisma.review.groupBy({
@@ -74,12 +58,8 @@ export default async function ProduitsPage({
         _count: { rating: true },
       })
     : [];
-  // On range les notes dans une "table de correspondance" produit -> note.
   const notesParProduit = new Map(
-    notes.map((n) => [
-      n.productId,
-      { moyenne: n._avg.rating ?? 0, nb: n._count.rating },
-    ])
+    notes.map((n) => [n.productId, { moyenne: n._avg.rating ?? 0, nb: n._count.rating }])
   );
 
   const categories = await prisma.category.findMany({
@@ -99,38 +79,18 @@ export default async function ProduitsPage({
         </p>
       ) : (
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-          {liste.map((produit) => {
-            const prix = produit.variants[0]?.price ?? 0;
-            const image = produit.images[0];
-            const note = notesParProduit.get(produit.id);
-            return (
-              <Link
-                key={produit.id}
-                href={`/produits/${produit.slug}`}
-                className="group overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-              >
-                <div className="relative aspect-square overflow-hidden bg-neutral-100">
-                  <ProductThumb src={image?.url ?? null} alt={image?.alt ?? produit.name} />
-                </div>
-                <div className="p-3">
-                  <h2 className="truncate text-sm font-medium text-neutral-800">
-                    {produit.name}
-                  </h2>
-                  <p className="mt-1 font-bold text-neutral-900">
-                    {new Intl.NumberFormat("fr-FR").format(prix)} FCFA
-                  </p>
-
-                  {/* Note moyenne, seulement s'il y a au moins un avis */}
-                  {note && note.nb > 0 && (
-                    <div className="mt-1 flex items-center gap-1 text-xs">
-                      <Stars value={note.moyenne} />
-                      <span className="text-neutral-500">({note.nb})</span>
-                    </div>
-                  )}
-                </div>
-              </Link>
-            );
-          })}
+          {liste.map((produit) => (
+            <ProductCard
+              key={produit.id}
+              slug={produit.slug}
+              name={produit.name}
+              price={produit.variants[0]?.price ?? 0}
+              imageUrl={produit.images[0]?.url ?? null}
+              imageAlt={produit.images[0]?.alt ?? null}
+              note={notesParProduit.get(produit.id)}
+              stock={produit.variants[0]?.stock ?? 0}
+            />
+          ))}
         </div>
       )}
     </main>

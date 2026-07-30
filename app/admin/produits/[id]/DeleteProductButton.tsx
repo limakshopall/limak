@@ -20,7 +20,11 @@ export default function DeleteProductButton({ id }: { id: string }) {
     if (!ok) return;
 
     startTransition(async () => {
-      await deleteProduct(id);
+      const result = await deleteProduct(id);
+      if (!result.ok) {
+        window.alert(result.error ?? "Erreur lors de la suppression.");
+        return;
+      }
       router.push("/admin/produits"); // retour à la liste
       router.refresh();
     });

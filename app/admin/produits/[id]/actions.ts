@@ -5,7 +5,17 @@
 "use server";
 
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import { redirect } from "next/navigation";
+import { UTApi } from "uploadthing/server";
+
+const utapi = new UTApi();
+
+// Le fichier UploadThing est identifié par la fin de l'URL (ex: .../f/<key>).
+function extractFileKey(url: string): string | null {
+  const key = url.split("/").pop();
+  return key || null;
+}
 
 export async function updateProduct(formData: FormData) {
   const id = String(formData.get("id"));
@@ -17,7 +27,7 @@ export async function updateProduct(formData: FormData) {
 
   // Ancien prix (promo) : vide -> null (pas de promo)
   const compareRaw = String(formData.get("comparePrice") ?? "").trim();
-  const comparePrice = compareRaw === "" ? null : parseInt(compareRaw, 10);
+  const compareParsed = compareRaw === "" ? null : parseInt(compareRaw, 10);
 
   if (!id || !name) return;
 
@@ -27,24 +37,48 @@ export async function updateProduct(formData: FormData) {
   });
 
   if (variantId && Number.isFinite(price) && Number.isFinite(stock)) {
+    // La promo n'a de sens que si l'ancien prix est strictement supérieur au nouveau.
+    const comparePrice =
+      compareParsed !== null && Number.isFinite(compareParsed) && compareParsed > price
+        ? compareParsed
+        : null;
+
     await prisma.productVariant.update({
       where: { id: variantId },
-      data: {
-        price,
-        stock,
-        // On enregistre la promo seulement si c'est un nombre valide ; sinon on efface.
-        comparePrice:
-          comparePrice !== null && Number.isFinite(comparePrice) ? comparePrice : null,
-      },
+      data: { price, stock, comparePrice },
     });
   }
 
   redirect("/admin/produits");
 }
 
-export async function deleteProduct(id: string) {
-  if (!id) return;
-  await prisma.product.delete({ where: { id } });
+export async function deleteProduct(
+  id: string
+): Promise<{ ok: boolean; error?: string }> {
+  if (!id) return { ok: false, error: "Produit introuvable." };
+
+  try {
+    // Récupère les images pour les supprimer aussi côté UploadThing.
+    const images = await prisma.productImage.findMany({ where: { productId: id } });
+
+    await prisma.product.delete({ where: { id } });
+
+    const keys = images.map((img) => extractFileKey(img.url)).filter((k): k is string => !!k);
+    if (keys.length > 0) {
+      // Best-effort : un échec de suppression UploadThing ne doit pas remonter à l'admin.
+      await utapi.deleteFiles(keys).catch(() => {});
+    }
+
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003") {
+      return {
+        ok: false,
+        error: "Impossible de supprimer : ce produit a déjà été commandé. Désactive-le plutôt.",
+      };
+    }
+    throw err;
+  }
 }
 
 // Ajoute une image (téléversée sur UploadThing) au produit.
@@ -58,8 +92,15 @@ export async function addProductImage(productId: string, url: string) {
   });
 }
 
-// Supprime une image d'un produit.
+// Supprime une image d'un produit (base + fichier UploadThing).
 export async function deleteProductImage(imageId: string) {
   if (!imageId) return;
+
+  const image = await prisma.productImage.findUnique({ where: { id: imageId } });
   await prisma.productImage.delete({ where: { id: imageId } });
+
+  const key = image ? extractFileKey(image.url) : null;
+  if (key) {
+    await utapi.deleteFiles(key).catch(() => {});
+  }
 }

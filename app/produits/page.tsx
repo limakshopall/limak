@@ -6,7 +6,19 @@
 import type { Metadata } from "next";
 import { prisma } from "../lib/prisma";
 import ProduitsFiltres from "../components/ProduitsFiltres";
-import ProductCard from "../components/ProductCard";
+import ProductSection, { type Disposition } from "../components/ProductSection";
+
+// Groupes de produits + rotation des dispositions, pour casser la monotonie en descendant la page.
+const TAILLE_GROUPE = 8;
+const ROTATION_DISPOSITIONS: Disposition[] = ["grille", "scroll", "decale", "cercle"];
+
+function decouper<T>(liste: T[], taille: number): T[][] {
+  const groupes: T[][] = [];
+  for (let i = 0; i < liste.length; i += taille) {
+    groupes.push(liste.slice(i, i + taille));
+  }
+  return groupes;
+}
 
 export const metadata: Metadata = {
   title: "Nos produits",
@@ -67,6 +79,21 @@ export default async function ProduitsPage({
     select: { slug: true, name: true },
   });
 
+  // Mise en forme des produits pour les composants d'affichage.
+  const produitsAffiches = liste.map((produit) => ({
+    id: produit.id,
+    slug: produit.slug,
+    name: produit.name,
+    price: produit.variants[0]?.price ?? 0,
+    comparePrice: produit.variants[0]?.comparePrice ?? null,
+    imageUrl: produit.images[0]?.url ?? null,
+    imageAlt: produit.images[0]?.alt ?? null,
+    stock: produit.variants[0]?.stock ?? 0,
+    note: notesParProduit.get(produit.id),
+  }));
+
+  const groupes = decouper(produitsAffiches, TAILLE_GROUPE);
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
       <h1 className="mb-8 text-3xl font-bold text-[#14213D]">Nos produits</h1>
@@ -78,18 +105,12 @@ export default async function ProduitsPage({
           Aucun produit ne correspond à votre recherche.
         </p>
       ) : (
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-          {liste.map((produit) => (
-            <ProductCard
-              key={produit.id}
-              slug={produit.slug}
-              name={produit.name}
-              price={produit.variants[0]?.price ?? 0}
-              imageUrl={produit.images[0]?.url ?? null}
-              imageAlt={produit.images[0]?.alt ?? null}
-              note={notesParProduit.get(produit.id)}
-              stock={produit.variants[0]?.stock ?? 0}
-              comparePrice={produit.variants[0]?.comparePrice ?? null}
+        <div className="flex flex-col gap-10">
+          {groupes.map((groupe, i) => (
+            <ProductSection
+              key={i}
+              produits={groupe}
+              disposition={ROTATION_DISPOSITIONS[i % ROTATION_DISPOSITIONS.length]}
             />
           ))}
         </div>

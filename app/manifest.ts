@@ -11,9 +11,9 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "LIMAK",
     description: "Votre boutique en ligne en Côte d'Ivoire. Paiement à la livraison.",
     start_url: "/",
-    display: "standalone", // s'ouvre en plein écran, comme une appli
-    background_color: "#0f1724", // fond de l'écran de démarrage (marine)
-    theme_color: "#0f1724",
+    display: "standalone",
+    background_color: "#ffffff", // fond blanc du splash (le logo marine/or ressort bien)
+    theme_color: "#0f1724",      // couleur de la barre du navigateur (marine)
     icons: [
       { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },

@@ -8,7 +8,11 @@ import Link from "next/link";
 import { prisma } from "./lib/prisma";
 import HeroCarousel from "./components/HeroCarousel";
 import ProductThumb from "./components/ProductThumb";
-import ProductCard from "./components/ProductCard";
+import ProductSection, { type Disposition } from "./components/ProductSection";
+
+// Rotation des dispositions pour casser la monotonie en descendant la page
+// (même logique que sur /produits) : une par rangée (nouveautés, puis chaque catégorie).
+const ROTATION_DISPOSITIONS: Disposition[] = ["grille", "scroll", "decale", "cercle"];
 
 export default async function Accueil() {
   const categories = await prisma.category.findMany({
@@ -115,23 +119,24 @@ export default async function Accueil() {
             Voir tout →
           </Link>
         </div>
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-          {nouveautes.map((p) => (
-            <ProductCard
-              key={p.id}
-              slug={p.slug}
-              name={p.name}
-              price={p.variants[0]?.price ?? 0}
-              imageUrl={p.images[0]?.url ?? null}
-              imageAlt={p.images[0]?.alt ?? null}
-              note={notesParProduit.get(p.id)}
-            />
-          ))}
-        </div>
+        <ProductSection
+          disposition={ROTATION_DISPOSITIONS[0]}
+          produits={nouveautes.map((p) => ({
+            id: p.id,
+            slug: p.slug,
+            name: p.name,
+            price: p.variants[0]?.price ?? 0,
+            comparePrice: p.variants[0]?.comparePrice ?? null,
+            imageUrl: p.images[0]?.url ?? null,
+            imageAlt: p.images[0]?.alt ?? null,
+            stock: p.variants[0]?.stock ?? 0,
+            note: notesParProduit.get(p.id),
+          }))}
+        />
       </section>
 
       {/* RANGÉE PAR CATÉGORIE */}
-      {categoriesAvecProduits.map((c) => (
+      {categoriesAvecProduits.map((c, i) => (
         <section key={c.id} className="mx-auto max-w-6xl px-4 py-8">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-[#14213D]">{c.name}</h2>
@@ -139,21 +144,20 @@ export default async function Accueil() {
               Voir tout →
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-            {c.products.map((p) => (
-              <ProductCard
-                key={p.id}
-                slug={p.slug}
-                name={p.name}
-                price={p.variants[0]?.price ?? 0}
-                imageUrl={p.images[0]?.url ?? null}
-                imageAlt={p.images[0]?.alt ?? null}
-                note={notesParProduit.get(p.id)}
-                stock={p.variants[0]?.stock ?? 0}
-                comparePrice={p.variants[0]?.comparePrice ?? null}
-              />
-            ))}
-          </div>
+          <ProductSection
+            disposition={ROTATION_DISPOSITIONS[(i + 1) % ROTATION_DISPOSITIONS.length]}
+            produits={c.products.map((p) => ({
+              id: p.id,
+              slug: p.slug,
+              name: p.name,
+              price: p.variants[0]?.price ?? 0,
+              comparePrice: p.variants[0]?.comparePrice ?? null,
+              imageUrl: p.images[0]?.url ?? null,
+              imageAlt: p.images[0]?.alt ?? null,
+              stock: p.variants[0]?.stock ?? 0,
+              note: notesParProduit.get(p.id),
+            }))}
+          />
         </section>
       ))}
 

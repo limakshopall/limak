@@ -1,6 +1,6 @@
 // ============================================================
 //  CARTE PRODUIT réutilisable (accueil + catalogue)
-//  Image + nom + prix + note moyenne + badge "Épuisé".
+//  Image + nom + prix (+ promo) + note + badge "Épuisé".
 // ============================================================
 
 import Link from "next/link";
@@ -25,6 +25,7 @@ export default function ProductCard({
   slug,
   name,
   price,
+  comparePrice,
   imageUrl,
   imageAlt,
   note,
@@ -33,12 +34,18 @@ export default function ProductCard({
   slug: string;
   name: string;
   price: number;
+  comparePrice?: number | null;
   imageUrl: string | null;
   imageAlt?: string | null;
   note?: Note;
   stock?: number;
 }) {
   const epuise = stock !== undefined && stock <= 0;
+  // En promo si comparePrice existe ET est plus élevé que le prix actuel.
+  const enPromo = comparePrice != null && comparePrice > price;
+  const reduction = enPromo
+    ? Math.round(((comparePrice! - price) / comparePrice!) * 100)
+    : 0;
 
   return (
     <Link
@@ -46,12 +53,18 @@ export default function ProductCard({
       className="group overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
     >
       <div className="relative aspect-square overflow-hidden bg-neutral-100">
-        {/* Image grisée si épuisé */}
         <div className={epuise ? "opacity-40" : ""}>
           <ProductThumb src={imageUrl} alt={imageAlt ?? name} />
         </div>
 
-        {/* Badge "Épuisé" par-dessus l'image */}
+        {/* Badge promo (en haut à droite) */}
+        {enPromo && !epuise && (
+          <span className="absolute right-2 top-2 rounded-full bg-[#e67e22] px-2 py-0.5 text-xs font-bold text-white">
+            -{reduction}%
+          </span>
+        )}
+
+        {/* Badge "Épuisé" (en haut à gauche) */}
         {epuise && (
           <span className="absolute left-2 top-2 rounded-full bg-neutral-800 px-2 py-0.5 text-xs font-semibold text-white">
             Épuisé
@@ -60,9 +73,18 @@ export default function ProductCard({
       </div>
       <div className="p-3">
         <h3 className="truncate text-sm font-medium text-neutral-800">{name}</h3>
-        <p className="mt-1 font-bold text-neutral-900">
-          {new Intl.NumberFormat("fr-FR").format(price)} FCFA
-        </p>
+
+        {/* Prix (avec ancien prix barré si promo) */}
+        <div className="mt-1 flex items-baseline gap-2">
+          <p className="font-bold text-neutral-900">
+            {new Intl.NumberFormat("fr-FR").format(price)} FCFA
+          </p>
+          {enPromo && (
+            <p className="text-xs text-neutral-400 line-through">
+              {new Intl.NumberFormat("fr-FR").format(comparePrice!)} FCFA
+            </p>
+          )}
+        </div>
 
         {note && note.nb > 0 && (
           <div className="mt-1 flex items-center gap-1 text-xs">

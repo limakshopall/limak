@@ -162,13 +162,14 @@ model ProductImage {
 // Produit simple  -> une seule variante "Standard".
 // Produit décliné -> plusieurs variantes (ex: "Rouge / L", "Bleu / M").
 model ProductVariant {
-  id        String  @id @default(cuid())
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  sku       String? @unique // référence interne (facultatif)
-  name      String  @default("Standard") // libellé de la variante
-  price     Int     // prix en FCFA (le franc CFA n'a pas de centimes)
-  stock     Int     @default(0) // quantité disponible
+  id           String  @id @default(cuid())
+  productId    String
+  product      Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku          String? @unique // référence interne (facultatif)
+  name         String  @default("Standard") // libellé de la variante
+  price        Int     // prix de vente actuel en FCFA
+  comparePrice Int?    // ancien prix barré (FCFA) — facultatif ; rempli = produit en promo
+  stock        Int     @default(0) // quantité disponible
 
   orderItems OrderItem[]
 

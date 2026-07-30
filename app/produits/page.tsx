@@ -89,6 +89,7 @@ export default async function ProduitsPage({
               imageAlt={produit.images[0]?.alt ?? null}
               note={notesParProduit.get(produit.id)}
               stock={produit.variants[0]?.stock ?? 0}
+              comparePrice={produit.variants[0]?.comparePrice ?? null}
             />
           ))}
         </div>

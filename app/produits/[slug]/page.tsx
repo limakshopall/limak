@@ -145,9 +145,22 @@ export default async function FicheProduit({
             </div>
           )}
 
-          <p className="mt-4 text-3xl font-semibold">
-            {new Intl.NumberFormat("fr-FR").format(prix)} FCFA
-          </p>
+          <div className="mt-4 flex items-baseline gap-3">
+            <p className="text-3xl font-semibold">
+              {new Intl.NumberFormat("fr-FR").format(prix)} FCFA
+            </p>
+            {produit.variants[0]?.comparePrice != null &&
+              produit.variants[0].comparePrice > prix && (
+                <>
+                  <p className="text-lg text-neutral-400 line-through">
+                    {new Intl.NumberFormat("fr-FR").format(produit.variants[0].comparePrice)} FCFA
+                  </p>
+                  <span className="rounded-full bg-[#e67e22] px-2 py-0.5 text-sm font-bold text-white">
+                    -{Math.round(((produit.variants[0].comparePrice - prix) / produit.variants[0].comparePrice) * 100)}%
+                  </span>
+                </>
+              )}
+          </div>
 
           <p className="mt-2 text-sm text-gray-500">
             {stock > 0 ? `En stock (${stock} disponibles)` : "Rupture de stock"}

@@ -148,6 +148,7 @@ export default async function Accueil() {
                 imageAlt={p.images[0]?.alt ?? null}
                 note={notesParProduit.get(p.id)}
                 stock={p.variants[0]?.stock ?? 0}
+                comparePrice={p.variants[0]?.comparePrice ?? null}
               />
             ))}
           </div>

@@ -48,7 +48,7 @@ async function sendSms(rawPhone: string, message: string, label: string): Promis
       console.error(`[SMS:${label}] Erreur HTTP ${res.status} — ${raw}`);
       return;
     }
-    console.log(`[SMS:${label}] Envoyé ✅ vers ${to}`);
+    console.log(`[SMS:${label}] Réponse API (${to}) : ${raw}`);
   } catch (error) {
     console.error(`[SMS:${label}] Échec réseau:`, error);
   }

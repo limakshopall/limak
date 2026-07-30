@@ -35,3 +35,25 @@ body {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+/* Écran de chargement : le logo + nom LIMAK rebondissent doucement */
+.limak-loader-rebond {
+  animation: limak-rebond 0.9s ease-in-out infinite;
+}
+.limak-loader-point {
+  animation: limak-point 0.9s ease-in-out infinite;
+}
+@keyframes limak-rebond {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes limak-point {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .limak-loader-rebond,
+  .limak-loader-point {
+    animation: none;
+  }
+}

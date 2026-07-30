@@ -1,8 +1,10 @@
 import WhatsAppButton from "./components/WhatsAppButton";
 import AnnouncementBar from "./components/AnnouncementBar";
 import InstallBanner from "./components/InstallBanner";
+import RouteLoadingOverlay from "./components/RouteLoadingOverlay";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { frFR } from "@clerk/localizations";
@@ -64,6 +66,9 @@ export default function RootLayout({
 <WhatsAppButton />
 
         <body className="min-h-full flex flex-col">
+          <Suspense fallback={null}>
+            <RouteLoadingOverlay />
+          </Suspense>
           <CartProvider>
             <AnnouncementBar />
             <Header />

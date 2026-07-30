@@ -48,14 +48,14 @@ export default function ProduitsFiltres({
         value={recherche}
         onChange={(e) => setRecherche(e.target.value)}
         placeholder="Rechercher un produit…"
-        className="w-full rounded-lg border border-neutral-300 px-4 py-2 sm:max-w-xs"
+        className="w-full rounded-lg border border-[#14213D]/15 bg-[#FFFBF3] px-4 py-2 sm:max-w-xs"
       />
 
       {/* Catégorie */}
       <select
         value={categorie}
         onChange={(e) => setParam("categorie", e.target.value)}
-        className="rounded-lg border border-neutral-300 px-3 py-2"
+        className="rounded-lg border border-[#14213D]/15 bg-[#FFFBF3] px-3 py-2"
       >
         <option value="">Toutes les catégories</option>
         {categories.map((c) => (
@@ -69,7 +69,7 @@ export default function ProduitsFiltres({
       <select
         value={tri}
         onChange={(e) => setParam("tri", e.target.value)}
-        className="rounded-lg border border-neutral-300 px-3 py-2"
+        className="rounded-lg border border-[#14213D]/15 bg-[#FFFBF3] px-3 py-2"
       >
         <option value="recent">Nouveautés</option>
         <option value="prix-asc">Prix croissant</option>

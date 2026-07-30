@@ -77,6 +77,23 @@ export default async function EditProduit({
           </div>
         </div>
 
+        {/* Ancien prix (promo) */}
+        <div>
+          <label className="block text-sm text-gray-600">
+            Ancien prix / promo (FCFA)
+          </label>
+          <input
+            name="comparePrice"
+            type="number"
+            defaultValue={variant?.comparePrice ?? ""}
+            placeholder="Laisser vide si pas de promo"
+            className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+          />
+          <p className="mt-1 text-xs text-gray-400">
+            Doit être supérieur au prix pour afficher une réduction. Vide = pas de promo.
+          </p>
+        </div>
+
         <label className="flex items-center gap-2">
           <input name="isActive" type="checkbox" defaultChecked={produit.isActive} />
           <span className="text-sm text-gray-700">

@@ -15,6 +15,10 @@ export async function updateProduct(formData: FormData) {
   const stock = parseInt(String(formData.get("stock") ?? ""), 10);
   const isActive = formData.get("isActive") === "on";
 
+  // Ancien prix (promo) : vide -> null (pas de promo)
+  const compareRaw = String(formData.get("comparePrice") ?? "").trim();
+  const comparePrice = compareRaw === "" ? null : parseInt(compareRaw, 10);
+
   if (!id || !name) return;
 
   await prisma.product.update({
@@ -25,7 +29,13 @@ export async function updateProduct(formData: FormData) {
   if (variantId && Number.isFinite(price) && Number.isFinite(stock)) {
     await prisma.productVariant.update({
       where: { id: variantId },
-      data: { price, stock },
+      data: {
+        price,
+        stock,
+        // On enregistre la promo seulement si c'est un nombre valide ; sinon on efface.
+        comparePrice:
+          comparePrice !== null && Number.isFinite(comparePrice) ? comparePrice : null,
+      },
     });
   }
 
@@ -41,7 +51,6 @@ export async function deleteProduct(id: string) {
 export async function addProductImage(productId: string, url: string) {
   if (!productId || !url) return;
 
-  // On la place à la fin (position = nombre d'images existantes)
   const count = await prisma.productImage.count({ where: { productId } });
 
   await prisma.productImage.create({

@@ -3,6 +3,7 @@
 //  Server Component : lit la base. Galerie + bouton + avis + similaires.
 // ============================================================
 
+import ShareButtons from "./ShareButtons";
 import { prisma } from "../../lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -166,6 +167,9 @@ export default async function FicheProduit({
             image={produit.images[0]?.url ?? null}
             stock={stock}
           />
+
+<ShareButtons slug={produit.slug} name={produit.name} price={prix} />
+
         </div>
       </div>
 

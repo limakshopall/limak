@@ -55,7 +55,7 @@ export default function ProductCard({
   return (
     <Link
       href={`/produits/${slug}`}
-      className="group overflow-hidden rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+      className="group overflow-hidden rounded-lg border border-[#14213D]/10 bg-[#FFFBF3] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="relative aspect-square overflow-hidden bg-neutral-100">
         <div className={epuise ? "opacity-40" : ""}>
@@ -64,42 +64,42 @@ export default function ProductCard({
 
         {/* Badge promo (en haut à droite) */}
         {enPromo && !epuise && (
-          <span className="absolute right-2 top-2 rounded-full bg-[#D6293E] px-2 py-0.5 text-xs font-bold text-white">
+          <span className="absolute right-1.5 top-1.5 rounded-full bg-[#D6293E] px-1.5 py-0.5 text-[10px] font-bold text-white">
             -{reduction}%
           </span>
         )}
 
         {/* Badge "Épuisé" (en haut à gauche) */}
         {epuise && (
-          <span className="absolute left-2 top-2 rounded-full bg-neutral-700 px-2 py-0.5 text-xs font-semibold text-white">
+          <span className="absolute left-1.5 top-1.5 rounded-full bg-neutral-700 px-1.5 py-0.5 text-[10px] font-semibold text-white">
             Épuisé
           </span>
         )}
       </div>
-      <div className="p-3">
-        <h3 className="truncate text-sm font-medium text-[#14213D]">{name}</h3>
+      <div className="p-2">
+        <h3 className="truncate text-xs font-medium text-[#14213D] sm:text-sm">{name}</h3>
 
         {/* Prix (avec ancien prix barré si promo) */}
-        <div className="mt-1 flex items-baseline gap-2">
-          <p className="font-bold text-[#14213D]">
+        <div className="mt-1 flex flex-wrap items-baseline gap-x-1.5">
+          <p className="text-sm font-bold text-[#14213D] sm:text-base">
             {new Intl.NumberFormat("fr-FR").format(price)} FCFA
           </p>
           {enPromo && (
-            <p className="text-xs text-neutral-400 line-through">
+            <p className="text-[10px] text-neutral-400 line-through">
               {new Intl.NumberFormat("fr-FR").format(comparePrice!)} FCFA
             </p>
           )}
         </div>
 
         {note && note.nb > 0 && (
-          <div className="mt-1 flex items-center gap-1 text-xs">
+          <div className="mt-0.5 flex items-center gap-1 text-[10px]">
             <Stars value={note.moyenne} />
             <span className="text-neutral-500">({note.nb})</span>
           </div>
         )}
 
         {stockBas && (
-          <p className="mt-1 text-xs font-semibold text-[#D6293E]">
+          <p className="mt-0.5 text-[10px] font-semibold text-[#D6293E]">
             Plus que {stock} en stock
           </p>
         )}

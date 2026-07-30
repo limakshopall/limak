@@ -22,7 +22,7 @@ export default function ProductCardCercle({
   return (
     <Link
       href={`/produits/${slug}`}
-      className="group flex w-24 shrink-0 flex-col items-center gap-2 text-center sm:w-28"
+      className="group flex w-20 shrink-0 flex-col items-center gap-1.5 text-center sm:w-24"
     >
       <div className="relative aspect-square w-full overflow-hidden rounded-full border-2 border-[#14213D]/10 bg-[#FBEEDA] shadow-sm transition group-hover:border-[#F1720A]/40 group-hover:shadow-md">
         <ProductThumb src={imageUrl} alt={imageAlt ?? name} />

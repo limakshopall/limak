@@ -33,9 +33,9 @@ export default function ProductSection({
 }) {
   if (disposition === "scroll") {
     return (
-      <div className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2">
+      <div className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
         {produits.map((p) => (
-          <div key={p.id} className="w-[58%] shrink-0 snap-start sm:w-[240px]">
+          <div key={p.id} className="w-[42%] shrink-0 snap-start sm:w-[190px]">
             <ProductCard
               slug={p.slug}
               name={p.name}
@@ -54,7 +54,7 @@ export default function ProductSection({
 
   if (disposition === "cercle") {
     return (
-      <div className="scrollbar-none -mx-4 flex gap-5 overflow-x-auto px-4 pb-2">
+      <div className="scrollbar-none -mx-4 flex gap-3 overflow-x-auto px-4 pb-2">
         {produits.map((p) => (
           <ProductCardCercle
             key={p.id}
@@ -71,9 +71,9 @@ export default function ProductSection({
 
   // "grille" (classique) et "decale" (zig-zag) partagent la même grille de base
   return (
-    <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
       {produits.map((p, i) => (
-        <div key={p.id} className={disposition === "decale" && i % 2 === 1 ? "mt-8" : ""}>
+        <div key={p.id} className={disposition === "decale" && i % 2 === 1 ? "mt-5" : ""}>
           <ProductCard
             slug={p.slug}
             name={p.name}

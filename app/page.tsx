@@ -87,11 +87,11 @@ export default async function Accueil() {
       </section>
 
       {/* CATÉGORIES */}
-      <section className="mx-auto max-w-6xl px-4 py-14">
+      <section className="mx-auto max-w-6xl px-4 py-8">
         <h2 className="mb-6 text-2xl font-bold text-[#14213D]">
           Explorez nos catégories
         </h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
           {categories.map((c) => {
             const cover = c.products[0]?.images[0]?.url ?? null;
             return (
@@ -137,7 +137,7 @@ export default async function Accueil() {
 
       {/* RANGÉE PAR CATÉGORIE */}
       {categoriesAvecProduits.map((c, i) => (
-        <section key={c.id} className="mx-auto max-w-6xl px-4 py-8">
+        <section key={c.id} className="mx-auto max-w-6xl px-4 py-6">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-bold text-[#14213D]">{c.name}</h2>
             <Link href={`/produits?categorie=${c.slug}`} className="text-sm font-semibold text-[#C95900] hover:underline">

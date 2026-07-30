@@ -73,7 +73,7 @@ export default function HeroCarousel() {
 
   return (
     <section className="relative mx-auto max-w-6xl px-4 pt-6">
-      <div className="relative aspect-[16/7] overflow-hidden rounded-2xl bg-[#0f1724] sm:aspect-[16/6]">
+      <div className="relative aspect-[16/7] overflow-hidden rounded-2xl bg-[#14213D] sm:aspect-[16/6]">
         {SLIDES.map((slide, i) => (
           <Link
             key={i}
@@ -95,10 +95,10 @@ export default function HeroCarousel() {
               <div className="relative flex h-full flex-col justify-center overflow-hidden px-8 sm:px-14">
                 <div
                   className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full opacity-30 blur-3xl"
-                  style={{ background: "#e67e22" }}
+                  style={{ background: "#F1720A" }}
                 />
                 {slide.badge && (
-                  <span className="relative mb-3 inline-block w-fit rounded-full bg-white/10 px-3 py-1 text-xs text-white sm:text-sm">
+                  <span className="relative mb-3 inline-block w-fit rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-[#FFD9A8] sm:text-sm">
                     {slide.badge}
                   </span>
                 )}
@@ -108,7 +108,7 @@ export default function HeroCarousel() {
                 <p className="relative mt-2 max-w-md text-sm text-neutral-300 sm:text-lg">
                   {slide.accroche}
                 </p>
-                <span className="relative mt-5 inline-block w-fit rounded-full bg-[#e67e22] px-6 py-2 text-sm font-semibold text-white">
+                <span className="relative mt-5 inline-block w-fit rounded-full bg-[#F1720A] px-6 py-2 text-sm font-semibold text-white transition hover:bg-[#C95900]">
                   Découvrir →
                 </span>
               </div>

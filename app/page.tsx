@@ -57,11 +57,11 @@ export default async function Accueil() {
   );
 
   return (
-    <div className="bg-neutral-50">
+    <div className="bg-[#FBEEDA]">
       <HeroCarousel />
 
       {/* RÉASSURANCE */}
-      <section className="mt-8 border-y border-neutral-200 bg-white">
+      <section className="mt-8 border-y border-[#14213D]/10 bg-[#FFFBF3]">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 px-4 py-6 text-sm sm:grid-cols-4">
           {[
             ["🚚", "Livraison rapide", "Partout en Côte d'Ivoire"],
@@ -70,9 +70,11 @@ export default async function Accueil() {
             ["🔒", "Commande sécurisée", "Directement sur le site"],
           ].map(([emoji, titre, sous]) => (
             <div key={titre} className="flex items-center gap-3">
-              <span className="text-2xl">{emoji}</span>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#1F7A5C]/10 text-lg">
+                {emoji}
+              </span>
               <div>
-                <p className="font-semibold text-neutral-800">{titre}</p>
+                <p className="font-semibold text-[#14213D]">{titre}</p>
                 <p className="text-neutral-500">{sous}</p>
               </div>
             </div>
@@ -82,7 +84,7 @@ export default async function Accueil() {
 
       {/* CATÉGORIES */}
       <section className="mx-auto max-w-6xl px-4 py-14">
-        <h2 className="mb-6 text-2xl font-bold text-neutral-900">
+        <h2 className="mb-6 text-2xl font-bold text-[#14213D]">
           Explorez nos catégories
         </h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -108,8 +110,8 @@ export default async function Accueil() {
       {/* NOUVEAUTÉS */}
       <section className="mx-auto max-w-6xl px-4 pb-8">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-neutral-900">Nouveautés</h2>
-          <Link href="/produits" className="text-sm font-medium text-[#e67e22] hover:underline">
+          <h2 className="text-2xl font-bold text-[#14213D]">Nouveautés</h2>
+          <Link href="/produits" className="text-sm font-semibold text-[#C95900] hover:underline">
             Voir tout →
           </Link>
         </div>
@@ -132,8 +134,8 @@ export default async function Accueil() {
       {categoriesAvecProduits.map((c) => (
         <section key={c.id} className="mx-auto max-w-6xl px-4 py-8">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-neutral-900">{c.name}</h2>
-            <Link href={`/produits?categorie=${c.slug}`} className="text-sm font-medium text-[#e67e22] hover:underline">
+            <h2 className="text-2xl font-bold text-[#14213D]">{c.name}</h2>
+            <Link href={`/produits?categorie=${c.slug}`} className="text-sm font-semibold text-[#C95900] hover:underline">
               Voir tout →
             </Link>
           </div>
@@ -157,23 +159,23 @@ export default async function Accueil() {
 
       {/* APPEL FINAL */}
       <section className="mx-auto max-w-6xl px-4 py-14">
-        <div className="rounded-2xl bg-[#0f1724] px-6 py-12 text-center text-white">
+        <div className="rounded-2xl bg-[#14213D] px-6 py-12 text-center text-white">
           <h2 className="text-2xl font-bold sm:text-3xl">Prêt à faire vos achats ?</h2>
           <p className="mx-auto mt-2 max-w-md text-neutral-300">
             Parcourez tout le catalogue et commandez en quelques clics.
           </p>
-          <Link href="/produits" className="mt-6 inline-block rounded-full bg-[#e67e22] px-8 py-3 font-semibold text-white transition hover:bg-[#d35400]">
+          <Link href="/produits" className="mt-6 inline-block rounded-full bg-[#F1720A] px-8 py-3 font-semibold text-white transition hover:bg-[#C95900]">
             Voir tous les produits
           </Link>
         </div>
       </section>
 
       {/* PIED DE PAGE */}
-      <footer className="border-t border-neutral-200 bg-white">
+      <footer className="border-t border-[#14213D]/10 bg-[#FFFBF3]">
         <div className="mx-auto max-w-6xl px-4 py-10">
           <div className="flex flex-col gap-6 sm:flex-row sm:justify-between">
             <div>
-              <p className="text-xl font-extrabold text-neutral-900">LIMAK</p>
+              <p className="text-xl font-extrabold text-[#14213D]">LIMAK</p>
               <p className="mt-2 max-w-xs text-sm text-neutral-500">
                 Votre boutique en ligne en Côte d&apos;Ivoire. Paiement à la livraison.
               </p>

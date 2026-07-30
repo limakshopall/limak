@@ -12,7 +12,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Votre boutique en ligne en Côte d'Ivoire. Paiement à la livraison.",
     start_url: "/",
     display: "standalone",
-   background_color: "#e67e22", // fond orange du splash (couleur de marque LIMAK)
+   background_color: "#ffffff", // fond blanc du splash (couleur de marque LIMAK)
     theme_color: "#0f1724",      // couleur de la barre du navigateur (marine)
     icons: [
       { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },

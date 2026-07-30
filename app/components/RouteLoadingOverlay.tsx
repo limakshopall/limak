@@ -64,25 +64,20 @@ export default function RouteLoadingOverlay() {
       aria-label="Chargement en cours"
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#14213D]/15 backdrop-blur-[1px]"
     >
-      <div className="flex flex-col items-center gap-3 rounded-2xl bg-[#14213D] px-8 py-6 shadow-xl">
-        <div className="limak-loader-rebond flex flex-col items-center gap-2">
-          <Image
-            src="/icon-192.png"
-            alt=""
-            width={56}
-            height={56}
-            className="rounded-2xl shadow-lg"
-            priority
-          />
-          <span className="text-xl font-extrabold tracking-tight text-[#FBEEDA]">
-            LIMAK
-          </span>
-        </div>
-        <div className="flex gap-1.5">
-          <span className="limak-loader-point h-2 w-2 rounded-full bg-[#F1720A]" />
-          <span className="limak-loader-point h-2 w-2 rounded-full bg-[#F1720A]" style={{ animationDelay: "0.15s" }} />
-          <span className="limak-loader-point h-2 w-2 rounded-full bg-[#F1720A]" style={{ animationDelay: "0.3s" }} />
-        </div>
+      <div className="limak-loader-rebond">
+        <Image
+          src="/icon-192.png"
+          alt=""
+          width={72}
+          height={72}
+          className="drop-shadow-lg"
+          priority
+        />
+      </div>
+      <div className="mt-3 flex gap-1.5">
+        <span className="limak-loader-point h-2 w-2 rounded-full bg-[#F1720A]" />
+        <span className="limak-loader-point h-2 w-2 rounded-full bg-[#F1720A]" style={{ animationDelay: "0.15s" }} />
+        <span className="limak-loader-point h-2 w-2 rounded-full bg-[#F1720A]" style={{ animationDelay: "0.3s" }} />
       </div>
     </div>
   );

@@ -14,13 +14,13 @@ export default function PanierPage() {
   if (count === 0) {
     return (
       <main className="mx-auto max-w-3xl px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold">Votre panier est vide</h1>
+        <h1 className="text-2xl font-bold text-[#14213D]">Votre panier est vide</h1>
         <p className="mt-2 text-gray-500">
           Parcourez le catalogue pour ajouter des articles.
         </p>
         <Link
           href="/produits"
-          className="mt-6 inline-block rounded-lg bg-black px-6 py-3 font-medium text-white hover:bg-gray-800"
+          className="mt-6 inline-block rounded-lg bg-[#F1720A] px-6 py-3 font-medium text-white hover:bg-[#C95900]"
         >
           Voir les produits
         </Link>
@@ -30,7 +30,7 @@ export default function PanierPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="mb-8 text-2xl font-bold">Votre panier</h1>
+      <h1 className="mb-8 text-2xl font-bold text-[#14213D]">Votre panier</h1>
 
       <div className="space-y-4">
         {items.map((item) => {
@@ -40,7 +40,7 @@ export default function PanierPage() {
           return (
             <div
               key={item.productId}
-              className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-3"
+              className="flex items-center gap-4 rounded-lg border border-[#14213D]/10 bg-[#FFFBF3] p-3"
             >
               <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded bg-gray-100">
                 {item.image ? (
@@ -64,7 +64,7 @@ export default function PanierPage() {
                   {new Intl.NumberFormat("fr-FR").format(item.price)} FCFA
                 </p>
                 {auMax && (
-                  <p className="mt-1 text-xs font-medium text-orange-600">
+                  <p className="mt-1 text-xs font-medium text-[#D6293E]">
                     Stock maximum atteint
                   </p>
                 )}
@@ -104,15 +104,15 @@ export default function PanierPage() {
         })}
       </div>
 
-      <div className="mt-8 border-t border-gray-200 pt-6">
-        <div className="flex items-center justify-between text-lg font-bold">
+      <div className="mt-8 border-t border-[#14213D]/10 pt-6">
+        <div className="flex items-center justify-between text-lg font-bold text-[#14213D]">
           <span>Total</span>
           <span>{new Intl.NumberFormat("fr-FR").format(total)} FCFA</span>
         </div>
 
         <Link
           href="/commande"
-          className="mt-6 block w-full rounded-lg bg-black px-6 py-3 text-center font-medium text-white hover:bg-gray-800"
+          className="mt-6 block w-full rounded-lg bg-[#F1720A] px-6 py-3 text-center font-medium text-white hover:bg-[#C95900]"
         >
           Passer la commande
         </Link>

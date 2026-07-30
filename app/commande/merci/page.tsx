@@ -49,7 +49,7 @@ export default async function MerciPage({
 
       <Link
         href="/produits"
-        className="mt-8 inline-block rounded-lg bg-black px-6 py-3 font-medium text-white hover:bg-gray-800"
+        className="mt-8 inline-block rounded-lg bg-[#F1720A] px-6 py-3 font-medium text-white hover:bg-[#C95900]"
       >
         Continuer mes achats
       </Link>

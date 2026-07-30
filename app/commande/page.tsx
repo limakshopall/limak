@@ -28,7 +28,7 @@ export default function CommandePage() {
         <h1 className="text-2xl font-bold">Votre panier est vide</h1>
         <Link
           href="/produits"
-          className="mt-6 inline-block rounded-lg bg-black px-6 py-3 font-medium text-white hover:bg-gray-800"
+          className="mt-6 inline-block rounded-lg bg-[#F1720A] px-6 py-3 font-medium text-white hover:bg-[#C95900]"
         >
           Voir les produits
         </Link>
@@ -127,7 +127,7 @@ export default function CommandePage() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="mt-6 w-full rounded-lg bg-black px-6 py-3 font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+            className="mt-6 w-full rounded-lg bg-[#F1720A] px-6 py-3 font-medium text-white hover:bg-[#C95900] disabled:opacity-50"
           >
             {loading ? "Validation..." : "Confirmer la commande"}
           </button>

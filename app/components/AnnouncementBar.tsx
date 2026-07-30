@@ -27,7 +27,7 @@ export default function AnnouncementBar() {
   if (!visible) return null;
 
   return (
-    <div className="flex items-center justify-center gap-3 bg-[#0f1724] px-4 py-1.5 text-xs text-white">
+    <div className="flex items-center justify-center gap-3 bg-[#D6293E] px-4 py-1.5 text-xs font-medium text-white">
       <span className="truncate text-center">
         🚚 Livraison partout en Côte d&apos;Ivoire · Paiement à la livraison
       </span>

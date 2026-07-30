@@ -65,7 +65,7 @@ export default function ShareButtons({
       {/* Bouton principal : menu natif (mobile) ou WhatsApp (ordi) */}
       <button
         onClick={partager}
-        className="flex items-center gap-1.5 rounded-full bg-[#0f1724] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#1c2a3f]"
+        className="flex items-center gap-1.5 rounded-full bg-[#14213D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#26365c]"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
           <circle cx="18" cy="5" r="3" />

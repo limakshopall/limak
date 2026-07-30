@@ -28,7 +28,7 @@ export default async function MesCommandes() {
         </p>
         <Link
           href="/produits"
-          className="mt-6 inline-block rounded-full bg-[#e67e22] px-6 py-3 font-semibold text-white hover:bg-[#d35400]"
+          className="mt-6 inline-block rounded-full bg-[#F1720A] px-6 py-3 font-semibold text-white hover:bg-[#C95900]"
         >
           Voir la boutique
         </Link>
@@ -54,7 +54,7 @@ export default async function MesCommandes() {
           </p>
           <Link
             href="/produits"
-            className="mt-4 inline-block rounded-full bg-[#e67e22] px-6 py-3 font-semibold text-white hover:bg-[#d35400]"
+            className="mt-4 inline-block rounded-full bg-[#F1720A] px-6 py-3 font-semibold text-white hover:bg-[#C95900]"
           >
             Découvrir les produits
           </Link>

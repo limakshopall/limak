@@ -19,7 +19,7 @@ function Stars({ value }: { value: number }) {
   return (
     <span aria-label={`${value.toFixed(1)} sur 5`}>
       {[1, 2, 3, 4, 5].map((n) => (
-        <span key={n} className={n <= rounded ? "text-orange-500" : "text-gray-300"}>
+        <span key={n} className={n <= rounded ? "text-[#C95900]" : "text-gray-300"}>
           ★
         </span>
       ))}
@@ -146,7 +146,7 @@ export default async function FicheProduit({
           )}
 
           <div className="mt-4 flex items-baseline gap-3">
-            <p className="text-3xl font-semibold">
+            <p className="text-3xl font-semibold text-[#14213D]">
               {new Intl.NumberFormat("fr-FR").format(prix)} FCFA
             </p>
             {produit.variants[0]?.comparePrice != null &&
@@ -155,15 +155,27 @@ export default async function FicheProduit({
                   <p className="text-lg text-neutral-400 line-through">
                     {new Intl.NumberFormat("fr-FR").format(produit.variants[0].comparePrice)} FCFA
                   </p>
-                  <span className="rounded-full bg-[#e67e22] px-2 py-0.5 text-sm font-bold text-white">
+                  <span className="rounded-full bg-[#D6293E] px-2 py-0.5 text-sm font-bold text-white">
                     -{Math.round(((produit.variants[0].comparePrice - prix) / produit.variants[0].comparePrice) * 100)}%
                   </span>
                 </>
               )}
           </div>
 
-          <p className="mt-2 text-sm text-gray-500">
-            {stock > 0 ? `En stock (${stock} disponibles)` : "Rupture de stock"}
+          <p
+            className={`mt-2 text-sm font-medium ${
+              stock === 0
+                ? "text-[#D6293E]"
+                : stock <= 3
+                  ? "text-[#D6293E]"
+                  : "text-[#1F7A5C]"
+            }`}
+          >
+            {stock === 0
+              ? "Rupture de stock"
+              : stock <= 3
+                ? `Plus que ${stock} disponible${stock > 1 ? "s" : ""}`
+                : `En stock (${stock} disponibles)`}
           </p>
 
           {produit.description && (
@@ -205,7 +217,7 @@ export default async function FicheProduit({
                 <div className="flex items-center justify-between">
                   <span className="font-medium">
                     {a.authorName}
-                    <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                    <span className="ml-2 rounded-full bg-[#1F7A5C]/10 px-2 py-0.5 text-xs font-medium text-[#1F7A5C]">
                       ✓ Achat vérifié
                     </span>
                   </span>

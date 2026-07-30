@@ -66,7 +66,7 @@ export default function InstallBanner() {
   if (!visible) return null;
 
   return (
-    <div className="flex items-center justify-between gap-3 bg-[#0f1724] px-4 py-2 text-sm text-white">
+    <div className="flex items-center justify-between gap-3 bg-[#14213D] px-4 py-2 text-sm text-white">
       <div className="flex min-w-0 items-center gap-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/icon-192.png" alt="" className="h-6 w-6 rounded" />
@@ -80,7 +80,7 @@ export default function InstallBanner() {
         {!isIOS && (
           <button
             onClick={installer}
-            className="rounded-full bg-[#e67e22] px-3 py-1 font-semibold text-white hover:bg-[#d35400]"
+            className="rounded-full bg-[#F1720A] px-3 py-1 font-semibold text-white hover:bg-[#C95900]"
           >
             Installer
           </button>

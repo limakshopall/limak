@@ -25,7 +25,9 @@ export default function RouteLoadingOverlay() {
   // On surveille les clics sur les liens internes pour afficher l'écran tout de suite.
   useEffect(() => {
     function surClic(e: MouseEvent) {
-      if (e.defaultPrevented || e.button !== 0) return;
+      // Next.js annule toujours le clic sur ses liens (pour naviguer sans recharger
+      // la page) : on ne peut donc pas se baser sur e.defaultPrevented ici.
+      if (e.button !== 0) return;
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
       const cible = e.target as HTMLElement;

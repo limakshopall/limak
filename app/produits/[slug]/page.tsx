@@ -1,6 +1,6 @@
 // ============================================================
 //  FICHE PRODUIT  ->  /produits/<slug>
-//  Server Component : lit la base. Galerie + bouton + avis = Client Components.
+//  Server Component : lit la base. Galerie + bouton + avis + similaires.
 // ============================================================
 
 import { prisma } from "../../lib/prisma";
@@ -10,6 +10,7 @@ import type { Metadata } from "next";
 import ProductGallery from "./ProductGallery";
 import AddToCartButton from "./AddToCartButton";
 import ReviewForm from "./ReviewForm";
+import ProductCard from "../../components/ProductCard";
 
 // Petit affichage d'étoiles (non interactif) pour une note donnée.
 function Stars({ value }: { value: number }) {
@@ -25,7 +26,6 @@ function Stars({ value }: { value: number }) {
   );
 }
 
-// Métadonnées dynamiques : titre + aperçu de partage propres à chaque produit.
 export async function generateMetadata({
   params,
 }: {
@@ -86,6 +86,36 @@ export default async function FicheProduit({
   const avis = produit.reviews;
   const nbAvis = avis.length;
   const moyenne = nbAvis ? avis.reduce((s, a) => s + a.rating, 0) / nbAvis : 0;
+
+  // --- Produits similaires : même catégorie, sauf le produit courant ---
+  const similaires = produit.categoryId
+    ? await prisma.product.findMany({
+        where: {
+          isActive: true,
+          categoryId: produit.categoryId,
+          id: { not: produit.id },
+        },
+        include: {
+          images: { orderBy: { position: "asc" }, take: 1 },
+          variants: { orderBy: { price: "asc" }, take: 1 },
+        },
+        take: 4,
+      })
+    : [];
+
+  // Notes moyennes des produits similaires (pour les étoiles sur leurs cartes)
+  const idsSim = similaires.map((p) => p.id);
+  const notesSim = idsSim.length
+    ? await prisma.review.groupBy({
+        by: ["productId"],
+        where: { productId: { in: idsSim } },
+        _avg: { rating: true },
+        _count: { rating: true },
+      })
+    : [];
+  const notesSimParProduit = new Map(
+    notesSim.map((n) => [n.productId, { moyenne: n._avg.rating ?? 0, nb: n._count.rating }])
+  );
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
@@ -179,6 +209,27 @@ export default async function FicheProduit({
           )}
         </div>
       </section>
+
+      {/* --- PRODUITS SIMILAIRES --- */}
+      {similaires.length > 0 && (
+        <section className="mt-12 border-t border-gray-200 pt-8">
+          <h2 className="mb-6 text-xl font-bold">Vous aimerez aussi</h2>
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+            {similaires.map((p) => (
+              <ProductCard
+                key={p.id}
+                slug={p.slug}
+                name={p.name}
+                price={p.variants[0]?.price ?? 0}
+                imageUrl={p.images[0]?.url ?? null}
+                imageAlt={p.images[0]?.alt ?? null}
+                note={notesSimParProduit.get(p.id)}
+                stock={p.variants[0]?.stock ?? 0}
+              />
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }

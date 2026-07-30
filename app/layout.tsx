@@ -1,4 +1,5 @@
 import WhatsAppButton from "./components/WhatsAppButton";
+import AnnouncementBar from "./components/AnnouncementBar";
 import InstallBanner from "./components/InstallBanner";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -64,6 +65,7 @@ export default function RootLayout({
 
         <body className="min-h-full flex flex-col">
           <CartProvider>
+            <AnnouncementBar />
             <Header />
             <InstallBanner />
             <div className="flex-1">{children}</div>

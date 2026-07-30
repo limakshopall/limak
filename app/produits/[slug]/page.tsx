@@ -6,6 +6,7 @@
 import { prisma } from "../../lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import ProductGallery from "./ProductGallery";
 import AddToCartButton from "./AddToCartButton";
 import ReviewForm from "./ReviewForm";
@@ -23,8 +24,6 @@ function Stars({ value }: { value: number }) {
     </span>
   );
 }
-
-import type { Metadata } from "next";
 
 // Métadonnées dynamiques : titre + aperçu de partage propres à chaque produit.
 export async function generateMetadata({
@@ -49,7 +48,7 @@ export async function generateMetadata({
     `${produit.name} disponible sur LIMAK. Paiement à la livraison en Côte d'Ivoire.`;
 
   return {
-    title: produit.name, // deviendra "Nom du produit | LIMAK" grâce au template
+    title: produit.name,
     description,
     openGraph: {
       title: produit.name,
@@ -84,7 +83,6 @@ export default async function FicheProduit({
   const prix = produit.variants[0]?.price ?? 0;
   const stock = produit.variants[0]?.stock ?? 0;
 
-  // Calcul de la note moyenne et du nombre d'avis
   const avis = produit.reviews;
   const nbAvis = avis.length;
   const moyenne = nbAvis ? avis.reduce((s, a) => s + a.rating, 0) / nbAvis : 0;
@@ -99,17 +97,14 @@ export default async function FicheProduit({
       </Link>
 
       <div className="grid gap-8 md:grid-cols-2">
-        {/* Galerie interactive */}
         <ProductGallery images={produit.images} name={produit.name} />
 
-        {/* Informations produit */}
         <div>
           {produit.category && (
             <p className="text-sm text-gray-500">{produit.category.name}</p>
           )}
           <h1 className="mt-1 text-2xl font-bold">{produit.name}</h1>
 
-          {/* Note moyenne (si au moins un avis) */}
           {nbAvis > 0 && (
             <div className="mt-2 flex items-center gap-2 text-sm">
               <Stars value={moyenne} />
@@ -150,10 +145,8 @@ export default async function FicheProduit({
           Avis clients{nbAvis > 0 && ` (${nbAvis})`}
         </h2>
 
-        {/* Formulaire (connecté) ou invitation à se connecter */}
         <ReviewForm productId={produit.id} slug={produit.slug} />
 
-        {/* Liste des avis */}
         <div className="mt-8 space-y-6">
           {nbAvis === 0 ? (
             <p className="text-sm text-gray-500">
@@ -163,7 +156,12 @@ export default async function FicheProduit({
             avis.map((a) => (
               <div key={a.id} className="border-b border-gray-100 pb-4">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">{a.authorName}</span>
+                  <span className="font-medium">
+                    {a.authorName}
+                    <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                      ✓ Achat vérifié
+                    </span>
+                  </span>
                   <span className="text-xs text-gray-400">
                     {new Date(a.createdAt).toLocaleDateString("fr-FR")}
                   </span>

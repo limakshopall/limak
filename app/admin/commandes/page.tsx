@@ -98,7 +98,15 @@ export default async function AdminCommandes({
                 ))}
               </div>
 
-              <OrderStatusForm orderId={cmd.id} currentStatus={cmd.status} />
+              <div className="mt-3 flex items-center justify-between gap-3 border-t border-gray-100 pt-3">
+                <OrderStatusForm orderId={cmd.id} currentStatus={cmd.status} />
+                <Link
+                  href={`/admin/commandes/${cmd.id}`}
+                  className="whitespace-nowrap text-sm font-medium text-[#e67e22] hover:underline"
+                >
+                  Voir le détail →
+                </Link>
+              </div>
             </div>
           ))}
         </div>

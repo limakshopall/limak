@@ -1,6 +1,6 @@
 // ============================================================
 //  ACCUEIL DE L'ADMIN  ->  /admin
-//  Tableau de bord : statistiques + accès rapides.
+//  Tableau de bord : statistiques + alerte stock + accès rapides.
 //  (protégé par le middleware)
 // ============================================================
 
@@ -8,20 +8,19 @@ import Link from "next/link";
 import { prisma } from "../lib/prisma";
 import { logout } from "./login/actions";
 
-// On ne veut jamais de version "en cache" : les chiffres doivent être frais.
 export const dynamic = "force-dynamic";
 
-// Petit utilitaire d'affichage des montants en FCFA.
+// Seuil en dessous duquel on considère le stock "bas".
+const SEUIL_STOCK_BAS = 3;
+
 function fcfa(montant: number) {
   return new Intl.NumberFormat("fr-FR").format(montant) + " FCFA";
 }
 
 export default async function AdminHome() {
-  // Début de la journée d'aujourd'hui (minuit).
   const debutJour = new Date();
   debutJour.setHours(0, 0, 0, 0);
 
-  // On lance toutes les requêtes en parallèle (plus rapide).
   const [
     caTotalAgg,
     caJourAgg,
@@ -29,42 +28,42 @@ export default async function AdminHome() {
     commandesEnAttente,
     dernieresCommandes,
     topVentes,
+    stockBas,
   ] = await Promise.all([
-    // Chiffre d'affaires total (hors commandes annulées)
     prisma.order.aggregate({
       _sum: { total: true },
       where: { status: { not: "CANCELLED" } },
     }),
-    // Chiffre d'affaires du jour (hors annulées)
     prisma.order.aggregate({
       _sum: { total: true },
       where: { status: { not: "CANCELLED" }, createdAt: { gte: debutJour } },
     }),
-    // Nombre de commandes aujourd'hui (hors annulées)
     prisma.order.count({
       where: { status: { not: "CANCELLED" }, createdAt: { gte: debutJour } },
     }),
-    // Commandes en attente de traitement
     prisma.order.count({ where: { status: "PENDING" } }),
-    // 5 dernières commandes
     prisma.order.findMany({
       orderBy: { createdAt: "desc" },
       take: 5,
       include: { items: true },
     }),
-    // Top 5 des produits les plus vendus (par quantité)
     prisma.orderItem.groupBy({
       by: ["productName"],
       _sum: { quantity: true },
       orderBy: { _sum: { quantity: "desc" } },
       take: 5,
     }),
+    // Variantes à stock bas (<= seuil), triées du plus bas au plus haut
+    prisma.productVariant.findMany({
+      where: { stock: { lte: SEUIL_STOCK_BAS } },
+      orderBy: { stock: "asc" },
+      include: { product: { select: { name: true, slug: true } } },
+    }),
   ]);
 
   const caTotal = caTotalAgg._sum.total ?? 0;
   const caJour = caJourAgg._sum.total ?? 0;
 
-  // Les cartes de chiffres clés
   const stats = [
     { label: "Commandes aujourd'hui", valeur: String(commandesJour) },
     { label: "Chiffre d'affaires du jour", valeur: fcfa(caJour) },
@@ -96,9 +95,44 @@ export default async function AdminHome() {
         ))}
       </div>
 
+      {/* --- Alerte de stock bas --- */}
+      {stockBas.length > 0 && (
+        <div className="mt-8 rounded-lg border border-orange-200 bg-orange-50 p-4">
+          <h2 className="font-semibold text-orange-800">
+            ⚠️ Stock à surveiller ({stockBas.length})
+          </h2>
+          <p className="mb-3 mt-1 text-sm text-orange-700">
+            Ces produits sont épuisés ou bientôt en rupture.
+          </p>
+          <ul className="divide-y divide-orange-100">
+            {stockBas.map((v) => (
+              <li key={v.id} className="flex items-center justify-between py-2 text-sm">
+                <Link
+                  href={`/produits/${v.product.slug}`}
+                  className="min-w-0 truncate font-medium text-orange-900 hover:underline"
+                >
+                  {v.product.name}
+                  {v.name !== "Standard" && (
+                    <span className="text-orange-500"> · {v.name}</span>
+                  )}
+                </Link>
+                <span
+                  className={`ml-3 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold ${
+                    v.stock === 0
+                      ? "bg-red-100 text-red-700"
+                      : "bg-orange-200 text-orange-800"
+                  }`}
+                >
+                  {v.stock === 0 ? "Épuisé" : `${v.stock} restant(s)`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* --- Dernières commandes + Top ventes --- */}
       <div className="mt-8 grid gap-6 md:grid-cols-2">
-        {/* Dernières commandes */}
         <div className="rounded-lg border border-gray-200 bg-white p-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-semibold">Dernières commandes</h2>
@@ -135,7 +169,6 @@ export default async function AdminHome() {
           )}
         </div>
 
-        {/* Top ventes */}
         <div className="rounded-lg border border-gray-200 bg-white p-4">
           <h2 className="mb-3 font-semibold">Meilleures ventes</h2>
 
@@ -162,7 +195,7 @@ export default async function AdminHome() {
         </div>
       </div>
 
-      {/* --- Accès rapides (tes cartes d'origine) --- */}
+      {/* --- Accès rapides --- */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         <Link
           href="/admin/commandes"

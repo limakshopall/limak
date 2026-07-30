@@ -162,21 +162,12 @@ export default async function FicheProduit({
               )}
           </div>
 
-          <p
-            className={`mt-2 text-sm font-medium ${
-              stock === 0
-                ? "text-[#D6293E]"
-                : stock <= 3
-                  ? "text-[#D6293E]"
-                  : "text-[#1F7A5C]"
-            }`}
-          >
-            {stock === 0
-              ? "Rupture de stock"
-              : stock <= 3
-                ? `Plus que ${stock} disponible${stock > 1 ? "s" : ""}`
-                : `En stock (${stock} disponibles)`}
-          </p>
+          {/* Le message d'urgence stock bas / rupture est géré par le bouton d'ajout, juste en dessous */}
+          {stock > 3 && (
+            <p className="mt-2 text-sm font-medium text-[#1F7A5C]">
+              En stock ({stock} disponibles)
+            </p>
+          )}
 
           {produit.description && (
             <p className="mt-6 leading-relaxed text-gray-700">

@@ -42,39 +42,56 @@ export default function ProduitsFiltres({
   }, [recherche]);
 
   return (
-    <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-      {/* Recherche */}
-      <input
-        value={recherche}
-        onChange={(e) => setRecherche(e.target.value)}
-        placeholder="Rechercher un produit…"
-        className="w-full rounded-lg border border-[#14213D]/15 bg-[#FFFBF3] px-4 py-2 sm:max-w-xs"
-      />
+    <div className="mb-6 flex flex-col gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        {/* Recherche */}
+        <input
+          value={recherche}
+          onChange={(e) => setRecherche(e.target.value)}
+          placeholder="Rechercher un produit…"
+          className="w-full rounded-lg border border-[#14213D]/15 bg-[#FFFBF3] px-4 py-2 sm:max-w-xs"
+        />
 
-      {/* Catégorie */}
-      <select
-        value={categorie}
-        onChange={(e) => setParam("categorie", e.target.value)}
-        className="rounded-lg border border-[#14213D]/15 bg-[#FFFBF3] px-3 py-2"
-      >
-        <option value="">Toutes les catégories</option>
+        {/* Tri */}
+        <select
+          value={tri}
+          onChange={(e) => setParam("tri", e.target.value)}
+          className="rounded-lg border border-[#14213D]/15 bg-[#FFFBF3] px-3 py-2"
+        >
+          <option value="recent">Nouveautés</option>
+          <option value="prix-asc">Prix croissant</option>
+          <option value="prix-desc">Prix décroissant</option>
+        </select>
+      </div>
+
+      {/* Catégorie : boutons cliquables plutôt qu'un menu déroulant */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setParam("categorie", "")}
+          className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+            categorie === ""
+              ? "bg-[#14213D] text-[#FBEEDA]"
+              : "border border-[#14213D]/15 bg-[#FFFBF3] text-[#14213D] hover:bg-[#14213D]/5"
+          }`}
+        >
+          Tout
+        </button>
         {categories.map((c) => (
-          <option key={c.slug} value={c.slug}>
+          <button
+            key={c.slug}
+            type="button"
+            onClick={() => setParam("categorie", c.slug)}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+              categorie === c.slug
+                ? "bg-[#14213D] text-[#FBEEDA]"
+                : "border border-[#14213D]/15 bg-[#FFFBF3] text-[#14213D] hover:bg-[#14213D]/5"
+            }`}
+          >
             {c.name}
-          </option>
+          </button>
         ))}
-      </select>
-
-      {/* Tri */}
-      <select
-        value={tri}
-        onChange={(e) => setParam("tri", e.target.value)}
-        className="rounded-lg border border-[#14213D]/15 bg-[#FFFBF3] px-3 py-2"
-      >
-        <option value="recent">Nouveautés</option>
-        <option value="prix-asc">Prix croissant</option>
-        <option value="prix-desc">Prix décroissant</option>
-      </select>
+      </div>
     </div>
   );
 }

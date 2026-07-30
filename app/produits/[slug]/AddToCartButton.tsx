@@ -50,8 +50,13 @@ export default function AddToCartButton({
 
   return (
     <div className="mt-8">
-      {!epuise && stock <= 5 && (
-        <p className="mb-3 text-sm font-medium text-orange-600">
+      {epuise && (
+        <p className="mb-3 text-sm font-medium text-[#D6293E]">
+          Rupture de stock — revient bientôt.
+        </p>
+      )}
+      {!epuise && stock <= 3 && (
+        <p className="mb-3 text-sm font-medium text-[#D6293E]">
           Plus que {stock} en stock — commandez vite !
         </p>
       )}
@@ -59,22 +64,22 @@ export default function AddToCartButton({
       {!epuise && (
         <div className="mb-4 flex items-center gap-4">
           <span className="text-sm text-gray-600">Quantité</span>
-          <div className="flex items-center rounded-lg border border-gray-300">
+          <div className="flex items-center rounded-lg border border-[#14213D]/15">
             <button
               type="button"
               onClick={diminuer}
               disabled={quantite <= 1}
-              className="px-3 py-2 text-lg text-gray-700 disabled:opacity-30"
+              className="px-3 py-2 text-lg text-[#14213D] disabled:opacity-30"
               aria-label="Diminuer la quantité"
             >
               −
             </button>
-            <span className="w-10 text-center font-medium">{quantite}</span>
+            <span className="w-10 text-center font-medium text-[#14213D]">{quantite}</span>
             <button
               type="button"
               onClick={augmenter}
               disabled={quantite >= stock}
-              className="px-3 py-2 text-lg text-gray-700 disabled:opacity-30"
+              className="px-3 py-2 text-lg text-[#14213D] disabled:opacity-30"
               aria-label="Augmenter la quantité"
             >
               +
@@ -86,7 +91,7 @@ export default function AddToCartButton({
       <button
         onClick={handleClick}
         disabled={epuise}
-        className="w-full rounded-lg bg-black px-6 py-3 font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
+        className="w-full rounded-lg bg-[#F1720A] px-6 py-3 font-medium text-white transition hover:bg-[#C95900] disabled:opacity-50"
       >
         {epuise ? "Rupture de stock" : ajoute ? "Ajouté ✓" : "Ajouter au panier"}
       </button>

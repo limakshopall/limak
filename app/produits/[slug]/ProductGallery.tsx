@@ -21,7 +21,7 @@ export default function ProductGallery({
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-square items-center justify-center rounded-lg bg-gray-100 text-gray-400">
+      <div className="flex aspect-square items-center justify-center rounded-xl bg-[#FBEEDA] text-neutral-400">
         photo à venir
       </div>
     );
@@ -30,7 +30,7 @@ export default function ProductGallery({
   return (
     <div>
       {/* Grande image */}
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-[#FBEEDA]">
         <Image
           src={images[active].url}
           alt={images[active].alt ?? name}
@@ -49,7 +49,7 @@ export default function ProductGallery({
               key={img.id}
               onClick={() => setActive(i)}
               className={`relative aspect-square overflow-hidden rounded border-2 ${
-                i === active ? "border-black" : "border-transparent"
+                i === active ? "border-[#F1720A]" : "border-transparent"
               }`}
             >
               <Image

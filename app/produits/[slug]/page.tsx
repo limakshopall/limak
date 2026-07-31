@@ -133,7 +133,7 @@ export default async function FicheProduit({
           {produit.category && (
             <p className="text-sm text-neutral-500">{produit.category.name}</p>
           )}
-          <h1 className="mt-1 text-2xl font-bold text-[#14213D]">{produit.name}</h1>
+          <h1 className="mt-1 text-3xl font-extrabold text-[#14213D]">{produit.name}</h1>
 
           {nbAvis > 0 && (
             <div className="mt-2 flex items-center gap-2 text-sm">

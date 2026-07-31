@@ -49,7 +49,7 @@ export default function Header({
   const { count } = useCart();
 
   return (
-    <header className="border-b border-[#14213D]/10 bg-[#FFFBF3]">
+    <header className="border-b border-[#14213D]/15 bg-gradient-to-r from-[#D9A93B] via-[#C9962B] to-[#B9862B]">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:py-4">
         <div className="flex shrink-0 items-center gap-3">
           <MenuLateral categories={categories} />
@@ -65,7 +65,7 @@ export default function Header({
         <nav className="flex shrink-0 items-center gap-3 sm:gap-5">
           <Link
             href="/produits"
-            className="whitespace-nowrap text-sm text-neutral-700 hover:text-[#14213D]"
+            className="whitespace-nowrap text-sm font-medium text-[#14213D] hover:text-white"
           >
             Produits
           </Link>
@@ -73,10 +73,10 @@ export default function Header({
           <Link
             href="/panier"
             aria-label="Panier"
-            className="relative text-neutral-700 hover:text-[#14213D]"
+            className="relative text-[#14213D] hover:text-white"
           >
             <IconePanier className="h-5 w-5 sm:hidden" />
-            <span className="hidden whitespace-nowrap text-sm sm:inline">Panier</span>
+            <span className="hidden whitespace-nowrap text-sm font-medium sm:inline">Panier</span>
             {count > 0 && (
               <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#D6293E] px-1 text-[10px] font-semibold text-white sm:-right-4">
                 {count}
@@ -87,13 +87,13 @@ export default function Header({
           {/* Si NON connecté : Connexion / Créer un compte */}
           <Show when="signed-out">
             <SignInButton mode="modal">
-              <button aria-label="Connexion" className="text-neutral-700 hover:text-[#14213D]">
+              <button aria-label="Connexion" className="text-[#14213D] hover:text-white">
                 <IconeCompte className="h-5 w-5 sm:hidden" />
-                <span className="hidden whitespace-nowrap text-sm sm:inline">Connexion</span>
+                <span className="hidden whitespace-nowrap text-sm font-medium sm:inline">Connexion</span>
               </button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="shrink-0 whitespace-nowrap rounded-full bg-[#F1720A] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#C95900] sm:px-4 sm:text-sm">
+              <button className="shrink-0 whitespace-nowrap rounded-full bg-[#14213D] px-3 py-1.5 text-xs font-semibold text-[#D9A93B] hover:bg-[#0d1730] sm:px-4 sm:text-sm">
                 <span className="sm:hidden">S&apos;inscrire</span>
                 <span className="hidden sm:inline">Créer un compte</span>
               </button>
@@ -105,10 +105,10 @@ export default function Header({
             <Link
               href="/mes-commandes"
               aria-label="Mes commandes"
-              className="text-neutral-700 hover:text-[#14213D]"
+              className="text-[#14213D] hover:text-white"
             >
               <IconeCommandes className="h-5 w-5 sm:hidden" />
-              <span className="hidden whitespace-nowrap text-sm sm:inline">Mes commandes</span>
+              <span className="hidden whitespace-nowrap text-sm font-medium sm:inline">Mes commandes</span>
             </Link>
             <UserButton />
           </Show>

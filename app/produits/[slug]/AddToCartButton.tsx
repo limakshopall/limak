@@ -103,7 +103,7 @@ export default function AddToCartButton({ productId, slug, name, image, variants
     <div className="mt-4">
       {variant && (
         <div className="mb-4 flex items-baseline gap-3">
-          <p className="text-3xl font-semibold text-[#14213D]">{fcfa(variant.price)}</p>
+          <p className="text-3xl font-extrabold text-[#B9862B]">{fcfa(variant.price)}</p>
           {variant.comparePrice != null && variant.comparePrice > variant.price && (
             <>
               <p className="text-lg text-neutral-400 line-through">{fcfa(variant.comparePrice)}</p>

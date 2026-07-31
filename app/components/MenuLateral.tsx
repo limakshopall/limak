@@ -41,7 +41,7 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
       <button
         onClick={() => setOuvert(true)}
         aria-label="Ouvrir le menu"
-        className="shrink-0 text-neutral-700 hover:text-[#14213D]"
+        className="shrink-0 text-[#14213D] hover:text-white"
       >
         <IconeMenu className="h-5.5 w-5.5" />
       </button>

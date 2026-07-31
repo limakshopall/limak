@@ -27,10 +27,10 @@ export default function ProductCardCercle({
       <div className="relative aspect-square w-full overflow-hidden rounded-full border-2 border-[#14213D]/10 bg-[#FBEEDA] shadow-sm transition group-hover:border-[#F1720A]/40 group-hover:shadow-md">
         <ProductThumb src={imageUrl} alt={imageAlt ?? name} />
       </div>
-      <p className="line-clamp-2 text-xs font-medium leading-snug text-[#14213D]">
+      <p className="line-clamp-2 text-sm font-semibold leading-snug text-[#14213D]">
         {name}
       </p>
-      <p className="text-xs font-bold text-[#F1720A]">
+      <p className="text-xs font-extrabold text-[#B9862B]">
         {new Intl.NumberFormat("fr-FR").format(price)} FCFA
       </p>
     </Link>

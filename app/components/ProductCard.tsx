@@ -84,11 +84,11 @@ export default function ProductCard({
         )}
       </div>
       <div className="p-1.5 pt-2">
-        <h3 className="truncate text-xs font-medium text-[#14213D] sm:text-sm">{name}</h3>
+        <h3 className="truncate text-sm font-semibold text-[#14213D] sm:text-base">{name}</h3>
 
         {/* Prix (avec ancien prix barré si promo) */}
         <div className="mt-1 flex flex-wrap items-baseline gap-x-1.5">
-          <p className="text-sm font-bold text-[#14213D] sm:text-base">
+          <p className="text-base font-extrabold text-[#B9862B] sm:text-lg">
             {new Intl.NumberFormat("fr-FR").format(price)} FCFA
           </p>
           {enPromo && (

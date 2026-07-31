@@ -8,8 +8,45 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import ProductThumb from "./ProductThumb";
 
-type Categorie = { slug: string; name: string };
+type Categorie = { slug: string; name: string; imageUrl?: string | null };
+
+function IconeRecherche({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  );
+}
+
+function IconeEffacer({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
+function IconeTri({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M3 6h18M6 12h12M10 18h4" />
+    </svg>
+  );
+}
+
+function IconeTout({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </svg>
+  );
+}
 
 export default function ProduitsFiltres({
   categories,
@@ -42,53 +79,91 @@ export default function ProduitsFiltres({
   }, [recherche]);
 
   return (
-    <div className="mb-6 flex flex-col gap-4">
+    <div className="mb-8 rounded-2xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         {/* Recherche */}
-        <input
-          value={recherche}
-          onChange={(e) => setRecherche(e.target.value)}
-          placeholder="Rechercher un produit…"
-          className="w-full rounded-lg border border-[#14213D]/15 bg-[#FFFBF3] px-4 py-2 sm:max-w-xs"
-        />
+        <div className="relative w-full sm:max-w-sm">
+          <IconeRecherche className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-[#14213D]/40" />
+          <input
+            value={recherche}
+            onChange={(e) => setRecherche(e.target.value)}
+            placeholder="Rechercher un produit…"
+            className="w-full rounded-full border border-[#14213D]/15 bg-white py-2.5 pl-10 pr-9 text-sm text-[#14213D] shadow-sm outline-none transition focus:border-[#C9962B] focus:ring-2 focus:ring-[#C9962B]/30"
+          />
+          {recherche && (
+            <button
+              type="button"
+              onClick={() => setRecherche("")}
+              aria-label="Effacer la recherche"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#14213D]/40 hover:text-[#14213D]"
+            >
+              <IconeEffacer className="h-4 w-4" />
+            </button>
+          )}
+        </div>
 
         {/* Tri */}
-        <select
-          value={tri}
-          onChange={(e) => setParam("tri", e.target.value)}
-          className="rounded-lg border border-[#14213D]/15 bg-[#FFFBF3] px-3 py-2"
-        >
-          <option value="recent">Nouveautés</option>
-          <option value="prix-asc">Prix croissant</option>
-          <option value="prix-desc">Prix décroissant</option>
-        </select>
+        <div className="relative w-full sm:ml-auto sm:w-56">
+          <IconeTri className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#14213D]/40" />
+          <select
+            value={tri}
+            onChange={(e) => setParam("tri", e.target.value)}
+            className="w-full appearance-none rounded-full border border-[#14213D]/15 bg-white py-2.5 pl-10 pr-8 text-sm text-[#14213D] shadow-sm outline-none transition focus:border-[#C9962B] focus:ring-2 focus:ring-[#C9962B]/30"
+          >
+            <option value="recent">Nouveautés</option>
+            <option value="prix-asc">Prix croissant</option>
+            <option value="prix-desc">Prix décroissant</option>
+          </select>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#14213D]/50">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </div>
       </div>
 
-      {/* Catégorie : boutons cliquables plutôt qu'un menu déroulant */}
-      <div className="flex flex-wrap gap-2">
+      {/* Catégorie : pastilles rondes avec photo, défilement horizontal */}
+      <div className="scrollbar-none mt-4 flex gap-3 overflow-x-auto pb-1">
         <button
           type="button"
           onClick={() => setParam("categorie", "")}
-          className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-            categorie === ""
-              ? "bg-[#14213D] text-[#FBEEDA]"
-              : "border border-[#14213D]/15 bg-[#FFFBF3] text-[#14213D] hover:bg-[#14213D]/5"
-          }`}
+          className="flex shrink-0 flex-col items-center gap-1.5"
         >
-          Tout
+          <span
+            className={`flex h-14 w-14 items-center justify-center rounded-full border-2 transition ${
+              categorie === ""
+                ? "border-[#C9962B] bg-[#14213D] text-[#C9962B]"
+                : "border-[#14213D]/10 bg-white text-[#14213D]/60 hover:border-[#14213D]/25"
+            }`}
+          >
+            <IconeTout className="h-6 w-6" />
+          </span>
+          <span className={`text-xs font-medium ${categorie === "" ? "font-bold text-[#14213D]" : "text-neutral-500"}`}>
+            Tout
+          </span>
         </button>
+
         {categories.map((c) => (
           <button
             key={c.slug}
             type="button"
             onClick={() => setParam("categorie", c.slug)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-              categorie === c.slug
-                ? "bg-[#14213D] text-[#FBEEDA]"
-                : "border border-[#14213D]/15 bg-[#FFFBF3] text-[#14213D] hover:bg-[#14213D]/5"
-            }`}
+            className="flex shrink-0 flex-col items-center gap-1.5"
           >
-            {c.name}
+            <span
+              className={`relative h-14 w-14 overflow-hidden rounded-full border-2 transition ${
+                categorie === c.slug
+                  ? "border-[#C9962B] ring-2 ring-[#C9962B]/30"
+                  : "border-[#14213D]/10 hover:border-[#14213D]/25"
+              }`}
+            >
+              <ProductThumb src={c.imageUrl ?? null} alt={c.name} />
+            </span>
+            <span
+              className={`max-w-[4.5rem] truncate text-xs ${
+                categorie === c.slug ? "font-bold text-[#14213D]" : "font-medium text-neutral-500"
+              }`}
+            >
+              {c.name}
+            </span>
           </button>
         ))}
       </div>

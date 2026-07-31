@@ -50,7 +50,7 @@ export default function Header() {
           href="/"
           className="flex shrink-0 items-center gap-1.5 text-lg font-extrabold tracking-tight text-[#14213D] sm:gap-2 sm:text-xl"
         >
-          <Image src="/icon-192.png" alt="" width={28} height={28} priority className="h-7 w-7 sm:h-8 sm:w-8" />
+          <Image src="/icon-192.png" alt="" width={40} height={40} priority className="h-9 w-9 sm:h-11 sm:w-11" />
           LIMAK
         </Link>
 

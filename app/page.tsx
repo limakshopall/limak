@@ -109,16 +109,16 @@ export default async function Accueil() {
       <HeroCarousel />
 
       {/* RÉASSURANCE */}
-      <section className="mt-6 border-y border-[#14213D]/10 bg-[#FFFBF3]">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 px-4 py-3 text-xs sm:grid-cols-4 sm:text-sm">
+      <section className="mt-6 bg-[#14213D]">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-2 px-4 py-2 text-[11px] sm:grid-cols-4 sm:text-xs">
           {REASSURANCE.map(({ Icone, titre, sous }) => (
-            <div key={titre} className="flex items-center gap-2.5">
-              <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#1F7A5C] text-[#FBEEDA] shadow-[0_0_14px_-2px_rgba(31,122,92,0.65)]">
-                <Icone className="h-3.5 w-3.5" />
+            <div key={titre} className="flex items-center gap-2">
+              <span className="relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#F1720A] text-[#14213D] shadow-[0_0_10px_-1px_rgba(241,114,10,0.7)]">
+                <Icone className="h-3 w-3" />
               </span>
               <div className="min-w-0">
-                <p className="truncate font-semibold text-[#14213D]">{titre}</p>
-                <p className="truncate text-neutral-500">{sous}</p>
+                <p className="truncate font-semibold text-[#FBEEDA]">{titre}</p>
+                <p className="truncate text-[#FBEEDA]/60">{sous}</p>
               </div>
             </div>
           ))}

@@ -197,6 +197,7 @@ export default async function Accueil() {
           </div>
           <ProductSection
             disposition={ROTATION_DISPOSITIONS[0]}
+            variante={0}
             produits={nouveautes.map((p) => ({
               id: p.id,
               slug: p.slug,
@@ -224,6 +225,7 @@ export default async function Accueil() {
             </div>
             <ProductSection
               disposition={ROTATION_DISPOSITIONS[(i + 1) % ROTATION_DISPOSITIONS.length]}
+              variante={i + 1}
               produits={c.products.map((p) => ({
                 id: p.id,
                 slug: p.slug,

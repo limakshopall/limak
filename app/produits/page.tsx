@@ -112,6 +112,7 @@ export default async function ProduitsPage({
               <ProductSection
                 produits={groupe}
                 disposition={ROTATION_DISPOSITIONS[i % ROTATION_DISPOSITIONS.length]}
+                variante={i}
               />
             </Reveal>
           ))}

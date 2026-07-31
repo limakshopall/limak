@@ -33,6 +33,7 @@ export default function ProductCard({
   imageAlt,
   note,
   stock,
+  large = false,
 }: {
   slug: string;
   name: string;
@@ -42,6 +43,7 @@ export default function ProductCard({
   imageAlt?: string | null;
   note?: Note;
   stock?: number;
+  large?: boolean;
 }) {
   const epuise = stock !== undefined && stock <= 0;
   // En promo si comparePrice existe ET est plus élevé que le prix actuel.
@@ -55,9 +57,14 @@ export default function ProductCard({
   return (
     <Link
       href={`/produits/${slug}`}
-      className="group overflow-hidden rounded-lg border border-[#14213D]/10 bg-[#FFFBF3] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+      className="group block overflow-hidden rounded-2xl border border-[#14213D]/10 bg-[#FFFBF3] p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="relative aspect-square overflow-hidden bg-neutral-100">
+      {/* L'image "flotte" sur son propre coussin (fond + ombre) pour ne pas se fondre dans la carte. */}
+      <div
+        className={`relative overflow-hidden rounded-xl bg-white shadow-[0_6px_14px_-6px_rgba(20,33,61,0.28)] ${
+          large ? "aspect-[4/3]" : "aspect-square"
+        }`}
+      >
         <div className={epuise ? "opacity-40" : ""}>
           <ProductThumb src={imageUrl} alt={imageAlt ?? name} />
         </div>
@@ -76,7 +83,7 @@ export default function ProductCard({
           </span>
         )}
       </div>
-      <div className="p-2">
+      <div className="p-1.5 pt-2">
         <h3 className="truncate text-xs font-medium text-[#14213D] sm:text-sm">{name}</h3>
 
         {/* Prix (avec ancien prix barré si promo) */}

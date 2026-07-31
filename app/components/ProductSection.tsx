@@ -24,12 +24,28 @@ type Produit = {
 
 export type Disposition = "grille" | "scroll" | "decale" | "cercle";
 
+// Motifs de tuiles "grandes" (sur 8 positions) : change d'un bloc à l'autre
+// pour que la grille ne se répète pas exactement de la même façon partout.
+const MOTIFS_TAILLE: number[][] = [
+  [0, 5],
+  [2, 6],
+  [1, 4, 7],
+  [3],
+];
+
+function estGrande(i: number, variante: number) {
+  const motif = MOTIFS_TAILLE[variante % MOTIFS_TAILLE.length];
+  return motif.includes(i % 8);
+}
+
 export default function ProductSection({
   produits,
   disposition,
+  variante = 0,
 }: {
   produits: Produit[];
   disposition: Disposition;
+  variante?: number;
 }) {
   if (disposition === "scroll") {
     return (
@@ -72,20 +88,29 @@ export default function ProductSection({
   // "grille" (classique) et "decale" (zig-zag) partagent la même grille de base
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-      {produits.map((p, i) => (
-        <div key={p.id} className={disposition === "decale" && i % 2 === 1 ? "mt-5" : ""}>
-          <ProductCard
-            slug={p.slug}
-            name={p.name}
-            price={p.price}
-            comparePrice={p.comparePrice}
-            imageUrl={p.imageUrl}
-            imageAlt={p.imageAlt}
-            note={p.note}
-            stock={p.stock}
-          />
-        </div>
-      ))}
+      {produits.map((p, i) => {
+        const grande = estGrande(i, variante);
+        return (
+          <div
+            key={p.id}
+            className={`${grande ? "col-span-2" : ""} ${
+              disposition === "decale" && i % 2 === 1 && !grande ? "mt-5" : ""
+            }`}
+          >
+            <ProductCard
+              slug={p.slug}
+              name={p.name}
+              price={p.price}
+              comparePrice={p.comparePrice}
+              imageUrl={p.imageUrl}
+              imageAlt={p.imageAlt}
+              note={p.note}
+              stock={p.stock}
+              large={grande}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }

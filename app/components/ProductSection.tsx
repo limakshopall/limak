@@ -71,7 +71,7 @@ export default function ProductSection({
 
   // "grille" (classique) et "decale" (zig-zag) partagent la même grille de base
   return (
-    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
       {produits.map((p, i) => (
         <div key={p.id} className={disposition === "decale" && i % 2 === 1 ? "mt-5" : ""}>
           <ProductCard

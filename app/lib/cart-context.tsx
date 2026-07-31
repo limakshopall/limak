@@ -8,8 +8,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 // La forme d'un article dans le panier
+// (une ligne = une variante précise : ex. "Basket rouge, taille 42")
 export type CartItem = {
   productId: string;
+  variantId: string;
+  variantLabel: string | null; // ex: "Rouge / 42", null si produit simple
   slug: string;
   name: string;
   price: number; // en FCFA
@@ -22,8 +25,8 @@ export type CartItem = {
 type CartContextType = {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "quantity">) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  removeItem: (variantId: string) => void;
+  updateQuantity: (variantId: string, quantity: number) => void;
   clear: () => void;
   count: number; // nombre total d'articles
   total: number; // prix total (FCFA)
@@ -42,7 +45,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setItems(JSON.parse(saved));
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Ignore les paniers sauvegardés avant l'ajout des variantes
+        // (articles sans variantId) : sans ça, le paiement plante en silence.
+        if (Array.isArray(parsed)) {
+          setItems(parsed.filter((i): i is CartItem => !!i?.variantId));
+        }
+      }
     } catch {
       // panier illisible : on ignore
     }
@@ -60,11 +70,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // sans jamais dépasser le stock connu).
   function addItem(item: Omit<CartItem, "quantity">) {
     setItems((prev) => {
-      const existing = prev.find((i) => i.productId === item.productId);
+      const existing = prev.find((i) => i.variantId === item.variantId);
       if (existing) {
         const max = item.stock ?? existing.stock ?? Infinity;
         return prev.map((i) =>
-          i.productId === item.productId
+          i.variantId === item.variantId
             ? {
                 ...i,
                 quantity: Math.min(i.quantity + 1, max),
@@ -77,19 +87,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   }
 
-  function removeItem(productId: string) {
-    setItems((prev) => prev.filter((i) => i.productId !== productId));
+  function removeItem(variantId: string) {
+    setItems((prev) => prev.filter((i) => i.variantId !== variantId));
   }
 
   // Modifier la quantité, sans jamais dépasser le stock connu de l'article.
-  function updateQuantity(productId: string, quantity: number) {
+  function updateQuantity(variantId: string, quantity: number) {
     if (quantity <= 0) {
-      removeItem(productId);
+      removeItem(variantId);
       return;
     }
     setItems((prev) =>
       prev.map((i) => {
-        if (i.productId !== productId) return i;
+        if (i.variantId !== variantId) return i;
         const max = i.stock ?? Infinity;
         return { ...i, quantity: Math.min(quantity, max) };
       })

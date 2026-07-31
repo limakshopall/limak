@@ -39,7 +39,7 @@ export default function PanierPage() {
 
           return (
             <div
-              key={item.productId}
+              key={item.variantId}
               className="flex items-center gap-3 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-3 shadow-sm"
             >
               <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-[#FBEEDA] sm:h-20 sm:w-20">
@@ -60,6 +60,9 @@ export default function PanierPage() {
                 >
                   {item.name}
                 </Link>
+                {item.variantLabel && (
+                  <p className="mt-0.5 text-xs text-neutral-500">{item.variantLabel}</p>
+                )}
                 <p className="mt-1 text-sm text-neutral-500">
                   {new Intl.NumberFormat("fr-FR").format(item.price)} FCFA
                 </p>
@@ -72,14 +75,14 @@ export default function PanierPage() {
 
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <button
-                  onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                  onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
                   className="h-7 w-7 rounded-full border border-[#14213D]/20 text-lg leading-none text-[#14213D] hover:bg-[#14213D]/5 sm:h-8 sm:w-8"
                 >
                   −
                 </button>
                 <span className="w-5 text-center text-sm sm:w-6">{item.quantity}</span>
                 <button
-                  onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                  onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
                   disabled={auMax}
                   title={auMax ? "Stock maximum atteint" : undefined}
                   className="h-7 w-7 rounded-full border border-[#14213D]/20 text-lg leading-none text-[#14213D] hover:bg-[#14213D]/5 disabled:cursor-not-allowed disabled:opacity-30 sm:h-8 sm:w-8"
@@ -93,7 +96,7 @@ export default function PanierPage() {
               </div>
 
               <button
-                onClick={() => removeItem(item.productId)}
+                onClick={() => removeItem(item.variantId)}
                 className="ml-1 shrink-0 text-sm text-neutral-400 hover:text-[#D6293E]"
                 aria-label="Retirer l'article"
               >

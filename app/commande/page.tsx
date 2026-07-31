@@ -44,7 +44,7 @@ export default function CommandePage() {
       customerPhone: phone,
       shippingAddress: address,
       shippingCity: city,
-      items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+      items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
     });
     setLoading(false);
 
@@ -105,9 +105,13 @@ export default function CommandePage() {
           <h2 className="font-semibold text-[#14213D]">Récapitulatif</h2>
           <div className="mt-3 space-y-2">
             {items.map((item) => (
-              <div key={item.productId} className="flex justify-between text-sm text-neutral-700">
+              <div key={item.variantId} className="flex justify-between text-sm text-neutral-700">
                 <span className="truncate">
-                  {item.name} × {item.quantity}
+                  {item.name}
+                  {item.variantLabel && (
+                    <span className="text-neutral-400"> ({item.variantLabel})</span>
+                  )}{" "}
+                  × {item.quantity}
                 </span>
                 <span className="whitespace-nowrap">
                   {new Intl.NumberFormat("fr-FR").format(item.price * item.quantity)} FCFA

@@ -12,7 +12,7 @@ import { prisma } from "../lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { sendOrderConfirmationSms, sendAdminOrderAlertSms } from "../lib/sms";
 
-type CartLine = { productId: string; quantity: number };
+type CartLine = { variantId: string; quantity: number };
 
 type OrderInput = {
   customerName: string;
@@ -39,10 +39,10 @@ export async function createOrder(input: OrderInput) {
 
   const { userId } = await auth();
 
-  const productIds = input.items.map((i) => i.productId);
-  const produits = await prisma.product.findMany({
-    where: { id: { in: productIds } },
-    include: { variants: { orderBy: { price: "asc" }, take: 1 } },
+  const variantIds = input.items.map((i) => i.variantId);
+  const variants = await prisma.productVariant.findMany({
+    where: { id: { in: variantIds } },
+    include: { product: { select: { name: true } } },
   });
 
   const orderItems: {
@@ -54,16 +54,16 @@ export async function createOrder(input: OrderInput) {
   let subtotal = 0;
 
   for (const line of input.items) {
-    const produit = produits.find((p) => p.id === line.productId);
-    const variant = produit?.variants[0];
-    if (!produit || !variant) continue;
+    const variant = variants.find((v) => v.id === line.variantId);
+    if (!variant) continue;
 
     const quantity = Math.max(1, Math.floor(line.quantity));
     subtotal += variant.price * quantity;
 
+    const label = [variant.color, variant.size].filter(Boolean).join(" / ");
     orderItems.push({
       variantId: variant.id,
-      productName: produit.name,
+      productName: label ? `${variant.product.name} (${label})` : variant.product.name,
       unitPrice: variant.price,
       quantity,
     });

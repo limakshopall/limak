@@ -9,6 +9,8 @@ import { updateProduct } from "./actions";
 import DeleteProductButton from "./DeleteProductButton";
 import ProductImageUploader from "./ProductImageUploader";
 import ProductImageList from "./ProductImageList";
+import VariantList from "./VariantList";
+import AddVariantForm from "./AddVariantForm";
 
 export default async function EditProduit({
   params,
@@ -20,7 +22,7 @@ export default async function EditProduit({
   const produit = await prisma.product.findUnique({
     where: { id },
     include: {
-      variants: { orderBy: { price: "asc" }, take: 1 },
+      variants: { orderBy: [{ color: "asc" }, { size: "asc" }] },
       images: { orderBy: { position: "asc" } },
       category: true,
     },
@@ -29,8 +31,6 @@ export default async function EditProduit({
   if (!produit) {
     notFound();
   }
-
-  const variant = produit.variants[0];
 
   return (
     <main className="mx-auto max-w-xl bg-[#FBEEDA] px-4 py-8">
@@ -45,7 +45,6 @@ export default async function EditProduit({
 
       <form action={updateProduct} className="space-y-4 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm">
         <input type="hidden" name="id" value={produit.id} />
-        {variant && <input type="hidden" name="variantId" value={variant.id} />}
 
         <div>
           <label className="block text-sm text-neutral-600">Nom</label>
@@ -54,44 +53,6 @@ export default async function EditProduit({
             defaultValue={produit.name}
             className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
           />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm text-neutral-600">Prix (FCFA)</label>
-            <input
-              name="price"
-              type="number"
-              defaultValue={variant?.price ?? 0}
-              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-neutral-600">Stock</label>
-            <input
-              name="stock"
-              type="number"
-              defaultValue={variant?.stock ?? 0}
-              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
-            />
-          </div>
-        </div>
-
-        {/* Ancien prix (promo) */}
-        <div>
-          <label className="block text-sm text-neutral-600">
-            Ancien prix / promo (FCFA)
-          </label>
-          <input
-            name="comparePrice"
-            type="number"
-            defaultValue={variant?.comparePrice ?? ""}
-            placeholder="Laisser vide si pas de promo"
-            className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
-          />
-          <p className="mt-1 text-xs text-neutral-400">
-            Doit être supérieur au prix pour afficher une réduction. Vide = pas de promo.
-          </p>
         </div>
 
         <label className="flex items-center gap-2">
@@ -108,6 +69,17 @@ export default async function EditProduit({
           Enregistrer
         </button>
       </form>
+
+      {/* Variantes : prix, stock, couleur, taille */}
+      <div className="mt-6 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm">
+        <h2 className="mb-1 font-semibold text-[#14213D]">Variantes</h2>
+        <p className="mb-3 text-xs text-neutral-500">
+          Pour un produit simple, garde une seule variante. Pour un produit décliné
+          (ex: baskets par couleur/pointure), ajoute une variante par combinaison.
+        </p>
+        <VariantList productId={produit.id} variants={produit.variants} />
+        <AddVariantForm productId={produit.id} />
+      </div>
 
       {/* Images du produit */}
       <div className="mt-6 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm">

@@ -19,15 +19,8 @@ function extractFileKey(url: string): string | null {
 
 export async function updateProduct(formData: FormData) {
   const id = String(formData.get("id"));
-  const variantId = String(formData.get("variantId") ?? "");
   const name = String(formData.get("name") ?? "").trim();
-  const price = parseInt(String(formData.get("price") ?? ""), 10);
-  const stock = parseInt(String(formData.get("stock") ?? ""), 10);
   const isActive = formData.get("isActive") === "on";
-
-  // Ancien prix (promo) : vide -> null (pas de promo)
-  const compareRaw = String(formData.get("comparePrice") ?? "").trim();
-  const compareParsed = compareRaw === "" ? null : parseInt(compareRaw, 10);
 
   if (!id || !name) return;
 
@@ -36,20 +29,98 @@ export async function updateProduct(formData: FormData) {
     data: { name, isActive },
   });
 
-  if (variantId && Number.isFinite(price) && Number.isFinite(stock)) {
-    // La promo n'a de sens que si l'ancien prix est strictement supérieur au nouveau.
-    const comparePrice =
-      compareParsed !== null && Number.isFinite(compareParsed) && compareParsed > price
-        ? compareParsed
-        : null;
+  redirect("/admin/produits");
+}
 
-    await prisma.productVariant.update({
-      where: { id: variantId },
-      data: { price, stock, comparePrice },
-    });
+// La promo n'a de sens que si l'ancien prix est strictement supérieur au nouveau.
+function resolveComparePrice(compareRaw: string, price: number): number | null {
+  const trimmed = compareRaw.trim();
+  if (trimmed === "") return null;
+  const parsed = parseInt(trimmed, 10);
+  return Number.isFinite(parsed) && parsed > price ? parsed : null;
+}
+
+// Ajoute une variante (couleur/taille) à un produit.
+export async function createVariant(formData: FormData) {
+  const productId = String(formData.get("productId") ?? "");
+  const color = String(formData.get("color") ?? "").trim();
+  const size = String(formData.get("size") ?? "").trim();
+  const price = parseInt(String(formData.get("price") ?? ""), 10);
+  const stock = parseInt(String(formData.get("stock") ?? ""), 10);
+  const compareRaw = String(formData.get("comparePrice") ?? "");
+
+  if (!productId || !Number.isFinite(price) || !Number.isFinite(stock)) return;
+
+  const name = [color, size].filter(Boolean).join(" / ") || "Standard";
+
+  await prisma.productVariant.create({
+    data: {
+      productId,
+      name,
+      color: color || null,
+      size: size || null,
+      price,
+      stock,
+      comparePrice: resolveComparePrice(compareRaw, price),
+    },
+  });
+
+  redirect(`/admin/produits/${productId}`);
+}
+
+// Modifie une variante existante.
+export async function updateVariant(formData: FormData) {
+  const variantId = String(formData.get("variantId") ?? "");
+  const productId = String(formData.get("productId") ?? "");
+  const color = String(formData.get("color") ?? "").trim();
+  const size = String(formData.get("size") ?? "").trim();
+  const price = parseInt(String(formData.get("price") ?? ""), 10);
+  const stock = parseInt(String(formData.get("stock") ?? ""), 10);
+  const compareRaw = String(formData.get("comparePrice") ?? "");
+
+  if (!variantId || !Number.isFinite(price) || !Number.isFinite(stock)) return;
+
+  const name = [color, size].filter(Boolean).join(" / ") || "Standard";
+
+  await prisma.productVariant.update({
+    where: { id: variantId },
+    data: {
+      name,
+      color: color || null,
+      size: size || null,
+      price,
+      stock,
+      comparePrice: resolveComparePrice(compareRaw, price),
+    },
+  });
+
+  redirect(`/admin/produits/${productId}`);
+}
+
+// Supprime une variante (impossible si c'est la dernière du produit).
+export async function deleteVariant(
+  variantId: string,
+  productId: string
+): Promise<{ ok: boolean; error?: string }> {
+  if (!variantId) return { ok: false, error: "Variante introuvable." };
+
+  const total = await prisma.productVariant.count({ where: { productId } });
+  if (total <= 1) {
+    return { ok: false, error: "Impossible de supprimer la seule variante du produit." };
   }
 
-  redirect("/admin/produits");
+  try {
+    await prisma.productVariant.delete({ where: { id: variantId } });
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003") {
+      return {
+        ok: false,
+        error: "Impossible de supprimer : cette variante a déjà été commandée.",
+      };
+    }
+    throw err;
+  }
 }
 
 export async function deleteProduct(

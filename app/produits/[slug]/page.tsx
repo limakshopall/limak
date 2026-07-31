@@ -82,7 +82,6 @@ export default async function FicheProduit({
   }
 
   const prix = produit.variants[0]?.price ?? 0;
-  const stock = produit.variants[0]?.stock ?? 0;
 
   const avis = produit.reviews;
   const nbAvis = avis.length;
@@ -145,32 +144,8 @@ export default async function FicheProduit({
             </div>
           )}
 
-          <div className="mt-4 flex items-baseline gap-3">
-            <p className="text-3xl font-semibold text-[#14213D]">
-              {new Intl.NumberFormat("fr-FR").format(prix)} FCFA
-            </p>
-            {produit.variants[0]?.comparePrice != null &&
-              produit.variants[0].comparePrice > prix && (
-                <>
-                  <p className="text-lg text-neutral-400 line-through">
-                    {new Intl.NumberFormat("fr-FR").format(produit.variants[0].comparePrice)} FCFA
-                  </p>
-                  <span className="rounded-full bg-[#D6293E] px-2 py-0.5 text-sm font-bold text-white">
-                    -{Math.round(((produit.variants[0].comparePrice - prix) / produit.variants[0].comparePrice) * 100)}%
-                  </span>
-                </>
-              )}
-          </div>
-
-          {/* Le message d'urgence stock bas / rupture est géré par le bouton d'ajout, juste en dessous */}
-          {stock > 3 && (
-            <p className="mt-2 text-sm font-medium text-[#1F7A5C]">
-              En stock ({stock} disponibles)
-            </p>
-          )}
-
           {produit.description && (
-            <p className="mt-6 leading-relaxed text-neutral-700">
+            <p className="mt-4 leading-relaxed text-neutral-700">
               {produit.description}
             </p>
           )}
@@ -179,9 +154,8 @@ export default async function FicheProduit({
             productId={produit.id}
             slug={produit.slug}
             name={produit.name}
-            price={prix}
             image={produit.images[0]?.url ?? null}
-            stock={stock}
+            variants={produit.variants}
           />
 
           <ShareButtons slug={produit.slug} name={produit.name} price={prix} />

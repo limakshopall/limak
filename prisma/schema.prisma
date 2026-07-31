@@ -167,6 +167,8 @@ model ProductVariant {
   product      Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   sku          String? @unique // référence interne (facultatif)
   name         String  @default("Standard") // libellé de la variante
+  color        String? // ex: "Rouge" — facultatif, pour les produits déclinés par couleur
+  size         String? // ex: "42" ou "M" — facultatif, pour les produits déclinés par taille
   price        Int     // prix de vente actuel en FCFA
   comparePrice Int?    // ancien prix barré (FCFA) — facultatif ; rempli = produit en promo
   stock        Int     @default(0) // quantité disponible

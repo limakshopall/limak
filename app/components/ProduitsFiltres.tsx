@@ -79,42 +79,42 @@ export default function ProduitsFiltres({
   }, [recherche]);
 
   return (
-    <div className="mb-8 rounded-2xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm sm:p-5">
+    <div className="mb-8 rounded-2xl border border-[#E8C255]/30 bg-gradient-to-br from-[#182A4D] to-[#0F1B33] p-4 shadow-lg shadow-[#14213D]/25 sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        {/* Recherche */}
-        <div className="relative w-full sm:max-w-sm">
-          <IconeRecherche className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-[#14213D]/40" />
+        {/* Recherche — doré brillant */}
+        <div className="relative w-full overflow-hidden rounded-full bg-gradient-to-r from-[#FCE8A8] via-[#E8C255] to-[#C9962B] shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_2px_6px_rgba(0,0,0,0.25)] sm:max-w-sm">
+          <IconeRecherche className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-[#14213D]/70" />
           <input
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
             placeholder="Rechercher un produit…"
-            className="w-full rounded-full border border-[#14213D]/15 bg-white py-2.5 pl-10 pr-9 text-sm text-[#14213D] shadow-sm outline-none transition focus:border-[#C9962B] focus:ring-2 focus:ring-[#C9962B]/30"
+            className="w-full bg-transparent py-2.5 pl-10 pr-9 text-sm font-medium text-[#14213D] placeholder-[#14213D]/60 outline-none focus:ring-2 focus:ring-white/60"
           />
           {recherche && (
             <button
               type="button"
               onClick={() => setRecherche("")}
               aria-label="Effacer la recherche"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#14213D]/40 hover:text-[#14213D]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#14213D]/60 hover:text-[#14213D]"
             >
               <IconeEffacer className="h-4 w-4" />
             </button>
           )}
         </div>
 
-        {/* Tri */}
-        <div className="relative w-full sm:ml-auto sm:w-56">
-          <IconeTri className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#14213D]/40" />
+        {/* Tri — doré brillant */}
+        <div className="relative w-full overflow-hidden rounded-full bg-gradient-to-r from-[#FCE8A8] via-[#E8C255] to-[#C9962B] shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_2px_6px_rgba(0,0,0,0.25)] sm:ml-auto sm:w-56">
+          <IconeTri className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#14213D]/70" />
           <select
             value={tri}
             onChange={(e) => setParam("tri", e.target.value)}
-            className="w-full appearance-none rounded-full border border-[#14213D]/15 bg-white py-2.5 pl-10 pr-8 text-sm text-[#14213D] shadow-sm outline-none transition focus:border-[#C9962B] focus:ring-2 focus:ring-[#C9962B]/30"
+            className="w-full appearance-none bg-transparent py-2.5 pl-10 pr-8 text-sm font-medium text-[#14213D] outline-none focus:ring-2 focus:ring-white/60"
           >
             <option value="recent">Nouveautés</option>
             <option value="prix-asc">Prix croissant</option>
             <option value="prix-desc">Prix décroissant</option>
           </select>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#14213D]/50">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#14213D]/70">
             <path d="m6 9 6 6 6-6" />
           </svg>
         </div>
@@ -130,13 +130,13 @@ export default function ProduitsFiltres({
           <span
             className={`flex h-14 w-14 items-center justify-center rounded-full border-2 transition ${
               categorie === ""
-                ? "border-[#C9962B] bg-[#14213D] text-[#C9962B]"
-                : "border-[#14213D]/10 bg-white text-[#14213D]/60 hover:border-[#14213D]/25"
+                ? "border-[#FCE8A8] bg-gradient-to-br from-[#FCE8A8] via-[#E8C255] to-[#C9962B] text-[#14213D] shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
+                : "border-white/15 bg-white/5 text-white/50 hover:border-white/30"
             }`}
           >
             <IconeTout className="h-6 w-6" />
           </span>
-          <span className={`text-xs font-medium ${categorie === "" ? "font-bold text-[#14213D]" : "text-neutral-500"}`}>
+          <span className={`text-xs font-medium ${categorie === "" ? "font-bold text-[#E8C255]" : "text-white/60"}`}>
             Tout
           </span>
         </button>
@@ -151,15 +151,15 @@ export default function ProduitsFiltres({
             <span
               className={`relative h-14 w-14 overflow-hidden rounded-full border-2 transition ${
                 categorie === c.slug
-                  ? "border-[#C9962B] ring-2 ring-[#C9962B]/30"
-                  : "border-[#14213D]/10 hover:border-[#14213D]/25"
+                  ? "border-[#FCE8A8] ring-2 ring-[#E8C255]/50"
+                  : "border-white/15 hover:border-white/30"
               }`}
             >
               <ProductThumb src={c.imageUrl ?? null} alt={c.name} />
             </span>
             <span
               className={`max-w-[4.5rem] truncate text-xs ${
-                categorie === c.slug ? "font-bold text-[#14213D]" : "font-medium text-neutral-500"
+                categorie === c.slug ? "font-bold text-[#E8C255]" : "font-medium text-white/60"
               }`}
             >
               {c.name}

@@ -57,3 +57,15 @@ body {
     animation: none;
   }
 }
+
+/* Barre de progression des points du carrousel d'accueil */
+@keyframes limak-progress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [class*="animate-[limak-progress"] {
+    animation: none;
+    width: 100%;
+  }
+}

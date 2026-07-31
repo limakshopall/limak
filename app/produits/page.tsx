@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { prisma } from "../lib/prisma";
 import ProduitsFiltres from "../components/ProduitsFiltres";
 import ProductSection, { type Disposition } from "../components/ProductSection";
+import Reveal from "../components/Reveal";
 
 // Groupes de produits + rotation des dispositions, pour casser la monotonie en descendant la page.
 const TAILLE_GROUPE = 8;
@@ -107,11 +108,12 @@ export default async function ProduitsPage({
       ) : (
         <div className="flex flex-col gap-10">
           {groupes.map((groupe, i) => (
-            <ProductSection
-              key={i}
-              produits={groupe}
-              disposition={ROTATION_DISPOSITIONS[i % ROTATION_DISPOSITIONS.length]}
-            />
+            <Reveal key={i}>
+              <ProductSection
+                produits={groupe}
+                disposition={ROTATION_DISPOSITIONS[i % ROTATION_DISPOSITIONS.length]}
+              />
+            </Reveal>
           ))}
         </div>
       )}

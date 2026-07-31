@@ -9,6 +9,8 @@ import { prisma } from "./lib/prisma";
 import HeroCarousel from "./components/HeroCarousel";
 import ProductThumb from "./components/ProductThumb";
 import ProductSection, { type Disposition } from "./components/ProductSection";
+import VentesFlash from "./components/VentesFlash";
+import Reveal from "./components/Reveal";
 
 // Rotation des dispositions pour casser la monotonie en descendant la page
 // (même logique que sur /produits) : une par rangée (nouveautés, puis chaque catégorie).
@@ -85,11 +87,25 @@ export default async function Accueil() {
 
   const categoriesAvecProduits = categories.filter((c) => c.products.length > 0);
 
-  // Notes moyennes de TOUS les produits affichés (nouveautés + rangées)
+  // Ventes flash : produits actifs ayant une variante en promo (comparePrice > prix).
+  const produitsAvecPromo = await prisma.product.findMany({
+    where: { isActive: true, variants: { some: { comparePrice: { not: null } } } },
+    include: {
+      images: { orderBy: { position: "asc" }, take: 1 },
+      variants: { orderBy: { price: "asc" }, take: 1 },
+    },
+    take: 12,
+  });
+  const ventesFlash = produitsAvecPromo.filter(
+    (p) => p.variants[0]?.comparePrice != null && p.variants[0].comparePrice > p.variants[0].price
+  );
+
+  // Notes moyennes de TOUS les produits affichés (nouveautés + rangées + ventes flash)
   const idsAffiches = Array.from(
     new Set([
       ...nouveautes.map((p) => p.id),
       ...categories.flatMap((c) => c.products.map((p) => p.id)),
+      ...ventesFlash.map((p) => p.id),
     ])
   );
   const notes = idsAffiches.length
@@ -125,42 +141,10 @@ export default async function Accueil() {
         </div>
       </section>
 
-      {/* CATÉGORIES */}
-      <section className="mx-auto max-w-6xl px-4 py-8">
-        <h2 className="mb-6 text-2xl font-bold text-[#14213D]">
-          Explorez nos catégories
-        </h2>
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-          {categories.map((c) => {
-            const cover = c.products[0]?.images[0]?.url ?? null;
-            return (
-              <Link
-                key={c.id}
-                href={`/produits?categorie=${c.slug}`}
-                className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-neutral-200"
-              >
-                <ProductThumb src={cover} alt={c.name} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                <span className="absolute bottom-3 left-3 z-10 text-lg font-bold text-white drop-shadow">
-                  {c.name}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* NOUVEAUTÉS */}
-      <section className="mx-auto max-w-6xl px-4 pb-8">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-[#14213D]">Nouveautés</h2>
-          <Link href="/produits" className="text-sm font-semibold text-[#C95900] hover:underline">
-            Voir tout →
-          </Link>
-        </div>
-        <ProductSection
-          disposition={ROTATION_DISPOSITIONS[0]}
-          produits={nouveautes.map((p) => ({
+      {/* VENTES FLASH */}
+      <Reveal>
+        <VentesFlash
+          produits={ventesFlash.map((p) => ({
             id: p.id,
             slug: p.slug,
             name: p.name,
@@ -172,20 +156,48 @@ export default async function Accueil() {
             note: notesParProduit.get(p.id),
           }))}
         />
-      </section>
+      </Reveal>
 
-      {/* RANGÉE PAR CATÉGORIE */}
-      {categoriesAvecProduits.map((c, i) => (
-        <section key={c.id} className="mx-auto max-w-6xl px-4 py-6">
+      {/* CATÉGORIES */}
+      <Reveal>
+        <section className="mx-auto max-w-6xl px-4 py-8">
+          <h2 className="mb-6 text-2xl font-bold text-[#14213D]">
+            Explorez nos catégories
+          </h2>
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+            {categories.map((c, i) => {
+              const cover = c.products[0]?.images[0]?.url ?? null;
+              return (
+                <Reveal key={c.id} delay={i * 60}>
+                  <Link
+                    href={`/produits?categorie=${c.slug}`}
+                    className="group relative block aspect-[4/3] overflow-hidden rounded-xl bg-neutral-200"
+                  >
+                    <ProductThumb src={cover} alt={c.name} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent transition-opacity duration-300 group-hover:from-black/80" />
+                    <span className="absolute bottom-3 left-3 z-10 text-lg font-bold text-white drop-shadow">
+                      {c.name}
+                    </span>
+                  </Link>
+                </Reveal>
+              );
+            })}
+          </div>
+        </section>
+      </Reveal>
+
+      {/* NOUVEAUTÉS */}
+      <Reveal>
+        <section className="mx-auto max-w-6xl px-4 pb-8">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-[#14213D]">{c.name}</h2>
-            <Link href={`/produits?categorie=${c.slug}`} className="text-sm font-semibold text-[#C95900] hover:underline">
+            <h2 className="text-2xl font-bold text-[#14213D]">Nouveautés</h2>
+            <Link href="/produits" className="text-sm font-semibold text-[#C95900] hover:underline">
               Voir tout →
             </Link>
           </div>
           <ProductSection
-            disposition={ROTATION_DISPOSITIONS[(i + 1) % ROTATION_DISPOSITIONS.length]}
-            produits={c.products.map((p) => ({
+            disposition={ROTATION_DISPOSITIONS[0]}
+            produits={nouveautes.map((p) => ({
               id: p.id,
               slug: p.slug,
               name: p.name,
@@ -198,20 +210,50 @@ export default async function Accueil() {
             }))}
           />
         </section>
+      </Reveal>
+
+      {/* RANGÉE PAR CATÉGORIE */}
+      {categoriesAvecProduits.map((c, i) => (
+        <Reveal key={c.id}>
+          <section className="mx-auto max-w-6xl px-4 py-6">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-[#14213D]">{c.name}</h2>
+              <Link href={`/produits?categorie=${c.slug}`} className="text-sm font-semibold text-[#C95900] hover:underline">
+                Voir tout →
+              </Link>
+            </div>
+            <ProductSection
+              disposition={ROTATION_DISPOSITIONS[(i + 1) % ROTATION_DISPOSITIONS.length]}
+              produits={c.products.map((p) => ({
+                id: p.id,
+                slug: p.slug,
+                name: p.name,
+                price: p.variants[0]?.price ?? 0,
+                comparePrice: p.variants[0]?.comparePrice ?? null,
+                imageUrl: p.images[0]?.url ?? null,
+                imageAlt: p.images[0]?.alt ?? null,
+                stock: p.variants[0]?.stock ?? 0,
+                note: notesParProduit.get(p.id),
+              }))}
+            />
+          </section>
+        </Reveal>
       ))}
 
       {/* APPEL FINAL */}
-      <section className="mx-auto max-w-6xl px-4 py-14">
-        <div className="rounded-2xl bg-[#14213D] px-6 py-12 text-center text-white">
-          <h2 className="text-2xl font-bold sm:text-3xl">Prêt à faire vos achats ?</h2>
-          <p className="mx-auto mt-2 max-w-md text-neutral-300">
-            Parcourez tout le catalogue et commandez en quelques clics.
-          </p>
-          <Link href="/produits" className="mt-6 inline-block rounded-full bg-[#F1720A] px-8 py-3 font-semibold text-white transition hover:bg-[#C95900]">
-            Voir tous les produits
-          </Link>
-        </div>
-      </section>
+      <Reveal>
+        <section className="mx-auto max-w-6xl px-4 py-14">
+          <div className="rounded-2xl bg-[#14213D] px-6 py-12 text-center text-white">
+            <h2 className="text-2xl font-bold sm:text-3xl">Prêt à faire vos achats ?</h2>
+            <p className="mx-auto mt-2 max-w-md text-neutral-300">
+              Parcourez tout le catalogue et commandez en quelques clics.
+            </p>
+            <Link href="/produits" className="mt-6 inline-block rounded-full bg-[#F1720A] px-8 py-3 font-semibold text-white transition hover:bg-[#C95900] hover:scale-105">
+              Voir tous les produits
+            </Link>
+          </div>
+        </section>
+      </Reveal>
 
       {/* PIED DE PAGE */}
       <footer className="border-t border-[#14213D]/10 bg-[#FFFBF3]">

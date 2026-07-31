@@ -34,7 +34,7 @@ export default function DeleteProductButton({ id }: { id: string }) {
     <button
       onClick={handleClick}
       disabled={isPending}
-      className="text-sm text-red-600 hover:underline disabled:opacity-50"
+      className="text-sm font-medium text-[#D6293E] hover:underline disabled:opacity-50"
     >
       {isPending ? "Suppression…" : "Supprimer ce produit"}
     </button>

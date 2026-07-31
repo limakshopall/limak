@@ -46,13 +46,13 @@ export default function CommandesFiltres() {
         value={recherche}
         onChange={(e) => setRecherche(e.target.value)}
         placeholder="Rechercher (nom ou téléphone)…"
-        className="w-full rounded-lg border border-gray-300 px-4 py-2 sm:max-w-xs"
+        className="w-full rounded-lg border border-[#14213D]/15 px-4 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] sm:max-w-xs"
       />
 
       <select
         value={statut}
         onChange={(e) => setParam("statut", e.target.value)}
-        className="rounded-lg border border-gray-300 px-3 py-2"
+        className="rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
       >
         <option value="">Tous les statuts</option>
         {Object.entries(STATUTS).map(([code, label]) => (

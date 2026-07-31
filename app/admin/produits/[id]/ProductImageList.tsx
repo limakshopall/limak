@@ -16,7 +16,7 @@ export default function ProductImageList({ images }: { images: Img[] }) {
   const [isPending, startTransition] = useTransition();
 
   if (images.length === 0) {
-    return <p className="text-sm text-gray-400">Aucune image pour l'instant.</p>;
+    return <p className="text-sm text-neutral-400">Aucune image pour l'instant.</p>;
   }
 
   function handleDelete(imageId: string) {
@@ -34,12 +34,12 @@ export default function ProductImageList({ images }: { images: Img[] }) {
           <img
             src={img.url}
             alt=""
-            className="aspect-square w-full rounded object-cover"
+            className="aspect-square w-full rounded-lg object-cover"
           />
           <button
             onClick={() => handleDelete(img.id)}
             disabled={isPending}
-            className="absolute right-1 top-1 rounded bg-black/70 px-1.5 text-xs text-white hover:bg-red-600 disabled:opacity-50"
+            className="absolute right-1 top-1 rounded bg-[#14213D]/70 px-1.5 text-xs text-white hover:bg-[#D6293E] disabled:opacity-50"
             aria-label="Supprimer l'image"
           >
             ✕

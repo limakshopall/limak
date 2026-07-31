@@ -37,13 +37,13 @@ export default function AdminProduitsFiltres() {
         value={recherche}
         onChange={(e) => setRecherche(e.target.value)}
         placeholder="Rechercher un produit…"
-        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm sm:max-w-xs"
+        className="w-full rounded-lg border border-[#14213D]/15 px-3 py-2 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] sm:max-w-xs"
       />
 
       <select
         value={tri}
         onChange={(e) => setParam("tri", e.target.value)}
-        className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+        className="rounded-lg border border-[#14213D]/15 px-3 py-2 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
       >
         <option value="nom">Nom (A-Z)</option>
         <option value="stock-asc">Stock (croissant)</option>

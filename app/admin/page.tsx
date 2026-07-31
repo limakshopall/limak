@@ -72,55 +72,55 @@ export default async function AdminHome() {
   ];
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-10">
+    <main className="mx-auto max-w-4xl bg-[#FBEEDA] px-4 py-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Administration</h1>
+        <h1 className="text-2xl font-bold text-[#14213D]">Administration</h1>
         <form action={logout}>
-          <button className="text-sm text-gray-500 hover:text-black">
+          <button className="text-sm text-neutral-500 hover:text-[#14213D]">
             Se déconnecter
           </button>
         </form>
       </div>
 
       {/* --- Cartes de statistiques --- */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => (
           <div
             key={s.label}
-            className="rounded-lg border border-gray-200 bg-white p-4"
+            className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm"
           >
-            <p className="text-sm text-gray-500">{s.label}</p>
-            <p className="mt-1 text-xl font-bold">{s.valeur}</p>
+            <p className="text-sm text-neutral-500">{s.label}</p>
+            <p className="mt-1 text-xl font-bold text-[#14213D]">{s.valeur}</p>
           </div>
         ))}
       </div>
 
       {/* --- Alerte de stock bas --- */}
       {stockBas.length > 0 && (
-        <div className="mt-8 rounded-lg border border-orange-200 bg-orange-50 p-4">
-          <h2 className="font-semibold text-orange-800">
+        <div className="mt-6 rounded-xl border border-[#F1720A]/20 bg-[#F1720A]/5 p-4">
+          <h2 className="font-semibold text-[#C95900]">
             ⚠️ Stock à surveiller ({stockBas.length})
           </h2>
-          <p className="mb-3 mt-1 text-sm text-orange-700">
+          <p className="mb-3 mt-1 text-sm text-[#C95900]/80">
             Ces produits sont épuisés ou bientôt en rupture.
           </p>
-          <ul className="divide-y divide-orange-100">
+          <ul className="divide-y divide-[#F1720A]/10">
             {stockBas.map((v) => (
               <li key={v.id} className="flex items-center justify-between py-2 text-sm">
                 <Link
                   href={`/produits/${v.product.slug}`}
-                  className="min-w-0 truncate font-medium text-orange-900 hover:underline"
+                  className="min-w-0 truncate font-medium text-[#14213D] hover:underline"
                 >
                   {v.product.name}
                   {v.name !== "Standard" && (
-                    <span className="text-orange-500"> · {v.name}</span>
+                    <span className="text-[#C95900]"> · {v.name}</span>
                   )}
                 </Link>
                 <span
                   className={`ml-3 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold ${
                     v.stock === 0
-                      ? "bg-red-100 text-red-700"
-                      : "bg-orange-200 text-orange-800"
+                      ? "bg-[#D6293E]/10 text-[#D6293E]"
+                      : "bg-[#F1720A]/15 text-[#C95900]"
                   }`}
                 >
                   {v.stock === 0 ? "Épuisé" : `${v.stock} restant(s)`}
@@ -132,35 +132,35 @@ export default async function AdminHome() {
       )}
 
       {/* --- Dernières commandes + Top ventes --- */}
-      <div className="mt-8 grid gap-6 md:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold">Dernières commandes</h2>
+            <h2 className="font-semibold text-[#14213D]">Dernières commandes</h2>
             <Link
               href="/admin/commandes"
-              className="text-sm text-gray-500 hover:text-black"
+              className="text-sm text-neutral-500 hover:text-[#14213D]"
             >
               Tout voir →
             </Link>
           </div>
 
           {dernieresCommandes.length === 0 ? (
-            <p className="text-sm text-gray-500">Aucune commande.</p>
+            <p className="text-sm text-neutral-500">Aucune commande.</p>
           ) : (
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-[#14213D]/5">
               {dernieresCommandes.map((cmd) => (
                 <li
                   key={cmd.id}
                   className="flex items-center justify-between py-2 text-sm"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-medium">{cmd.customerName}</p>
-                    <p className="text-xs text-gray-400">
+                    <p className="truncate font-medium text-[#14213D]">{cmd.customerName}</p>
+                    <p className="text-xs text-neutral-400">
                       {new Date(cmd.createdAt).toLocaleDateString("fr-FR")} ·{" "}
                       {cmd.items.length} article(s)
                     </p>
                   </div>
-                  <span className="whitespace-nowrap font-semibold">
+                  <span className="whitespace-nowrap font-semibold text-[#14213D]">
                     {fcfa(cmd.total)}
                   </span>
                 </li>
@@ -169,11 +169,11 @@ export default async function AdminHome() {
           )}
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <h2 className="mb-3 font-semibold">Meilleures ventes</h2>
+        <div className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm">
+          <h2 className="mb-3 font-semibold text-[#14213D]">Meilleures ventes</h2>
 
           {topVentes.length === 0 ? (
-            <p className="text-sm text-gray-500">Aucune vente pour le moment.</p>
+            <p className="text-sm text-neutral-500">Aucune vente pour le moment.</p>
           ) : (
             <ol className="space-y-2">
               {topVentes.map((p, i) => (
@@ -181,11 +181,11 @@ export default async function AdminHome() {
                   key={p.productName}
                   className="flex items-center justify-between text-sm"
                 >
-                  <span className="min-w-0 truncate">
-                    <span className="text-gray-400">{i + 1}.</span>{" "}
+                  <span className="min-w-0 truncate text-neutral-700">
+                    <span className="text-neutral-400">{i + 1}.</span>{" "}
                     {p.productName}
                   </span>
-                  <span className="whitespace-nowrap font-semibold">
+                  <span className="whitespace-nowrap font-semibold text-[#14213D]">
                     {p._sum.quantity ?? 0} vendu(s)
                   </span>
                 </li>
@@ -196,23 +196,23 @@ export default async function AdminHome() {
       </div>
 
       {/* --- Accès rapides --- */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Link
           href="/admin/commandes"
-          className="rounded-lg border border-gray-200 p-6 transition hover:shadow-md"
+          className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-6 shadow-sm transition hover:shadow-md"
         >
-          <h2 className="font-semibold">Commandes</h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <h2 className="font-semibold text-[#14213D]">Commandes</h2>
+          <p className="mt-1 text-sm text-neutral-500">
             Voir et gérer les commandes reçues
           </p>
         </Link>
 
         <Link
           href="/admin/produits"
-          className="rounded-lg border border-gray-200 p-6 transition hover:shadow-md"
+          className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-6 shadow-sm transition hover:shadow-md"
         >
-          <h2 className="font-semibold">Produits</h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <h2 className="font-semibold text-[#14213D]">Produits</h2>
+          <p className="mt-1 text-sm text-neutral-500">
             Gérer le catalogue et les stocks
           </p>
         </Link>

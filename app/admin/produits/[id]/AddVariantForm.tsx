@@ -13,7 +13,7 @@ export default function AddVariantForm({ productId }: { productId: string }) {
       <input type="hidden" name="productId" value={productId} />
       <p className="mb-2 text-xs font-medium text-neutral-500">Ajouter une variante</p>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <input
           name="color"
           placeholder="Couleur (ex: Rouge)"
@@ -44,13 +44,14 @@ export default function AddVariantForm({ productId }: { productId: string }) {
           placeholder="Promo (vide = non)"
           className="rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
         />
-        <input
-          name="costPrice"
-          type="number"
-          placeholder="Prix fournisseur (interne)"
-          className="rounded border border-[#14213D]/15 bg-[#FBEEDA] px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
-        />
       </div>
+
+      <input
+        name="costPrice"
+        type="number"
+        placeholder="Prix fournisseur — interne (facultatif)"
+        className="mt-2 w-full max-w-xs rounded border border-[#14213D]/15 bg-[#FBEEDA] px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+      />
 
       <button
         type="submit"

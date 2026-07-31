@@ -52,10 +52,10 @@ function IconeCadenas({ className }: { className?: string }) {
 }
 
 const REASSURANCE = [
-  { Icone: IconeCamion, titre: "Livraison rapide", sous: "Partout en Côte d'Ivoire" },
-  { Icone: IconeBillet, titre: "Paiement à la livraison", sous: "Payez à réception" },
-  { Icone: IconeBadge, titre: "Produits de qualité", sous: "Sélection vérifiée" },
-  { Icone: IconeCadenas, titre: "Commande sécurisée", sous: "Directement sur le site" },
+  { Icone: IconeCamion, titre: "Livraison rapide" },
+  { Icone: IconeBillet, titre: "Paiement à la livraison" },
+  { Icone: IconeBadge, titre: "Produits vérifiés" },
+  { Icone: IconeCadenas, titre: "Achat sécurisé" },
 ];
 
 export default async function Accueil() {
@@ -110,15 +110,15 @@ export default async function Accueil() {
 
       {/* RÉASSURANCE */}
       <section className="mt-6 bg-[#14213D]">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-2 px-4 py-2 text-[11px] sm:grid-cols-4 sm:text-xs">
-          {REASSURANCE.map(({ Icone, titre, sous }) => (
-            <div key={titre} className="flex items-center gap-2">
-              <span className="relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#F1720A] text-[#14213D] shadow-[0_0_10px_-1px_rgba(241,114,10,0.7)]">
-                <Icone className="h-3 w-3" />
-              </span>
-              <div className="min-w-0">
-                <p className="truncate font-semibold text-[#FBEEDA]">{titre}</p>
-                <p className="truncate text-[#FBEEDA]/60">{sous}</p>
+        <div className="scrollbar-none mx-auto flex max-w-6xl items-center justify-center gap-5 overflow-x-auto px-4 py-2 sm:gap-8">
+          {REASSURANCE.map(({ Icone, titre }, i) => (
+            <div key={titre} className="flex shrink-0 items-center gap-4 sm:gap-8">
+              {i > 0 && <span className="h-3 w-px shrink-0 bg-[#FBEEDA]/20" aria-hidden />}
+              <div className="flex shrink-0 items-center gap-1.5">
+                <Icone className="h-3.5 w-3.5 shrink-0 text-[#F1720A]" />
+                <span className="whitespace-nowrap text-[10px] font-medium uppercase tracking-wide text-[#FBEEDA]/85 sm:text-[11px]">
+                  {titre}
+                </span>
               </div>
             </div>
           ))}

@@ -5,11 +5,13 @@
 import Link from "next/link";
 import { prisma } from "../../../lib/prisma";
 import { createProduct } from "./actions";
+import CategoryPicker from "../CategoryPicker";
 
 export default async function NouveauProduit() {
   // On récupère les catégories pour le menu déroulant
   const categories = await prisma.category.findMany({
     orderBy: { name: "asc" },
+    select: { id: true, name: true, imageUrl: true },
   });
 
   return (
@@ -33,21 +35,7 @@ export default async function NouveauProduit() {
           />
         </div>
 
-        <div>
-          <label className="block text-sm text-neutral-600">Catégorie</label>
-          <select
-            name="categoryId"
-            defaultValue=""
-            className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
-          >
-            <option value="">— Aucune —</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <CategoryPicker categories={categories} />
 
         <div>
           <label className="block text-sm text-neutral-600">
@@ -79,6 +67,21 @@ export default async function NouveauProduit() {
               className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
             />
           </div>
+        </div>
+
+        <div className="rounded-lg border border-dashed border-[#14213D]/20 bg-[#FBEEDA] p-3">
+          <label className="block text-sm text-neutral-600">
+            Prix fournisseur (FCFA)
+          </label>
+          <input
+            name="costPrice"
+            type="number"
+            placeholder="Facultatif"
+            className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+          />
+          <p className="mt-1 text-xs text-neutral-400">
+            Usage interne uniquement — jamais visible par les clients.
+          </p>
         </div>
 
         <button

@@ -21,12 +21,13 @@ export async function updateProduct(formData: FormData) {
   const id = String(formData.get("id"));
   const name = String(formData.get("name") ?? "").trim();
   const isActive = formData.get("isActive") === "on";
+  const categoryId = String(formData.get("categoryId") ?? "");
 
   if (!id || !name) return;
 
   await prisma.product.update({
     where: { id },
-    data: { name, isActive },
+    data: { name, isActive, categoryId: categoryId || null },
   });
 
   redirect("/admin/produits");
@@ -41,6 +42,13 @@ function resolveComparePrice(compareRaw: string, price: number): number | null {
 }
 
 // Ajoute une variante (couleur/taille) à un produit.
+function resolveCostPrice(costRaw: string): number | null {
+  const trimmed = costRaw.trim();
+  if (trimmed === "") return null;
+  const parsed = parseInt(trimmed, 10);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 export async function createVariant(formData: FormData) {
   const productId = String(formData.get("productId") ?? "");
   const color = String(formData.get("color") ?? "").trim();
@@ -48,6 +56,7 @@ export async function createVariant(formData: FormData) {
   const price = parseInt(String(formData.get("price") ?? ""), 10);
   const stock = parseInt(String(formData.get("stock") ?? ""), 10);
   const compareRaw = String(formData.get("comparePrice") ?? "");
+  const costRaw = String(formData.get("costPrice") ?? "");
 
   if (!productId || !Number.isFinite(price) || !Number.isFinite(stock)) return;
 
@@ -62,6 +71,7 @@ export async function createVariant(formData: FormData) {
       price,
       stock,
       comparePrice: resolveComparePrice(compareRaw, price),
+      costPrice: resolveCostPrice(costRaw),
     },
   });
 
@@ -77,6 +87,7 @@ export async function updateVariant(formData: FormData) {
   const price = parseInt(String(formData.get("price") ?? ""), 10);
   const stock = parseInt(String(formData.get("stock") ?? ""), 10);
   const compareRaw = String(formData.get("comparePrice") ?? "");
+  const costRaw = String(formData.get("costPrice") ?? "");
 
   if (!variantId || !Number.isFinite(price) || !Number.isFinite(stock)) return;
 
@@ -91,6 +102,7 @@ export async function updateVariant(formData: FormData) {
       price,
       stock,
       comparePrice: resolveComparePrice(compareRaw, price),
+      costPrice: resolveCostPrice(costRaw),
     },
   });
 

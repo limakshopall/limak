@@ -71,7 +71,11 @@ export default async function FicheProduit({
     where: { slug },
     include: {
       images: { orderBy: { position: "asc" } },
-      variants: { orderBy: { price: "asc" } },
+      // select explicite : costPrice (prix fournisseur) ne doit jamais atteindre le client.
+      variants: {
+        orderBy: { price: "asc" },
+        select: { id: true, color: true, size: true, price: true, comparePrice: true, stock: true },
+      },
       category: true,
       reviews: { orderBy: { createdAt: "desc" } },
     },

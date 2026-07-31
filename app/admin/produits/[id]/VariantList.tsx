@@ -14,6 +14,7 @@ type Variant = {
   size: string | null;
   price: number;
   comparePrice: number | null;
+  costPrice: number | null;
   stock: number;
 };
 
@@ -35,7 +36,7 @@ export default function VariantList({
           <input type="hidden" name="variantId" value={v.id} />
           <input type="hidden" name="productId" value={productId} />
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             <div>
               <label className="block text-xs text-neutral-500">Couleur</label>
               <input
@@ -80,6 +81,18 @@ export default function VariantList({
                 defaultValue={v.comparePrice ?? ""}
                 placeholder="Vide = non"
                 className="mt-1 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-neutral-500">
+                Prix fournisseur <span className="text-[#14213D]/40">(interne)</span>
+              </label>
+              <input
+                name="costPrice"
+                type="number"
+                defaultValue={v.costPrice ?? ""}
+                placeholder="Facultatif"
+                className="mt-1 w-full rounded border border-[#14213D]/15 bg-[#FBEEDA] px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
               />
             </div>
           </div>

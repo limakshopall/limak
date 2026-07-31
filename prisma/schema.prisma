@@ -171,6 +171,7 @@ model ProductVariant {
   size         String? // ex: "42" ou "M" — facultatif, pour les produits déclinés par taille
   price        Int     // prix de vente actuel en FCFA
   comparePrice Int?    // ancien prix barré (FCFA) — facultatif ; rempli = produit en promo
+  costPrice    Int?    // prix fournisseur (FCFA) — INTERNE, jamais exposé aux clients (visible admin only)
   stock        Int     @default(0) // quantité disponible
 
   orderItems OrderItem[]

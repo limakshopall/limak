@@ -24,6 +24,8 @@ export async function createProduct(formData: FormData) {
   const description = String(formData.get("description") ?? "").trim();
   const price = parseInt(String(formData.get("price") ?? ""), 10);
   const stock = parseInt(String(formData.get("stock") ?? ""), 10);
+  const costRaw = String(formData.get("costPrice") ?? "").trim();
+  const costPrice = costRaw === "" ? null : parseInt(costRaw, 10);
 
   if (!name) return;
 
@@ -53,6 +55,7 @@ export async function createProduct(formData: FormData) {
             name: "Standard",
             price: Number.isFinite(price) ? price : 0,
             stock: Number.isFinite(stock) ? stock : 0,
+            costPrice: costPrice != null && Number.isFinite(costPrice) ? costPrice : null,
           },
         ],
       },

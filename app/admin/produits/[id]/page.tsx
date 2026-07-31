@@ -11,6 +11,7 @@ import ProductImageUploader from "./ProductImageUploader";
 import ProductImageList from "./ProductImageList";
 import VariantList from "./VariantList";
 import AddVariantForm from "./AddVariantForm";
+import CategoryPicker from "../CategoryPicker";
 
 export default async function EditProduit({
   params,
@@ -31,6 +32,11 @@ export default async function EditProduit({
   if (!produit) {
     notFound();
   }
+
+  const categories = await prisma.category.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, imageUrl: true },
+  });
 
   return (
     <main className="mx-auto max-w-xl bg-[#FBEEDA] px-4 py-8">
@@ -54,6 +60,8 @@ export default async function EditProduit({
             className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
           />
         </div>
+
+        <CategoryPicker categories={categories} defaultValue={produit.categoryId ?? ""} />
 
         <label className="flex items-center gap-2">
           <input name="isActive" type="checkbox" defaultChecked={produit.isActive} />

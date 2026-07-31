@@ -24,11 +24,11 @@ export default function CommandePage() {
 
   if (count === 0) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold">Votre panier est vide</h1>
+      <main className="mx-auto max-w-3xl bg-[#FBEEDA] px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold text-[#14213D]">Votre panier est vide</h1>
         <Link
           href="/produits"
-          className="mt-6 inline-block rounded-lg bg-[#F1720A] px-6 py-3 font-medium text-white hover:bg-[#C95900]"
+          className="mt-6 inline-block rounded-full bg-[#F1720A] px-6 py-3 font-semibold text-white transition hover:bg-[#C95900]"
         >
           Voir les produits
         </Link>
@@ -58,54 +58,54 @@ export default function CommandePage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="mb-8 text-2xl font-bold">Finaliser la commande</h1>
+    <main className="mx-auto max-w-3xl bg-[#FBEEDA] px-4 py-8">
+      <h1 className="mb-6 text-2xl font-bold text-[#14213D]">Finaliser la commande</h1>
 
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         {/* Formulaire de livraison */}
-        <div className="space-y-4">
-          <h2 className="font-semibold">Informations de livraison</h2>
+        <div className="space-y-4 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm">
+          <h2 className="font-semibold text-[#14213D]">Informations de livraison</h2>
 
           <div>
-            <label className="block text-sm text-gray-600">Nom complet</label>
+            <label className="block text-sm text-neutral-600">Nom complet</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600">Téléphone</label>
+            <label className="block text-sm text-neutral-600">Téléphone</label>
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600">Adresse</label>
+            <label className="block text-sm text-neutral-600">Adresse</label>
             <input
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600">Ville</label>
+            <label className="block text-sm text-neutral-600">Ville</label>
             <input
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
             />
           </div>
         </div>
 
         {/* Récapitulatif */}
-        <div>
-          <h2 className="font-semibold">Récapitulatif</h2>
+        <div className="h-fit rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm">
+          <h2 className="font-semibold text-[#14213D]">Récapitulatif</h2>
           <div className="mt-3 space-y-2">
             {items.map((item) => (
-              <div key={item.productId} className="flex justify-between text-sm">
+              <div key={item.productId} className="flex justify-between text-sm text-neutral-700">
                 <span className="truncate">
                   {item.name} × {item.quantity}
                 </span>
@@ -116,18 +116,18 @@ export default function CommandePage() {
             ))}
           </div>
 
-          <div className="mt-4 flex justify-between border-t border-gray-200 pt-4 font-bold">
+          <div className="mt-4 flex justify-between border-t border-[#14213D]/10 pt-4 font-bold text-[#14213D]">
             <span>Total</span>
             <span>{new Intl.NumberFormat("fr-FR").format(total)} FCFA</span>
           </div>
-          <p className="mt-2 text-sm text-gray-500">Paiement à la livraison</p>
+          <p className="mt-2 text-sm text-neutral-500">Paiement à la livraison</p>
 
-          {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-4 text-sm font-medium text-[#D6293E]">{error}</p>}
 
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="mt-6 w-full rounded-lg bg-[#F1720A] px-6 py-3 font-medium text-white hover:bg-[#C95900] disabled:opacity-50"
+            className="mt-6 w-full rounded-full bg-[#F1720A] px-6 py-3 font-semibold text-white transition hover:bg-[#C95900] disabled:opacity-50"
           >
             {loading ? "Validation..." : "Confirmer la commande"}
           </button>

@@ -47,15 +47,30 @@ export default function AddToCartButton({ productId, slug, name, image, variants
   const [couleurChoisie, setCouleurChoisie] = useState<string | null>(couleurs[0] ?? null);
   const [tailleChoisie, setTailleChoisie] = useState<string | null>(tailles[0] ?? null);
 
-  const variant =
-    variants.find(
-      (v) =>
-        (couleurs.length === 0 || v.color === couleurChoisie) &&
-        (tailles.length === 0 || v.size === tailleChoisie)
-    ) ?? variants[0];
+  const variant = variants.find(
+    (v) =>
+      (couleurs.length === 0 || v.color === couleurChoisie) &&
+      (tailles.length === 0 || v.size === tailleChoisie)
+  );
 
   const stock = variant?.stock ?? 0;
   const epuise = !variant || stock <= 0;
+
+  function choisirCouleur(c: string) {
+    setCouleurChoisie(c);
+    const compatible = variants.some((v) => v.color === c && v.size === tailleChoisie);
+    if (!compatible) {
+      setTailleChoisie(variants.find((v) => v.color === c)?.size ?? null);
+    }
+  }
+
+  function choisirTaille(s: string) {
+    setTailleChoisie(s);
+    const compatible = variants.some((v) => v.size === s && v.color === couleurChoisie);
+    if (!compatible) {
+      setCouleurChoisie(variants.find((v) => v.size === s)?.color ?? null);
+    }
+  }
 
   function diminuer() {
     setQuantite((q) => Math.max(1, q - 1));
@@ -110,7 +125,7 @@ export default function AddToCartButton({ productId, slug, name, image, variants
               <button
                 key={c}
                 type="button"
-                onClick={() => setCouleurChoisie(c)}
+                onClick={() => choisirCouleur(c)}
                 className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                   c === couleurChoisie
                     ? "border-[#14213D] bg-[#14213D] text-white"
@@ -138,7 +153,7 @@ export default function AddToCartButton({ productId, slug, name, image, variants
                 <button
                   key={s}
                   type="button"
-                  onClick={() => setTailleChoisie(s)}
+                  onClick={() => choisirTaille(s)}
                   disabled={indispo}
                   title={indispo ? "Indisponible pour cette couleur" : undefined}
                   className={`rounded-full border px-3 py-1.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-30 ${

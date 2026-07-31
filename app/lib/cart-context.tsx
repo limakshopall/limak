@@ -45,7 +45,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setItems(JSON.parse(saved));
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Ignore les paniers sauvegardés avant l'ajout des variantes
+        // (articles sans variantId) : sans ça, le paiement plante en silence.
+        if (Array.isArray(parsed)) {
+          setItems(parsed.filter((i): i is CartItem => !!i?.variantId));
+        }
+      }
     } catch {
       // panier illisible : on ignore
     }

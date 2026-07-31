@@ -10,6 +10,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { frFR } from "@clerk/localizations";
 import { CartProvider } from "./lib/cart-context";
 import Header from "./components/Header";
+import { prisma } from "./lib/prisma";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,26 +53,30 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const categories = await prisma.category.findMany({
+    orderBy: { name: "asc" },
+    select: { name: true, slug: true },
+  });
+
   return (
     <ClerkProvider localization={frFR}>
       <html
         lang="fr"
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       >
-<WhatsAppButton />
-
         <body className="min-h-full flex flex-col">
+          <WhatsAppButton />
           <Suspense fallback={null}>
             <RouteLoadingOverlay />
           </Suspense>
           <CartProvider>
             <AnnouncementBar />
-            <Header />
+            <Header categories={categories} />
             <InstallBanner />
             <div className="flex-1">{children}</div>
           </CartProvider>

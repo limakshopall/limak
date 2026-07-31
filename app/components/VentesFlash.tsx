@@ -1,7 +1,8 @@
 // ============================================================
-//  BANDEAU "VENTES FLASH" — met en avant les produits en promo
-//  avec un compte à rebours, façon Jumia/Temu. Rien à faire côté
-//  admin : basé sur les promos déjà actives (comparePrice).
+//  BANDEAU "BONNES AFFAIRES DU JOUR" — met en avant les produits
+//  en promo avec un compte à rebours. Habillage propre à LIMAK
+//  (indigo + mangue, halo comme le carrousel) plutôt qu'un calque
+//  du bandeau rouge/éclair générique des grandes plateformes.
 // ============================================================
 
 import ProductCard from "./ProductCard";
@@ -21,25 +22,51 @@ type Produit = {
   note?: Note;
 };
 
+function IconeSablier({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 3" />
+    </svg>
+  );
+}
+
 export default function VentesFlash({ produits }: { produits: Produit[] }) {
   if (produits.length === 0) return null;
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-6">
-      <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-[#D6293E] to-[#C95900] p-5 sm:p-6">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl" aria-hidden>⚡</span>
-            <h2 className="text-xl font-extrabold text-white sm:text-2xl">Ventes flash</h2>
+      <div className="relative overflow-hidden rounded-2xl bg-[#14213D] p-5 sm:p-6">
+        <div
+          className="pointer-events-none absolute -left-12 -top-12 h-56 w-56 rounded-full opacity-25 blur-3xl"
+          style={{ background: "#F1720A" }}
+        />
+        <div
+          className="pointer-events-none absolute -bottom-16 -right-10 h-56 w-56 rounded-full opacity-15 blur-3xl"
+          style={{ background: "#D6293E" }}
+        />
+
+        <div className="relative mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F1720A]/15">
+              <IconeSablier className="h-4 w-4 text-[#F1720A]" />
+            </span>
+            <div>
+              <h2 className="text-xl font-extrabold text-white sm:text-2xl">
+                Bonnes affaires du jour
+              </h2>
+              <p className="text-xs text-white/50">Renouvelées chaque jour</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-white/80">
-              Se termine dans
+            <span className="text-xs font-medium uppercase tracking-wide text-white/60">
+              Encore
             </span>
             <Countdown />
           </div>
         </div>
-        <div className="scrollbar-none flex gap-3 overflow-x-auto pb-1">
+
+        <div className="relative scrollbar-none flex gap-3 overflow-x-auto pb-1">
           {produits.map((p) => (
             <div key={p.id} className="w-[42%] shrink-0 sm:w-[190px]">
               <ProductCard

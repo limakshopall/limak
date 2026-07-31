@@ -11,6 +11,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "../lib/cart-context";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import MenuLateral from "./MenuLateral";
 
 function IconePanier({ className }: { className?: string }) {
   return (
@@ -40,19 +41,26 @@ function IconeCommandes({ className }: { className?: string }) {
   );
 }
 
-export default function Header() {
+export default function Header({
+  categories = [],
+}: {
+  categories?: { name: string; slug: string }[];
+}) {
   const { count } = useCart();
 
   return (
     <header className="border-b border-[#14213D]/10 bg-[#FFFBF3]">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:py-4">
-        <Link
-          href="/"
-          className="flex shrink-0 items-center gap-1.5 text-lg font-extrabold tracking-tight text-[#14213D] sm:gap-2 sm:text-xl"
-        >
-          <Image src="/icon-192.png" alt="" width={40} height={40} priority className="h-9 w-9 sm:h-11 sm:w-11" />
-          LIMAK
-        </Link>
+        <div className="flex shrink-0 items-center gap-3">
+          <MenuLateral categories={categories} />
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-1.5 text-lg font-extrabold tracking-tight text-[#14213D] sm:gap-2 sm:text-xl"
+          >
+            <Image src="/icon-192.png" alt="" width={40} height={40} priority className="h-9 w-9 sm:h-11 sm:w-11" />
+            LIMAK
+          </Link>
+        </div>
 
         <nav className="flex shrink-0 items-center gap-3 sm:gap-5">
           <Link

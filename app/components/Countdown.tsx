@@ -37,11 +37,11 @@ export default function Countdown() {
 
   return (
     <div className="flex items-center gap-1 font-mono text-sm font-bold tabular-nums text-white">
-      <span className="rounded bg-black/20 px-1.5 py-0.5">{pad(h)}</span>
-      <span aria-hidden>:</span>
-      <span className="rounded bg-black/20 px-1.5 py-0.5">{pad(m)}</span>
-      <span aria-hidden>:</span>
-      <span className="rounded bg-black/20 px-1.5 py-0.5">{pad(s)}</span>
+      <span className="rounded bg-[#F1720A]/20 px-1.5 py-0.5">{pad(h)}</span>
+      <span aria-hidden className="text-white/40">:</span>
+      <span className="rounded bg-[#F1720A]/20 px-1.5 py-0.5">{pad(m)}</span>
+      <span aria-hidden className="text-white/40">:</span>
+      <span className="rounded bg-[#F1720A]/20 px-1.5 py-0.5">{pad(s)}</span>
     </div>
   );
 }

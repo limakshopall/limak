@@ -37,9 +37,9 @@ User, Address, Vendor, Category (auto-relation parent/enfant), Product, **Produc
 - **Avis** : par compte Clerk, **achat vérifié** (l'auteur doit avoir commandé), badge « ✓ Achat vérifié », étoiles partout.
 - **Promos** : `comparePrice` → prix barré + badge « -X% » (cartes + fiche), géré depuis l'admin.
 - **SEO** : metadata `layout.tsx` (`metadataBase`, template `%s | LIMAK`, openGraph), `sitemap.ts`, `robots.ts`, favicon logo.
-- **PWA** : `manifest.ts` (name LIMAK, standalone, `background_color` blanc = fond du splash, `theme_color` marine, icônes `/icon-192.png` + `/icon-512.png` dans `public/`), `apple-icon.png`, `InstallBanner.tsx`.
+- **PWA** : `manifest.ts` (name LIMAK, standalone, `background_color` blanc = fond du splash, `theme_color` indigo `#14213D`, icônes `/icon-192.png` + `/icon-512.png` dans `public/`), `apple-icon.png`, `InstallBanner.tsx`.
 - **WhatsApp** : bouton flottant `WhatsAppButton.tsx`.
-- **Accueil** `app/page.tsx` : `HeroCarousel`, réassurance, catégories, nouveautés, rangée par catégorie, footer (contact email/WhatsApp pour **questions seulement** — commandes uniquement sur le site). Identité : marine `#0f1724` + orange `#e67e22`/`#f39c12`.
+- **Accueil** `app/page.tsx` : `HeroCarousel`, réassurance, catégories, nouveautés, rangée par catégorie, footer (contact email/WhatsApp pour **questions seulement** — commandes uniquement sur le site). Identité : Indigo Nuit `#14213D` + Mangue `#F1720A`/`#C95900` (accent), Hibiscus `#D6293E` (urgence/erreur), Palmier `#1F7A5C` (succès/vérifié), Sable `#FBEEDA`/`#FFFBF3` (fonds).
 
 ## Conventions & pièges
 - Après modif de `schema.prisma` → `npx prisma migrate dev --name ...` + **Restart TS Server**.

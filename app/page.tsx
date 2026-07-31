@@ -14,6 +14,50 @@ import ProductSection, { type Disposition } from "./components/ProductSection";
 // (même logique que sur /produits) : une par rangée (nouveautés, puis chaque catégorie).
 const ROTATION_DISPOSITIONS: Disposition[] = ["grille", "scroll", "decale", "cercle"];
 
+// Icônes de la bande de réassurance (traits fins, plus sobres que des emojis).
+function IconeCamion({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M1 3h13v13H1z" />
+      <path d="M14 8h4l4 4v4h-8V8z" />
+      <circle cx="6" cy="18" r="2" />
+      <circle cx="17" cy="18" r="2" />
+    </svg>
+  );
+}
+function IconeBillet({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="2" y="6" width="20" height="12" rx="2" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M6 6v0M18 6v0M6 18v0M18 18v0" />
+    </svg>
+  );
+}
+function IconeBadge({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M12 2l2.4 2.1 3.1-.4.6 3.1 2.9 1.4-1.4 2.9 1.4 2.9-2.9 1.4-.6 3.1-3.1-.4L12 21l-2.4-2.1-3.1.4-.6-3.1-2.9-1.4 1.4-2.9-1.4-2.9 2.9-1.4.6-3.1 3.1.4z" />
+      <path d="M9 12l2 2 4-4" />
+    </svg>
+  );
+}
+function IconeCadenas({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="4" y="11" width="16" height="10" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </svg>
+  );
+}
+
+const REASSURANCE = [
+  { Icone: IconeCamion, titre: "Livraison rapide", sous: "Partout en Côte d'Ivoire" },
+  { Icone: IconeBillet, titre: "Paiement à la livraison", sous: "Payez à réception" },
+  { Icone: IconeBadge, titre: "Produits de qualité", sous: "Sélection vérifiée" },
+  { Icone: IconeCadenas, titre: "Commande sécurisée", sous: "Directement sur le site" },
+];
+
 export default async function Accueil() {
   const categories = await prisma.category.findMany({
     include: {
@@ -65,21 +109,16 @@ export default async function Accueil() {
       <HeroCarousel />
 
       {/* RÉASSURANCE */}
-      <section className="mt-8 border-y border-[#14213D]/10 bg-[#FFFBF3]">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 px-4 py-6 text-sm sm:grid-cols-4">
-          {[
-            ["🚚", "Livraison rapide", "Partout en Côte d'Ivoire"],
-            ["💵", "Paiement à la livraison", "Payez à réception"],
-            ["✅", "Produits de qualité", "Sélection vérifiée"],
-            ["🔒", "Commande sécurisée", "Directement sur le site"],
-          ].map(([emoji, titre, sous]) => (
-            <div key={titre} className="flex items-center gap-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#1F7A5C]/10 text-lg">
-                {emoji}
+      <section className="mt-6 border-y border-[#14213D]/10 bg-[#FFFBF3]">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 px-4 py-3 text-xs sm:grid-cols-4 sm:text-sm">
+          {REASSURANCE.map(({ Icone, titre, sous }) => (
+            <div key={titre} className="flex items-center gap-2.5">
+              <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#1F7A5C] text-[#FBEEDA] shadow-[0_0_14px_-2px_rgba(31,122,92,0.65)]">
+                <Icone className="h-3.5 w-3.5" />
               </span>
-              <div>
-                <p className="font-semibold text-[#14213D]">{titre}</p>
-                <p className="text-neutral-500">{sous}</p>
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-[#14213D]">{titre}</p>
+                <p className="truncate text-neutral-500">{sous}</p>
               </div>
             </div>
           ))}

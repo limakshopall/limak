@@ -110,7 +110,7 @@ export default async function Accueil() {
 
       {/* RÉASSURANCE */}
       <section className="mt-6 bg-[#14213D]">
-        <div className="scrollbar-none mx-auto flex max-w-6xl items-center justify-center gap-5 overflow-x-auto px-4 py-2 sm:gap-8">
+        <div className="scrollbar-none mx-auto flex max-w-6xl items-center justify-start gap-5 overflow-x-auto px-4 py-2 sm:justify-center sm:gap-8">
           {REASSURANCE.map(({ Icone, titre }, i) => (
             <div key={titre} className="flex shrink-0 items-center gap-4 sm:gap-8">
               {i > 0 && <span className="h-3 w-px shrink-0 bg-[#FBEEDA]/20" aria-hidden />}

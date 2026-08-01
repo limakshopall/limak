@@ -2,6 +2,10 @@
 @import "uploadthing/tw/v4";
 @source "../node_modules/@uploadthing/react/dist";
 
+/* Mode sombre déclenché par la classe .dark sur <html> (interrupteur du site),
+   plus par le thème système en secours tant que l'utilisateur n'a rien choisi. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #FBEEDA;
   --foreground: #14213D;
@@ -14,11 +18,9 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {

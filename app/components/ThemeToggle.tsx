@@ -26,6 +26,16 @@ function IconeLune({ className }: { className?: string }) {
   );
 }
 
+// Icône "auto" (moitié soleil, moitié lune) pour le retour au réglage système.
+function IconeSysteme({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="2" y="4" width="20" height="14" rx="2" />
+      <path d="M8 21h8M12 18v3" />
+    </svg>
+  );
+}
+
 export default function ThemeToggle({
   className,
   // "icon" : juste l'icône (usage header). "item" : icône + libellé sur toute la largeur (usage menu latéral).
@@ -35,9 +45,11 @@ export default function ThemeToggle({
   variant?: "icon" | "item";
 }) {
   const [dark, setDark] = useState<boolean | null>(null);
+  const [override, setOverride] = useState(false);
 
   useEffect(() => {
     setDark(document.documentElement.classList.contains("dark"));
+    setOverride(localStorage.getItem("theme") !== null);
   }, []);
 
   function basculer() {
@@ -45,6 +57,15 @@ export default function ThemeToggle({
     document.documentElement.classList.toggle("dark", prochain);
     localStorage.setItem("theme", prochain ? "dark" : "light");
     setDark(prochain);
+    setOverride(true);
+  }
+
+  function suivreSysteme() {
+    localStorage.removeItem("theme");
+    const sombre = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.classList.toggle("dark", sombre);
+    setDark(sombre);
+    setOverride(false);
   }
 
   // Tant qu'on ne connaît pas l'état réel (posé par le script inline avant
@@ -58,14 +79,26 @@ export default function ThemeToggle({
 
   if (variant === "item") {
     return (
-      <button
-        type="button"
-        onClick={basculer}
-        className={className}
-      >
-        {dark ? <IconeSoleil className="h-4.5 w-4.5 shrink-0" /> : <IconeLune className="h-4.5 w-4.5 shrink-0" />}
-        {dark ? "Mode clair" : "Mode sombre"}
-      </button>
+      <>
+        <button
+          type="button"
+          onClick={basculer}
+          className={className}
+        >
+          {dark ? <IconeSoleil className="h-4.5 w-4.5 shrink-0" /> : <IconeLune className="h-4.5 w-4.5 shrink-0" />}
+          {dark ? "Mode clair" : "Mode sombre"}
+        </button>
+        {override && (
+          <button
+            type="button"
+            onClick={suivreSysteme}
+            className={className}
+          >
+            <IconeSysteme className="h-4.5 w-4.5 shrink-0" />
+            Suivre le système
+          </button>
+        )}
+      </>
     );
   }
 

@@ -18,7 +18,7 @@ export default function WhatsAppButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Nous contacter sur WhatsApp"
-      className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-[#1ebe5d]"
+      className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full bg-[#25D366] p-3 font-semibold text-white shadow-lg transition hover:bg-[#1ebe5d] sm:bottom-5 sm:right-5 sm:px-4"
     >
       {/* Icône WhatsApp (SVG) */}
       <svg

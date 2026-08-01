@@ -13,6 +13,7 @@ type Note = { moyenne: number; nb: number };
 type Produit = {
   id: string;
   slug: string;
+  colorId?: string | null;
   name: string;
   price: number;
   comparePrice: number | null;
@@ -73,6 +74,7 @@ export default function VentesFlash({ produits }: { produits: Produit[] }) {
             <div key={p.id} className="w-[42%] shrink-0 sm:w-[190px]">
               <ProductCard
                 slug={p.slug}
+                colorId={p.colorId}
                 name={p.name}
                 price={p.price}
                 comparePrice={p.comparePrice}

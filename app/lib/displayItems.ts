@@ -11,6 +11,7 @@ export type Note = { moyenne: number; nb: number };
 export type DisplayItem = {
   id: string;
   slug: string;
+  colorId: string | null;
   name: string;
   price: number;
   comparePrice: number | null;
@@ -44,6 +45,7 @@ export function toDisplayItems(product: ProductForDisplay, note?: Note): Display
       {
         id: product.id,
         slug: product.slug,
+        colorId: null,
         name: product.name,
         price: cheapest?.price ?? 0,
         comparePrice: cheapest?.comparePrice ?? null,
@@ -65,6 +67,7 @@ export function toDisplayItems(product: ProductForDisplay, note?: Note): Display
     return {
       id: `${product.id}:${c.id}`,
       slug: product.slug,
+      colorId: c.id,
       name: `${product.name} — ${c.name}`,
       price: cheapest?.price ?? 0,
       comparePrice: cheapest?.comparePrice ?? null,
@@ -76,4 +79,10 @@ export function toDisplayItems(product: ProductForDisplay, note?: Note): Display
       note,
     };
   });
+}
+
+// Les articles épuisés passent en fin de liste (tri stable : l'ordre
+// d'origine — prix, nouveauté… — est conservé au sein de chaque groupe).
+export function epuisesEnDernier(items: DisplayItem[]): DisplayItem[] {
+  return [...items].sort((a, b) => Number(a.stock <= 0) - Number(b.stock <= 0));
 }

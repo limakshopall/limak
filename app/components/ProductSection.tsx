@@ -1,18 +1,19 @@
 // ============================================================
 //  SECTION PRODUITS — disposition variable selon la section
 //  "grille" : grille classique · "scroll" : défilement horizontal
-//  "decale" : cartes décalées (effet zig-zag) · "cercle" : vignettes rondes
-//  But : casser la monotonie visuelle en descendant la page (catalogue).
+//  "decale" : cartes décalées (effet zig-zag)
+//  Une seule carte produit (ProductCard) partout, pour une présentation
+//  cohérente d'une section à l'autre.
 // ============================================================
 
 import ProductCard from "./ProductCard";
-import ProductCardCercle from "./ProductCardCercle";
 
 type Note = { moyenne: number; nb: number };
 
 type Produit = {
   id: string;
   slug: string;
+  colorId?: string | null;
   name: string;
   price: number;
   comparePrice: number | null;
@@ -24,7 +25,7 @@ type Produit = {
   note?: Note;
 };
 
-export type Disposition = "grille" | "scroll" | "decale" | "cercle";
+export type Disposition = "grille" | "scroll" | "decale";
 
 // Motifs de tuiles "grandes" (sur 8 positions) : change d'un bloc à l'autre
 // pour que la grille ne se répète pas exactement de la même façon partout.
@@ -56,6 +57,7 @@ export default function ProductSection({
           <div key={p.id} className="w-[42%] shrink-0 snap-start sm:w-[190px]">
             <ProductCard
               slug={p.slug}
+              colorId={p.colorId}
               name={p.name}
               price={p.price}
               comparePrice={p.comparePrice}
@@ -67,23 +69,6 @@ export default function ProductSection({
               stock={p.stock}
             />
           </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (disposition === "cercle") {
-    return (
-      <div className="scrollbar-none -mx-4 flex gap-3 overflow-x-auto px-4 pb-2">
-        {produits.map((p) => (
-          <ProductCardCercle
-            key={p.id}
-            slug={p.slug}
-            name={p.name}
-            price={p.price}
-            imageUrl={p.imageUrl}
-            imageAlt={p.imageAlt}
-          />
         ))}
       </div>
     );
@@ -103,6 +88,7 @@ export default function ProductSection({
           >
             <ProductCard
               slug={p.slug}
+              colorId={p.colorId}
               name={p.name}
               price={p.price}
               comparePrice={p.comparePrice}

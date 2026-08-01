@@ -61,10 +61,13 @@ export async function generateMetadata({
 
 export default async function FicheProduit({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ couleur?: string }>;
 }) {
   const { slug } = await params;
+  const { couleur: colorIdInitial } = await searchParams;
 
   const produit = await prisma.product.findUnique({
     where: { slug },
@@ -137,7 +140,7 @@ export default async function FicheProduit({
   );
 
   return (
-    <main className="mx-auto max-w-5xl bg-[#FBEEDA] px-4 py-6 dark:bg-[#1c2333] sm:py-8">
+    <main className="mx-auto max-w-5xl bg-[#FBEEDA] px-4 pb-24 pt-6 dark:bg-[#1c2333] sm:pb-8 sm:pt-8">
       <Link
         href="/produits"
         className="mb-4 inline-block text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400 dark:hover:text-gray-100"
@@ -154,6 +157,7 @@ export default async function FicheProduit({
           colors={produit.colors}
           sizes={produit.sizes}
           variants={produit.variants}
+          initialColorId={colorIdInitial ?? null}
           before={
             <>
               {produit.category && (

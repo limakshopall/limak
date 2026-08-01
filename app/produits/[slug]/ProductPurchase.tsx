@@ -32,6 +32,7 @@ type Props = {
   colors: ColorOption[];
   sizes: SizeOption[];
   variants: VariantOption[];
+  initialColorId?: string | null;
   before?: ReactNode;
   after?: ReactNode;
 };
@@ -48,6 +49,7 @@ export default function ProductPurchase({
   colors,
   sizes,
   variants,
+  initialColorId,
   before,
   after,
 }: Props) {
@@ -55,8 +57,17 @@ export default function ProductPurchase({
   const [ajoute, setAjoute] = useState(false);
   const [quantite, setQuantite] = useState(1);
 
-  const [colorId, setColorId] = useState<string | null>(colors[0]?.id ?? null);
-  const [sizeId, setSizeId] = useState<string | null>(sizes[0]?.id ?? null);
+  // Si on arrive depuis une carte "couleur" précise (catalogue/accueil), on démarre sur cette couleur.
+  const couleurDepart =
+    (initialColorId && colors.some((c) => c.id === initialColorId) ? initialColorId : null) ??
+    colors[0]?.id ??
+    null;
+  const [colorId, setColorId] = useState<string | null>(couleurDepart);
+  const [sizeId, setSizeId] = useState<string | null>(
+    sizes.find((s) => variants.some((v) => v.sizeId === s.id && v.colorId === couleurDepart))?.id ??
+      sizes[0]?.id ??
+      null
+  );
 
   const variant = variants.find(
     (v) =>

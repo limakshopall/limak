@@ -11,11 +11,11 @@ import ProductThumb from "./components/ProductThumb";
 import ProductSection, { type Disposition } from "./components/ProductSection";
 import VentesFlash from "./components/VentesFlash";
 import Reveal from "./components/Reveal";
-import { toDisplayItems } from "./lib/displayItems";
+import { toDisplayItems, epuisesEnDernier } from "./lib/displayItems";
 
 // Rotation des dispositions pour casser la monotonie en descendant la page
 // (même logique que sur /produits) : une par rangée (nouveautés, puis chaque catégorie).
-const ROTATION_DISPOSITIONS: Disposition[] = ["grille", "scroll", "decale", "cercle"];
+const ROTATION_DISPOSITIONS: Disposition[] = ["grille", "scroll", "decale"];
 
 // Icônes de la bande de réassurance (traits fins, plus sobres que des emojis).
 function IconeCamion({ className }: { className?: string }) {
@@ -129,10 +129,18 @@ export default async function Accueil() {
   );
 
   // Une carte par couleur (densité du catalogue) — chacune ouvre la même fiche produit.
-  const nouveautesAffichees = nouveautes.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id)));
-  const ventesFlash = produitsAvecPromo
-    .flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id)))
-    .filter((item) => item.comparePrice != null && item.comparePrice > item.price);
+  // Épuisés en fin de liste partout.
+  const nouveautesAffichees = epuisesEnDernier(
+    nouveautes.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id)))
+  );
+  const REDUCTION_MAX_CREDIBLE = 60; // au-delà, probable erreur de saisie du prix barré
+  const ventesFlash = epuisesEnDernier(
+    produitsAvecPromo.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id))).filter((item) => {
+      if (item.comparePrice == null || item.comparePrice <= item.price) return false;
+      const reduction = Math.round(((item.comparePrice - item.price) / item.comparePrice) * 100);
+      return reduction <= REDUCTION_MAX_CREDIBLE;
+    })
+  );
 
   return (
     <div className="bg-[#FBEEDA] dark:bg-[#1c2333]">
@@ -219,7 +227,9 @@ export default async function Accueil() {
             <ProductSection
               disposition={ROTATION_DISPOSITIONS[(i + 1) % ROTATION_DISPOSITIONS.length]}
               variante={i + 1}
-              produits={c.products.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id)))}
+              produits={epuisesEnDernier(
+                c.products.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id)))
+              )}
             />
           </section>
         </Reveal>

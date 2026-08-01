@@ -8,11 +8,11 @@ import { prisma } from "../lib/prisma";
 import ProduitsFiltres from "../components/ProduitsFiltres";
 import ProductSection, { type Disposition } from "../components/ProductSection";
 import Reveal from "../components/Reveal";
-import { toDisplayItems } from "../lib/displayItems";
+import { toDisplayItems, epuisesEnDernier } from "../lib/displayItems";
 
 // Groupes de produits + rotation des dispositions, pour casser la monotonie en descendant la page.
 const TAILLE_GROUPE = 8;
-const ROTATION_DISPOSITIONS: Disposition[] = ["grille", "scroll", "decale", "cercle"];
+const ROTATION_DISPOSITIONS: Disposition[] = ["grille", "scroll", "decale"];
 
 function decouper<T>(liste: T[], taille: number): T[][] {
   const groupes: T[][] = [];
@@ -88,11 +88,13 @@ export default async function ProduitsPage({
   } else if (tri === "prix-desc") {
     produitsAffiches = [...produitsAffiches].sort((a, b) => b.price - a.price);
   }
+  // Épuisés en fin de liste, sans casser le tri choisi ci-dessus.
+  produitsAffiches = epuisesEnDernier(produitsAffiches);
 
   const groupes = decouper(produitsAffiches, TAILLE_GROUPE);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10">
+    <main className="mx-auto max-w-6xl px-4 pb-28 pt-10 sm:pb-10">
       <div className="mb-6">
         <h1 className="text-3xl font-extrabold text-[#14213D] dark:text-gray-300">Nos articles</h1>
         <p className="mt-1 text-sm text-neutral-500 dark:text-gray-400">

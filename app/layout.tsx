@@ -1,5 +1,5 @@
 import WhatsAppButton from "./components/WhatsAppButton";
-import AnnouncementBar from "./components/AnnouncementBar";
+import Ticker from "./components/Ticker";
 import InstallBanner from "./components/InstallBanner";
 import RouteLoadingOverlay from "./components/RouteLoadingOverlay";
 import type { Metadata } from "next";
@@ -85,8 +85,8 @@ export default async function RootLayout({
             <RouteLoadingOverlay />
           </Suspense>
           <CartProvider>
-            <AnnouncementBar />
             <Header categories={categories} />
+            <Ticker />
             <InstallBanner />
             <div className="flex-1">{children}</div>
           </CartProvider>

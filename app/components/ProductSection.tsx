@@ -21,7 +21,9 @@ type Produit = {
   imageAlt: string | null;
   imageWidth?: number | null;
   imageHeight?: number | null;
+  imageUrlHover?: string | null;
   stock: number;
+  isNew?: boolean;
   note?: Note;
 };
 
@@ -65,8 +67,10 @@ export default function ProductSection({
               imageAlt={p.imageAlt}
               imageWidth={p.imageWidth}
               imageHeight={p.imageHeight}
+              imageUrlHover={p.imageUrlHover}
               note={p.note}
               stock={p.stock}
+              isNew={p.isNew}
             />
           </div>
         ))}
@@ -96,8 +100,10 @@ export default function ProductSection({
               imageAlt={p.imageAlt}
               imageWidth={p.imageWidth}
               imageHeight={p.imageHeight}
+              imageUrlHover={p.imageUrlHover}
               note={p.note}
               stock={p.stock}
+              isNew={p.isNew}
               large={grande}
             />
           </div>

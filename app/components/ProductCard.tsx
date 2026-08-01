@@ -1,9 +1,11 @@
 // ============================================================
 //  CARTE PRODUIT réutilisable (accueil + catalogue)
-//  Image + nom + prix (+ promo) + note + badge "Épuisé".
+//  Image (+ 2e photo au survol) + nom + prix (+ promo) + note
+//  + badges "Nouveau" / "Épuisé" + variante "premium" (cadre doré animé).
 // ============================================================
 
 import Link from "next/link";
+import Image from "next/image";
 import ProductPhoto from "./ProductPhoto";
 
 function Stars({ value }: { value: number }) {
@@ -37,8 +39,11 @@ export default function ProductCard({
   imageAlt,
   imageWidth,
   imageHeight,
+  imageUrlHover,
   note,
   stock,
+  isNew = false,
+  premium = false,
   large = false,
 }: {
   slug: string;
@@ -50,8 +55,11 @@ export default function ProductCard({
   imageAlt?: string | null;
   imageWidth?: number | null;
   imageHeight?: number | null;
+  imageUrlHover?: string | null;
   note?: Note;
   stock?: number;
+  isNew?: boolean;
+  premium?: boolean;
   large?: boolean;
 }) {
   const epuise = stock !== undefined && stock <= 0;
@@ -69,13 +77,23 @@ export default function ProductCard({
   return (
     <Link
       href={colorId ? `/produits/${slug}?couleur=${colorId}` : `/produits/${slug}`}
-      className={`group block overflow-hidden rounded-2xl border border-[#14213D]/10 bg-[#FFFBF3] p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-white/15 dark:bg-[#05070d] ${
-        epuise ? "opacity-60" : ""
-      }`}
+      className={`group block rounded-2xl bg-[#FFFBF3] p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-[#05070d] ${
+        premium
+          ? "relative overflow-hidden border-2 border-[#C9A84C]"
+          : "overflow-hidden border border-[#14213D]/10 dark:border-white/15"
+      } ${epuise ? "opacity-60" : ""}`}
     >
+      {/* Cadre doré animé (lumière qui se déplace) réservé aux produits "Premium Spotlight" */}
+      {premium && (
+        <span
+          aria-hidden
+          className="limak-shimmer pointer-events-none absolute inset-0 rounded-2xl"
+        />
+      )}
+
       {/* L'image "flotte" sur son propre coussin (fond + ombre) pour ne pas se fondre dans la carte.
           Pas de cadre forcé : la hauteur suit la vraie forme de la photo (carrée, portrait, paysage). */}
-      <div className="relative overflow-hidden rounded-xl bg-white shadow-[0_6px_14px_-6px_rgba(20,33,61,0.28)] dark:bg-[#1c2333]">
+      <div className="relative overflow-hidden rounded-xl border-2 border-[#C9A84C] bg-white shadow-[0_6px_14px_-6px_rgba(20,33,61,0.28)] dark:bg-[#1c2333]">
         <ProductPhoto
           src={imageUrl}
           alt={imageAlt ?? name}
@@ -84,14 +102,37 @@ export default function ProductCard({
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
 
-        {/* Badge promo (en haut à droite) */}
+        {/* 2e photo : apparaît en fondu au survol (souris), par-dessus la première */}
+        {imageUrlHover && (
+          <div className="absolute inset-0 hidden opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:block">
+            <Image
+              src={imageUrlHover}
+              alt=""
+              fill
+              className="object-contain"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            />
+          </div>
+        )}
+
+        {/* Badge en haut à droite : promo, sinon "Nouveau" — un seul à la fois pour rester lisible */}
         {enPromo && !epuise && (
           <span className="absolute right-1.5 top-1.5 rounded-full bg-[#D6293E] px-1.5 py-0.5 text-[10px] font-bold text-white">
             -{reduction}%
           </span>
         )}
+        {!enPromo && isNew && !epuise && (
+          <span className="absolute right-1.5 top-1.5 rounded-full bg-[#C9A84C] px-1.5 py-0.5 text-[10px] font-bold text-[#14213D]">
+            Nouveau
+          </span>
+        )}
 
-        {/* Badge "Épuisé" (en haut à gauche) — discret, ne crie pas plus fort qu'une promo */}
+        {/* Badge en haut à gauche : premium, sinon épuisé */}
+        {premium && !epuise && (
+          <span className="absolute left-1.5 top-1.5 rounded-full bg-[#14213D] px-2 py-0.5 text-[10px] font-semibold text-[#C9A84C]">
+            ⭐ Sélection LIMAK
+          </span>
+        )}
         {epuise && (
           <span className="absolute left-1.5 top-1.5 rounded-full bg-neutral-500/80 px-1.5 py-0.5 text-[10px] font-medium text-white">
             Épuisé
@@ -99,13 +140,17 @@ export default function ProductCard({
         )}
       </div>
       <div className="p-1.5 pt-2">
-        <h3 className="line-clamp-2 min-h-[2.2em] text-sm font-semibold leading-tight text-[#14213D] dark:text-gray-300 sm:text-base">
+        <h3
+          className={`line-clamp-2 min-h-[2.2em] font-semibold leading-tight text-[#14213D] dark:text-gray-300 ${
+            premium ? "text-base sm:text-lg" : "text-sm sm:text-base"
+          }`}
+        >
           {name}
         </h3>
 
         {/* Prix (avec ancien prix barré si promo) */}
         <div className="mt-1 flex flex-wrap items-baseline gap-x-1.5">
-          <p className="text-base font-extrabold text-[#B9862B] sm:text-lg">
+          <p className={`font-extrabold text-[#B9862B] dark:text-[#D9BC72] ${premium ? "text-lg sm:text-xl" : "text-base sm:text-lg"}`}>
             {new Intl.NumberFormat("fr-FR").format(price)} FCFA
           </p>
           {enPromo && (
@@ -126,6 +171,13 @@ export default function ProductCard({
           <p className="mt-0.5 text-[10px] font-semibold text-[#D6293E]">
             Plus que {stock} en stock
           </p>
+        )}
+
+        {/* "Ajouter au panier" — visible seulement au survol (desktop), pour ne pas gêner sur mobile */}
+        {!epuise && (
+          <span className="mt-2 hidden w-full items-center justify-center rounded-full bg-[#F1720A] py-1.5 text-xs font-semibold text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 sm:flex">
+            Voir l&apos;article
+          </span>
         )}
       </div>
     </Link>

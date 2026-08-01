@@ -21,7 +21,9 @@ type Produit = {
   imageAlt: string | null;
   imageWidth?: number | null;
   imageHeight?: number | null;
+  imageUrlHover?: string | null;
   stock: number;
+  isNew?: boolean;
   note?: Note;
 };
 
@@ -39,20 +41,20 @@ export default function VentesFlash({ produits }: { produits: Produit[] }) {
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-6">
-      <div className="relative overflow-hidden rounded-2xl bg-[#14213D] p-5 sm:p-6">
+      <div className="relative overflow-hidden rounded-2xl border border-[#C9A84C]/30 bg-[#14213D] p-5 sm:p-6">
         <div
           className="pointer-events-none absolute -left-12 -top-12 h-56 w-56 rounded-full opacity-25 blur-3xl"
-          style={{ background: "#F1720A" }}
+          style={{ background: "#C9A84C" }}
         />
         <div
           className="pointer-events-none absolute -bottom-16 -right-10 h-56 w-56 rounded-full opacity-15 blur-3xl"
-          style={{ background: "#D6293E" }}
+          style={{ background: "#F1720A" }}
         />
 
         <div className="relative mb-5 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F1720A]/15">
-              <IconeSablier className="h-4 w-4 text-[#F1720A]" />
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#C9A84C]/15">
+              <IconeSablier className="h-4 w-4 text-[#C9A84C]" />
             </span>
             <div>
               <h2 className="text-xl font-extrabold text-white sm:text-2xl">
@@ -82,8 +84,10 @@ export default function VentesFlash({ produits }: { produits: Produit[] }) {
                 imageAlt={p.imageAlt}
                 imageWidth={p.imageWidth}
                 imageHeight={p.imageHeight}
+                imageUrlHover={p.imageUrlHover}
                 note={p.note}
                 stock={p.stock}
+                isNew={p.isNew}
               />
             </div>
           ))}

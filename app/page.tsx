@@ -1,71 +1,36 @@
 // ============================================================
 //  PAGE D'ACCUEIL  ->  /
-//  Carrousel + réassurance + catégories + nouveautés +
-//  rangées par catégorie + pied de page. Cartes réutilisables.
+//  Hero immersif + catégories + bannières + ventes flash + premium
+//  spotlight + nouveautés + confiance + footer. Cartes réutilisables.
+//  Palette LIMAK : doré #C9A84C + bleu nuit #14213D (dominants),
+//  orange #F1720A réservé aux boutons d'action.
 // ============================================================
 
 import Link from "next/link";
 import { prisma } from "./lib/prisma";
 import HeroCarousel from "./components/HeroCarousel";
-import ProductThumb from "./components/ProductThumb";
+import ProductPhoto from "./components/ProductPhoto";
+import ProductCard from "./components/ProductCard";
 import ProductSection, { type Disposition } from "./components/ProductSection";
 import VentesFlash from "./components/VentesFlash";
+import PromoBanner from "./components/PromoBanner";
+import Testimonials from "./components/Testimonials";
+import Footer from "./components/Footer";
 import Reveal from "./components/Reveal";
 import { toDisplayItems, epuisesEnDernier } from "./lib/displayItems";
 
-// Rotation des dispositions pour casser la monotonie en descendant la page
-// (même logique que sur /produits) : une par rangée (nouveautés, puis chaque catégorie).
+// Rotation des dispositions pour casser la monotonie en descendant la page.
 const ROTATION_DISPOSITIONS: Disposition[] = ["grille", "scroll", "decale"];
-
-// Icônes de la bande de réassurance (traits fins, plus sobres que des emojis).
-function IconeCamion({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M1 3h13v13H1z" />
-      <path d="M14 8h4l4 4v4h-8V8z" />
-      <circle cx="6" cy="18" r="2" />
-      <circle cx="17" cy="18" r="2" />
-    </svg>
-  );
-}
-function IconeBillet({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <rect x="2" y="6" width="20" height="12" rx="2" />
-      <circle cx="12" cy="12" r="3" />
-      <path d="M6 6v0M18 6v0M6 18v0M18 18v0" />
-    </svg>
-  );
-}
-function IconeBadge({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M12 2l2.4 2.1 3.1-.4.6 3.1 2.9 1.4-1.4 2.9 1.4 2.9-2.9 1.4-.6 3.1-3.1-.4L12 21l-2.4-2.1-3.1.4-.6-3.1-2.9-1.4 1.4-2.9-1.4-2.9 2.9-1.4.6-3.1 3.1.4z" />
-      <path d="M9 12l2 2 4-4" />
-    </svg>
-  );
-}
-function IconeCadenas({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <rect x="4" y="11" width="16" height="10" rx="2" />
-      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-    </svg>
-  );
-}
-
-const REASSURANCE = [
-  { Icone: IconeCamion, titre: "Livraison rapide" },
-  { Icone: IconeBillet, titre: "Paiement à la livraison" },
-  { Icone: IconeBadge, titre: "Articles vérifiés" },
-  { Icone: IconeCadenas, titre: "Achat sécurisé" },
-];
+// Au-delà, une "promo" ressemble plus à une erreur de saisie qu'à une vraie remise.
+const REDUCTION_MAX_CREDIBLE = 60;
 
 export default async function Accueil() {
-  const IMAGES_GENERALES = { where: { colorId: null }, orderBy: { position: "asc" as const }, take: 1 };
+  const IMAGES_GENERALES = { where: { colorId: null }, orderBy: { position: "asc" as const }, take: 2 };
   const COULEURS = {
     orderBy: { position: "asc" as const },
-    include: { images: { orderBy: { position: "asc" as const }, take: 1, select: { url: true, alt: true, width: true, height: true } } },
+    include: {
+      images: { orderBy: { position: "asc" as const }, take: 2, select: { url: true, alt: true, width: true, height: true } },
+    },
   };
   const VARIANTS_COMPLET = { select: { colorId: true, price: true, comparePrice: true, stock: true } };
 
@@ -73,11 +38,7 @@ export default async function Accueil() {
     include: {
       products: {
         where: { isActive: true },
-        include: {
-          images: IMAGES_GENERALES,
-          colors: COULEURS,
-          variants: VARIANTS_COMPLET,
-        },
+        include: { images: IMAGES_GENERALES, colors: COULEURS, variants: VARIANTS_COMPLET },
         take: 4,
       },
     },
@@ -86,11 +47,7 @@ export default async function Accueil() {
 
   const nouveautes = await prisma.product.findMany({
     where: { isActive: true },
-    include: {
-      images: IMAGES_GENERALES,
-      colors: COULEURS,
-      variants: VARIANTS_COMPLET,
-    },
+    include: { images: IMAGES_GENERALES, colors: COULEURS, variants: VARIANTS_COMPLET },
     orderBy: { createdAt: "desc" },
     take: 8,
   });
@@ -100,20 +57,29 @@ export default async function Accueil() {
   // Ventes flash : produits actifs ayant une variante en promo (comparePrice > prix).
   const produitsAvecPromo = await prisma.product.findMany({
     where: { isActive: true, variants: { some: { comparePrice: { not: null } } } },
-    include: {
-      images: IMAGES_GENERALES,
-      colors: COULEURS,
-      variants: VARIANTS_COMPLET,
-    },
+    include: { images: IMAGES_GENERALES, colors: COULEURS, variants: VARIANTS_COMPLET },
     take: 12,
   });
 
-  // Notes moyennes de TOUS les produits affichés (nouveautés + rangées + ventes flash)
+  // "Premium Spotlight" : les 3 articles les plus chers (prix de la variante la moins chère).
+  const tousActifs = await prisma.product.findMany({
+    where: { isActive: true },
+    include: { images: IMAGES_GENERALES, colors: COULEURS, variants: VARIANTS_COMPLET },
+  });
+  const premiumSpotlight = [...tousActifs]
+    .sort((a, b) => {
+      const prixMin = (p: typeof a) => Math.min(...p.variants.map((v) => v.price), Infinity);
+      return prixMin(b) - prixMin(a);
+    })
+    .slice(0, 3);
+
+  // Notes moyennes de TOUS les produits affichés
   const idsAffiches = Array.from(
     new Set([
       ...nouveautes.map((p) => p.id),
       ...categories.flatMap((c) => c.products.map((p) => p.id)),
       ...produitsAvecPromo.map((p) => p.id),
+      ...premiumSpotlight.map((p) => p.id),
     ])
   );
   const notes = idsAffiches.length
@@ -129,11 +95,9 @@ export default async function Accueil() {
   );
 
   // Une carte par couleur (densité du catalogue) — chacune ouvre la même fiche produit.
-  // Épuisés en fin de liste partout.
   const nouveautesAffichees = epuisesEnDernier(
     nouveautes.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id)))
   );
-  const REDUCTION_MAX_CREDIBLE = 60; // au-delà, probable erreur de saisie du prix barré
   const ventesFlash = epuisesEnDernier(
     produitsAvecPromo.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id))).filter((item) => {
       if (item.comparePrice == null || item.comparePrice <= item.price) return false;
@@ -141,52 +105,44 @@ export default async function Accueil() {
       return reduction <= REDUCTION_MAX_CREDIBLE;
     })
   );
+  const premiumAffiches = premiumSpotlight.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id))).slice(0, 3);
+
+  // Images pour les bannières publicitaires (photos déjà en catalogue).
+  const [bannerSneakers, bannerChaussuresFemme, bannerBerluti] = await Promise.all([
+    prisma.product.findUnique({ where: { slug: "nike-air-max-90" }, select: { images: { take: 1, select: { url: true } } } }),
+    prisma.product.findUnique({
+      where: { slug: "mules-plateforme-aaron-fay" },
+      select: { colors: { take: 1, select: { images: { take: 1, select: { url: true } } } } },
+    }),
+    prisma.product.findUnique({
+      where: { slug: "berluti-shadow-knit" },
+      select: { colors: { take: 1, select: { images: { take: 1, select: { url: true } } } } },
+    }),
+  ]);
 
   return (
     <div className="bg-[#FBEEDA] dark:bg-[#1c2333]">
+      {/* 3. HERO IMMERSIF */}
       <HeroCarousel />
 
-      {/* RÉASSURANCE */}
-      <section className="mt-6 bg-[#14213D]">
-        <div className="scrollbar-none mx-auto flex max-w-6xl items-center justify-start gap-5 overflow-x-auto px-4 py-2 sm:justify-center sm:gap-8">
-          {REASSURANCE.map(({ Icone, titre }, i) => (
-            <div key={titre} className="flex shrink-0 items-center gap-4 sm:gap-8">
-              {i > 0 && <span className="h-3 w-px shrink-0 bg-[#FBEEDA]/20" aria-hidden />}
-              <div className="flex shrink-0 items-center gap-1.5">
-                <Icone className="h-3.5 w-3.5 shrink-0 text-[#F1720A]" />
-                <span className="whitespace-nowrap text-[10px] font-medium uppercase tracking-wide text-[#FBEEDA]/85 sm:text-[11px]">
-                  {titre}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* VENTES FLASH */}
+      {/* 4. CATÉGORIES VISUELLES */}
       <Reveal>
-        <VentesFlash produits={ventesFlash} />
-      </Reveal>
-
-      {/* CATÉGORIES */}
-      <Reveal>
-        <section className="mx-auto max-w-6xl px-4 py-8">
-          <h2 className="mb-6 text-2xl font-bold text-[#14213D] dark:text-gray-300">
-            Explorez nos catégories
-          </h2>
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+        <section className="mx-auto max-w-6xl px-4 py-10">
+          <h2 className="mb-1 text-2xl font-bold text-[#14213D] dark:text-gray-300">Explorez nos catégories</h2>
+          <span className="mb-6 block h-1 w-14 rounded-full bg-[#C9A84C]" aria-hidden />
+          <div className="scrollbar-none -mx-4 flex gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 lg:grid-cols-6">
             {categories.map((c, i) => {
               const cover =
                 c.products[0]?.images[0]?.url ?? c.products[0]?.colors[0]?.images[0]?.url ?? null;
               return (
-                <Reveal key={c.id} delay={i * 60}>
+                <Reveal key={c.id} delay={i * 60} className="w-28 shrink-0 sm:w-auto">
                   <Link
                     href={`/produits?categorie=${c.slug}`}
-                    className="group relative block aspect-[4/3] overflow-hidden rounded-xl bg-neutral-200"
+                    className="group relative block aspect-square overflow-hidden rounded-full border-[3px] border-[#C9A84C] bg-neutral-200 transition duration-300 hover:scale-105 hover:shadow-[0_0_0_6px_rgba(201,168,76,0.25)]"
                   >
-                    <ProductThumb src={cover} alt={c.name} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent transition-opacity duration-300 group-hover:from-black/80" />
-                    <span className="absolute bottom-3 left-3 z-10 text-lg font-bold text-white drop-shadow">
+                    <ProductPhoto src={cover} alt={c.name} sizes="140px" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                    <span className="absolute inset-x-1 bottom-2 z-10 text-center text-xs font-bold text-white drop-shadow sm:text-sm">
                       {c.name}
                     </span>
                   </Link>
@@ -197,80 +153,148 @@ export default async function Accueil() {
         </section>
       </Reveal>
 
-      {/* NOUVEAUTÉS */}
+      {/* 5. BANNIÈRE PUB #1 — Sneakers */}
       <Reveal>
-        <section className="mx-auto max-w-6xl px-4 pb-8">
+        <PromoBanner
+          href="/produits?categorie=chaussures"
+          title="Collection Sneakers 2026"
+          subtitle="Style & performance"
+          imageUrl={bannerSneakers?.images[0]?.url ?? null}
+          variant="navy"
+        />
+      </Reveal>
+
+      {/* 6. BONNES AFFAIRES DU JOUR */}
+      <Reveal>
+        <VentesFlash produits={ventesFlash} />
+      </Reveal>
+
+      {/* 7. BANNIÈRE PUB #2 — Chaussures femme */}
+      <Reveal>
+        <PromoBanner
+          href="/produits?categorie=chaussures"
+          title="Élégance au Féminin"
+          subtitle="Escarpins & mules"
+          imageUrl={bannerChaussuresFemme?.colors[0]?.images[0]?.url ?? null}
+          variant="gold-navy"
+        />
+      </Reveal>
+
+      {/* 8. PREMIUM SPOTLIGHT */}
+      {premiumAffiches.length > 0 && (
+        <Reveal>
+          <section className="mx-auto max-w-6xl px-4 py-10">
+            <h2 className="mb-1 text-2xl font-bold text-[#14213D] dark:text-gray-300">Sélection Premium</h2>
+            <span className="mb-6 block h-1 w-14 rounded-full bg-[#C9A84C]" aria-hidden />
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+              {premiumAffiches.map((p, i) => (
+                <Reveal key={p.id} delay={i * 100}>
+                  <ProductCard
+                    slug={p.slug}
+                    colorId={p.colorId}
+                    name={p.name}
+                    price={p.price}
+                    comparePrice={p.comparePrice}
+                    imageUrl={p.imageUrl}
+                    imageAlt={p.imageAlt}
+                    imageWidth={p.imageWidth}
+                    imageHeight={p.imageHeight}
+                    imageUrlHover={p.imageUrlHover}
+                    note={p.note}
+                    stock={p.stock}
+                    premium
+                  />
+                </Reveal>
+              ))}
+            </div>
+          </section>
+        </Reveal>
+      )}
+
+      {/* 9. BANNIÈRE PUB #3 — Berluti */}
+      <Reveal>
+        <PromoBanner
+          href="/produits?categorie=chaussures"
+          title="LIMAK Premium"
+          subtitle="Berluti, l'excellence parisienne"
+          imageUrl={bannerBerluti?.colors[0]?.images[0]?.url ?? null}
+          variant="luxe"
+          cta="Voir la collection"
+        />
+      </Reveal>
+
+      {/* 10. NOUVEAUTÉS */}
+      <Reveal>
+        <section className="mx-auto max-w-6xl px-4 py-10">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-[#14213D] dark:text-gray-300">Nouveautés</h2>
-            <Link href="/produits" className="text-sm font-semibold text-[#C95900] hover:underline">
+            <div>
+              <h2 className="mb-1 text-2xl font-bold text-[#14213D] dark:text-gray-300">Nouveautés</h2>
+              <span className="block h-1 w-14 rounded-full bg-[#C9A84C]" aria-hidden />
+            </div>
+            <Link href="/produits" className="text-sm font-semibold text-[#C9A84C] hover:underline">
               Voir tout →
             </Link>
           </div>
-          <ProductSection
-            disposition={ROTATION_DISPOSITIONS[0]}
-            variante={0}
-            produits={nouveautesAffichees}
-          />
+          <ProductSection disposition={ROTATION_DISPOSITIONS[0]} variante={0} produits={nouveautesAffichees} />
         </section>
       </Reveal>
 
-      {/* RANGÉE PAR CATÉGORIE */}
+      {/* RANGÉES PAR CATÉGORIE */}
       {categoriesAvecProduits.map((c, i) => (
         <Reveal key={c.id}>
-          <section className="mx-auto max-w-6xl px-4 py-6">
+          <section className="mx-auto max-w-6xl px-4 py-8">
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-[#14213D] dark:text-gray-300">{c.name}</h2>
-              <Link href={`/produits?categorie=${c.slug}`} className="text-sm font-semibold text-[#C95900] hover:underline">
+              <div>
+                <h2 className="mb-1 text-2xl font-bold text-[#14213D] dark:text-gray-300">{c.name}</h2>
+                <span className="block h-1 w-14 rounded-full bg-[#C9A84C]" aria-hidden />
+              </div>
+              <Link href={`/produits?categorie=${c.slug}`} className="text-sm font-semibold text-[#C9A84C] hover:underline">
                 Voir tout →
               </Link>
             </div>
             <ProductSection
               disposition={ROTATION_DISPOSITIONS[(i + 1) % ROTATION_DISPOSITIONS.length]}
               variante={i + 1}
-              produits={epuisesEnDernier(
-                c.products.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id)))
-              )}
+              produits={epuisesEnDernier(c.products.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id))))}
             />
           </section>
         </Reveal>
       ))}
 
+      {/* 11. BANNIÈRE PUB #4 — Confiance / livraison */}
+      <Reveal>
+        <PromoBanner
+          href="/produits"
+          title="Livraison partout en Côte d'Ivoire 🇨🇮"
+          subtitle="Paiement à la livraison — commandez en toute confiance"
+          variant="navy"
+          cta="Commander"
+        />
+      </Reveal>
+
       {/* APPEL FINAL */}
       <Reveal>
         <section className="mx-auto max-w-6xl px-4 py-14">
-          <div className="rounded-2xl bg-[#14213D] px-6 py-12 text-center text-white">
+          <div className="rounded-2xl border-2 border-[#C9A84C]/40 bg-[#14213D] px-6 py-12 text-center text-white">
             <h2 className="text-2xl font-bold sm:text-3xl">Prêt à faire vos achats ?</h2>
             <p className="mx-auto mt-2 max-w-md text-neutral-300">
               Parcourez tout le catalogue et commandez en quelques clics.
             </p>
-            <Link href="/produits" className="mt-6 inline-block rounded-full bg-[#F1720A] px-8 py-3 font-semibold text-white transition hover:bg-[#C95900] hover:scale-105">
+            <Link
+              href="/produits"
+              className="mt-6 inline-block rounded-full bg-[#F1720A] px-8 py-3 font-semibold text-white transition hover:scale-105 hover:bg-[#C95900]"
+            >
               Voir tous les articles
             </Link>
           </div>
         </section>
       </Reveal>
 
-      {/* PIED DE PAGE */}
-      <footer className="border-t border-[#14213D]/10 bg-[#FFFBF3] dark:border-white/15 dark:bg-[#1c2333]">
-        <div className="mx-auto max-w-6xl px-4 py-10">
-          <div className="flex flex-col gap-6 sm:flex-row sm:justify-between">
-            <div>
-              <p className="text-xl font-extrabold text-[#14213D] dark:text-gray-300">LIMAK</p>
-              <p className="mt-2 max-w-xs text-sm text-neutral-500 dark:text-gray-400">
-                Votre boutique en ligne en Côte d&apos;Ivoire. Paiement à la livraison.
-              </p>
-            </div>
-            <div className="text-sm text-neutral-600 dark:text-gray-400">
-              <p className="font-semibold text-neutral-800 dark:text-gray-300">Une question ?</p>
-              <p className="mt-2">Email : limak.shopall@gmail.com</p>
-              <p>WhatsApp : +225 07 17 67 87 84</p>
-            </div>
-          </div>
-          <p className="mt-8 border-t border-neutral-100 pt-6 text-center text-xs text-neutral-400 dark:border-white/15 dark:text-gray-400">
-            © {new Date().getFullYear()} LIMAK. Tous droits réservés.
-          </p>
-        </div>
-      </footer>
+      {/* 12. TÉMOIGNAGES / CONFIANCE */}
+      <Testimonials />
+
+      {/* 13. FOOTER */}
+      <Footer />
     </div>
   );
 }

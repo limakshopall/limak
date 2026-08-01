@@ -100,9 +100,9 @@ export default function HeroCarousel() {
   }
 
   return (
-    <section className="relative mx-auto max-w-6xl px-4 pt-6">
+    <section className="relative">
       <div
-        className="relative aspect-[16/7] touch-pan-y select-none overflow-hidden rounded-2xl bg-[#14213D] sm:aspect-[16/6]"
+        className="relative h-[85svh] max-h-[720px] min-h-[440px] touch-pan-y select-none overflow-hidden border-y-4 border-[#C9A84C] bg-[#14213D] md:h-[70vh]"
         onMouseEnter={() => setPause(true)}
         onMouseLeave={() => setPause(false)}
         onPointerDown={onPointerDown}
@@ -130,32 +130,56 @@ export default function HeroCarousel() {
               className="relative block h-full shrink-0"
             >
               {slide.type === "image" ? (
-                <Image
-                  src={slide.src}
-                  alt={slide.alt}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 1152px"
-                  priority={i === 0} // la 1re image se charge en priorité
-                  className="object-cover"
-                />
+                <>
+                  <Image
+                    src={slide.src}
+                    alt={slide.alt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 1152px"
+                    priority={i === 0} // la 1re image se charge en priorité
+                    className="object-cover"
+                  />
+                  {/* Léger assombrissement en bas pour la profondeur, façon vitrine */}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/50 to-transparent" />
+                </>
               ) : (
                 <div className="relative flex h-full flex-col justify-center overflow-hidden px-8 sm:px-14">
                   <div
                     className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full opacity-30 blur-3xl"
                     style={{ background: "#F1720A" }}
                   />
+                  <div
+                    className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full opacity-20 blur-3xl"
+                    style={{ background: "#C9A84C" }}
+                  />
                   {slide.badge && (
-                    <span className="relative mb-3 inline-block w-fit rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-[#FFD9A8] sm:text-sm">
+                    <span
+                      className={`relative mb-3 inline-block w-fit rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-3 py-1 text-xs font-semibold text-[#E8C97A] sm:text-sm ${
+                        i === index ? "animate-[limak-fade-up_0.6s_ease-out]" : ""
+                      }`}
+                    >
                       {slide.badge}
                     </span>
                   )}
-                  <h2 className="relative max-w-lg text-2xl font-extrabold text-white sm:text-4xl">
+                  <h2
+                    className={`relative max-w-lg text-3xl font-extrabold text-white sm:text-5xl ${
+                      i === index ? "animate-[limak-fade-up_0.6s_ease-out_0.1s_both]" : ""
+                    }`}
+                  >
                     {slide.titre}
                   </h2>
-                  <p className="relative mt-2 max-w-md text-sm text-neutral-300 sm:text-lg">
+                  <p
+                    className={`relative mt-3 max-w-md text-base text-neutral-300 sm:text-lg ${
+                      i === index ? "animate-[limak-fade-up_0.6s_ease-out_0.2s_both]" : ""
+                    }`}
+                  >
                     {slide.accroche}
                   </p>
-                  <span className="relative mt-5 inline-block w-fit rounded-full bg-[#F1720A] px-6 py-2 text-sm font-semibold text-white transition hover:bg-[#C95900]">
+                  <span
+                    className={`limak-cta-pulse relative mt-6 inline-block w-fit rounded-full bg-[#F1720A] px-7 py-3 text-sm font-semibold text-white transition hover:bg-[#C95900] sm:text-base ${
+                      i === index ? "animate-[limak-fade-up_0.6s_ease-out_0.3s_both]" : ""
+                    }`}
+                  >
                     Découvrir →
                   </span>
                 </div>

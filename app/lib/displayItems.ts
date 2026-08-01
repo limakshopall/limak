@@ -19,7 +19,9 @@ export type DisplayItem = {
   imageAlt: string | null;
   imageWidth: number | null;
   imageHeight: number | null;
+  imageUrlHover: string | null; // 2e photo, pour l'effet de survol
   stock: number;
+  isNew: boolean;
   note?: Note;
 };
 
@@ -31,16 +33,27 @@ export type ProductForDisplay = {
   id: string;
   slug: string;
   name: string;
+  createdAt: Date;
   images: Img[];
   colors: ColorForDisplay[];
   variants: VariantForDisplay[];
 };
 
+// Un produit est "nouveau" s'il a été ajouté il y a moins de 14 jours.
+const NOUVEAU_JOURS = 14;
+
+function estNouveau(createdAt: Date): boolean {
+  const age = Date.now() - createdAt.getTime();
+  return age <= NOUVEAU_JOURS * 24 * 60 * 60 * 1000;
+}
+
 export function toDisplayItems(product: ProductForDisplay, note?: Note): DisplayItem[] {
+  const isNew = estNouveau(product.createdAt);
+
   if (product.colors.length === 0) {
     const cheapest = [...product.variants].sort((a, b) => a.price - b.price)[0];
     const stock = product.variants.reduce((s, v) => s + v.stock, 0);
-    const image = product.images[0];
+    const [image, imageHover] = product.images;
     return [
       {
         id: product.id,
@@ -53,7 +66,9 @@ export function toDisplayItems(product: ProductForDisplay, note?: Note): Display
         imageAlt: image?.alt ?? null,
         imageWidth: image?.width ?? null,
         imageHeight: image?.height ?? null,
+        imageUrlHover: imageHover?.url ?? null,
         stock,
+        isNew,
         note,
       },
     ];
@@ -63,7 +78,8 @@ export function toDisplayItems(product: ProductForDisplay, note?: Note): Display
     const variantsForColor = product.variants.filter((v) => v.colorId === c.id);
     const cheapest = [...variantsForColor].sort((a, b) => a.price - b.price)[0];
     const stock = variantsForColor.reduce((s, v) => s + v.stock, 0);
-    const image = c.images[0] ?? product.images[0];
+    const images = c.images.length > 0 ? c.images : product.images;
+    const [image, imageHover] = images;
     return {
       id: `${product.id}:${c.id}`,
       slug: product.slug,
@@ -75,7 +91,9 @@ export function toDisplayItems(product: ProductForDisplay, note?: Note): Display
       imageAlt: image?.alt ?? null,
       imageWidth: image?.width ?? null,
       imageHeight: image?.height ?? null,
+      imageUrlHover: imageHover?.url ?? null,
       stock,
+      isNew,
       note,
     };
   });

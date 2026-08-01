@@ -31,7 +31,7 @@ export default function ProductGallery({
   return (
     <div>
       {/* Grande image — pas de cadre forcé : suit la vraie forme de la photo */}
-      <div className="overflow-hidden rounded-xl bg-white dark:bg-[#1c2333]">
+      <div className="overflow-hidden rounded-xl border-2 border-[#C9A84C] bg-white dark:bg-[#1c2333]">
         <ProductPhoto
           src={images[active].url}
           alt={images[active].alt ?? name}
@@ -51,7 +51,7 @@ export default function ProductGallery({
               key={img.id}
               onClick={() => setActive(i)}
               className={`relative aspect-square overflow-hidden rounded border-2 bg-white dark:bg-[#1c2333] ${
-                i === active ? "border-[#F1720A]" : "border-transparent"
+                i === active ? "border-[#F1720A]" : "border-[#C9A84C]/70"
               }`}
             >
               <Image

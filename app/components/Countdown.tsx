@@ -36,12 +36,12 @@ export default function Countdown() {
   const s = Math.floor((ms % 60_000) / 1000);
 
   return (
-    <div className="flex items-center gap-1 font-mono text-sm font-bold tabular-nums text-white">
-      <span className="rounded bg-[#F1720A]/20 px-1.5 py-0.5">{pad(h)}</span>
+    <div className="flex items-center gap-1 font-mono text-sm font-bold tabular-nums text-[#C9A84C]">
+      <span className="rounded bg-[#C9A84C]/15 px-1.5 py-0.5">{pad(h)}</span>
       <span aria-hidden className="text-white/40">:</span>
-      <span className="rounded bg-[#F1720A]/20 px-1.5 py-0.5">{pad(m)}</span>
+      <span className="rounded bg-[#C9A84C]/15 px-1.5 py-0.5">{pad(m)}</span>
       <span aria-hidden className="text-white/40">:</span>
-      <span className="rounded bg-[#F1720A]/20 px-1.5 py-0.5">{pad(s)}</span>
+      <span className="rounded bg-[#C9A84C]/15 px-1.5 py-0.5">{pad(s)}</span>
     </div>
   );
 }

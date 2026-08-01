@@ -60,13 +60,13 @@ export default function Header({
   const { count } = useCart();
 
   return (
-    <header className="border-b border-[#14213D]/15 bg-gradient-to-r from-[#D9A93B] via-[#C9962B] to-[#B9862B]">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#14213D]/95 backdrop-blur supports-[backdrop-filter]:bg-[#14213D]/85">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:py-4">
         <div className="flex shrink-0 items-center gap-3">
           <MenuLateral categories={categories} />
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-1.5 text-lg font-extrabold tracking-tight text-[#14213D] sm:gap-2 sm:text-xl"
+            className="flex shrink-0 items-center gap-1.5 text-lg font-extrabold tracking-tight text-[#C9A84C] sm:gap-2 sm:text-xl"
           >
             <Image src="/icon-192.png" alt="" width={40} height={40} priority className="h-9 w-9 sm:h-11 sm:w-11" />
             LIMAK
@@ -76,18 +76,18 @@ export default function Header({
         <nav className="flex shrink-0 items-center gap-3 sm:gap-5">
           <Link
             href="/produits"
-            className="flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-[#14213D] hover:text-white"
+            className="flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-white hover:text-[#C9A84C]"
           >
-            <IconeArticles className="h-5 w-5" />
+            <IconeArticles className="h-5 w-5 text-[#C9A84C]" />
             <span>Articles</span>
           </Link>
 
           <Link
             href="/panier"
             aria-label="Panier"
-            className="relative flex items-center gap-1.5 text-[#14213D] hover:text-white"
+            className="relative flex items-center gap-1.5 text-white hover:text-[#C9A84C]"
           >
-            <IconePanier className="h-5 w-5" />
+            <IconePanier className="h-5 w-5 text-[#C9A84C]" />
             <span className="hidden whitespace-nowrap text-sm font-medium sm:inline">Panier</span>
             {count > 0 && (
               <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#D6293E] px-1 text-[10px] font-semibold text-white sm:-right-4">
@@ -99,13 +99,13 @@ export default function Header({
           {/* Si NON connecté : Connexion / Créer un compte */}
           <Show when="signed-out">
             <SignInButton mode="modal">
-              <button aria-label="Connexion" className="flex items-center gap-1.5 text-[#14213D] hover:text-white">
-                <IconeCompte className="h-5 w-5" />
+              <button aria-label="Connexion" className="flex items-center gap-1.5 text-white hover:text-[#C9A84C]">
+                <IconeCompte className="h-5 w-5 text-[#C9A84C]" />
                 <span className="hidden whitespace-nowrap text-sm font-medium sm:inline">Connexion</span>
               </button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="shrink-0 whitespace-nowrap rounded-full bg-[#14213D] px-3 py-1.5 text-xs font-semibold text-[#D9A93B] hover:bg-[#0d1730] sm:px-4 sm:text-sm">
+              <button className="shrink-0 whitespace-nowrap rounded-full bg-[#C9A84C] px-3 py-1.5 text-xs font-semibold text-[#14213D] hover:bg-[#dbbb62] sm:px-4 sm:text-sm">
                 <span className="sm:hidden">S&apos;inscrire</span>
                 <span className="hidden sm:inline">Créer un compte</span>
               </button>
@@ -117,9 +117,9 @@ export default function Header({
             <Link
               href="/mes-commandes"
               aria-label="Mes commandes"
-              className="text-[#14213D] hover:text-white"
+              className="text-white hover:text-[#C9A84C]"
             >
-              <IconeCommandes className="h-5 w-5 sm:hidden" />
+              <IconeCommandes className="h-5 w-5 text-[#C9A84C] sm:hidden" />
               <span className="hidden whitespace-nowrap text-sm font-medium sm:inline">Mes commandes</span>
             </Link>
             <UserButton />

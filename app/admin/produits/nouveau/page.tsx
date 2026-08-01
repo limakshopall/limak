@@ -50,6 +50,29 @@ export default async function NouveauProduit() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
+            <label className="block text-sm text-neutral-600">
+              Couleur <span className="text-neutral-400">(facultatif)</span>
+            </label>
+            <input
+              name="color"
+              placeholder="ex: Rouge"
+              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-neutral-600">
+              Taille <span className="text-neutral-400">(facultatif)</span>
+            </label>
+            <input
+              name="size"
+              placeholder="ex: 42"
+              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
             <label className="block text-sm text-neutral-600">Prix (FCFA)</label>
             <input
               name="price"
@@ -67,6 +90,18 @@ export default async function NouveauProduit() {
               className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm text-neutral-600">
+            Prix promo (FCFA) <span className="text-neutral-400">(facultatif)</span>
+          </label>
+          <input
+            name="comparePrice"
+            type="number"
+            placeholder="Vide = pas de promo"
+            className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+          />
         </div>
 
         <div className="rounded-lg border border-dashed border-[#14213D]/20 bg-[#FBEEDA] p-3">

@@ -43,12 +43,12 @@ export default function ReviewForm({
   }
 
   return (
-    <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+    <div className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-white/15 dark:bg-[#05070d]">
       {/* Non connecté : invitation à se connecter */}
       <Show when="signed-out">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           <SignInButton mode="modal">
-            <button className="font-medium text-black underline">Connectez-vous</button>
+            <button className="font-medium text-black underline dark:text-gray-300">Connectez-vous</button>
           </SignInButton>{" "}
           pour laisser un avis.
         </p>
@@ -81,7 +81,7 @@ export default function ReviewForm({
           onChange={(e) => setComment(e.target.value)}
           placeholder="Votre commentaire (facultatif)"
           rows={3}
-          className="mt-3 w-full rounded-lg border border-gray-300 p-2 text-sm"
+          className="mt-3 w-full rounded-lg border border-gray-300 p-2 text-sm dark:border-white/15"
         />
 
         <button

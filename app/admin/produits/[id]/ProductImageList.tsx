@@ -16,7 +16,7 @@ export default function ProductImageList({ images }: { images: Img[] }) {
   const [isPending, startTransition] = useTransition();
 
   if (images.length === 0) {
-    return <p className="text-sm text-neutral-400">Aucune image pour l'instant.</p>;
+    return <p className="text-sm text-neutral-400 dark:text-gray-400">Aucune image pour l'instant.</p>;
   }
 
   function handleDelete(imageId: string) {

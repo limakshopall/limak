@@ -38,51 +38,51 @@ export default async function AdminCommandes({
   });
 
   return (
-    <main className="mx-auto max-w-5xl bg-[#FBEEDA] px-4 py-8">
+    <main className="mx-auto max-w-5xl bg-[#FBEEDA] px-4 py-8 dark:bg-[#1c2333]">
       <Link
         href="/admin"
-        className="mb-6 inline-block text-sm text-neutral-500 hover:text-[#14213D]"
+        className="mb-6 inline-block text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400"
       >
         ← Retour à l'administration
       </Link>
 
-      <h1 className="mb-6 text-2xl font-bold text-[#14213D]">Commandes</h1>
+      <h1 className="mb-6 text-2xl font-bold text-[#14213D] dark:text-gray-300">Commandes</h1>
 
       <CommandesFiltres />
 
       {commandes.length === 0 ? (
-        <p className="text-neutral-500">Aucune commande ne correspond.</p>
+        <p className="text-neutral-500 dark:text-gray-400">Aucune commande ne correspond.</p>
       ) : (
         <div className="space-y-3">
           {commandes.map((cmd) => (
             <div
               key={cmd.id}
-              className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm"
+              className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d]"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="font-semibold text-[#14213D]">{cmd.customerName}</p>
-                  <p className="text-sm text-neutral-500">{cmd.customerPhone}</p>
-                  <p className="text-sm text-neutral-500">
+                  <p className="font-semibold text-[#14213D] dark:text-gray-300">{cmd.customerName}</p>
+                  <p className="text-sm text-neutral-500 dark:text-gray-400">{cmd.customerPhone}</p>
+                  <p className="text-sm text-neutral-500 dark:text-gray-400">
                     {cmd.shippingAddress}, {cmd.shippingCity}
                   </p>
-                  <p className="mt-1 text-xs text-neutral-400">
+                  <p className="mt-1 text-xs text-neutral-400 dark:text-gray-400">
                     {new Date(cmd.createdAt).toLocaleString("fr-FR")}
                   </p>
                 </div>
 
                 <div className="text-right">
-                  <p className="text-lg font-bold text-[#14213D]">
+                  <p className="text-lg font-bold text-[#14213D] dark:text-gray-300">
                     {new Intl.NumberFormat("fr-FR").format(cmd.total)} FCFA
                   </p>
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-neutral-500 dark:text-gray-400">
                     {cmd.items.length} article(s)
                   </p>
-                  <p className="text-xs text-neutral-400">Paiement à la livraison</p>
+                  <p className="text-xs text-neutral-400 dark:text-gray-400">Paiement à la livraison</p>
                 </div>
               </div>
 
-              <div className="mt-3 border-t border-[#14213D]/10 pt-3 text-sm text-neutral-600">
+              <div className="mt-3 border-t border-[#14213D]/10 pt-3 text-sm text-neutral-600 dark:border-white/15 dark:text-gray-400">
                 {cmd.items.map((item) => (
                   <div key={item.id} className="flex justify-between">
                     <span>
@@ -98,7 +98,7 @@ export default async function AdminCommandes({
                 ))}
               </div>
 
-              <div className="mt-3 flex items-center justify-between gap-3 border-t border-[#14213D]/10 pt-3">
+              <div className="mt-3 flex items-center justify-between gap-3 border-t border-[#14213D]/10 pt-3 dark:border-white/15">
                 <OrderStatusForm orderId={cmd.id} currentStatus={cmd.status} />
                 <Link
                   href={`/admin/commandes/${cmd.id}`}

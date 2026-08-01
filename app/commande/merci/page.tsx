@@ -17,39 +17,39 @@ export default async function MerciPage({
     : null;
 
   return (
-    <main className="mx-auto max-w-2xl bg-[#FBEEDA] px-4 py-16 text-center">
+    <main className="mx-auto max-w-2xl bg-[#FBEEDA] px-4 py-16 text-center dark:bg-[#1c2333]">
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#1F7A5C]/10">
         <svg viewBox="0 0 24 24" fill="none" stroke="#1F7A5C" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7">
           <path d="M20 6L9 17l-5-5" />
         </svg>
       </div>
-      <h1 className="mt-4 text-2xl font-bold text-[#14213D]">Merci pour votre commande !</h1>
+      <h1 className="mt-4 text-2xl font-bold text-[#14213D] dark:text-gray-300">Merci pour votre commande !</h1>
 
       {order ? (
         <>
-          <p className="mt-2 text-neutral-600">
+          <p className="mt-2 text-neutral-600 dark:text-gray-400">
             Votre commande a bien été enregistrée. Nous vous contacterons au{" "}
             {order.customerPhone} pour la livraison.
           </p>
-          <div className="mx-auto mt-6 max-w-sm rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 text-left text-sm shadow-sm">
+          <div className="mx-auto mt-6 max-w-sm rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 text-left text-sm shadow-sm dark:border-white/15 dark:bg-[#05070d]">
             <p>
-              <span className="text-neutral-500">Numéro :</span> {order.id}
+              <span className="text-neutral-500 dark:text-gray-400">Numéro :</span> {order.id}
             </p>
             <p className="mt-1">
-              <span className="text-neutral-500">Total :</span>{" "}
+              <span className="text-neutral-500 dark:text-gray-400">Total :</span>{" "}
               {new Intl.NumberFormat("fr-FR").format(order.total)} FCFA
             </p>
             <p className="mt-1">
-              <span className="text-neutral-500">Paiement :</span> à la livraison
+              <span className="text-neutral-500 dark:text-gray-400">Paiement :</span> à la livraison
             </p>
             <p className="mt-1">
-              <span className="text-neutral-500">Livraison :</span>{" "}
+              <span className="text-neutral-500 dark:text-gray-400">Livraison :</span>{" "}
               {order.customerName} — {order.shippingAddress}, {order.shippingCity}
             </p>
           </div>
         </>
       ) : (
-        <p className="mt-2 text-neutral-600">Votre commande a été enregistrée.</p>
+        <p className="mt-2 text-neutral-600 dark:text-gray-400">Votre commande a été enregistrée.</p>
       )}
 
       <Link

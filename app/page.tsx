@@ -121,7 +121,7 @@ export default async function Accueil() {
   );
 
   return (
-    <div className="bg-[#FBEEDA]">
+    <div className="bg-[#FBEEDA] dark:bg-[#1c2333]">
       <HeroCarousel />
 
       {/* RÉASSURANCE */}
@@ -161,7 +161,7 @@ export default async function Accueil() {
       {/* CATÉGORIES */}
       <Reveal>
         <section className="mx-auto max-w-6xl px-4 py-8">
-          <h2 className="mb-6 text-2xl font-bold text-[#14213D]">
+          <h2 className="mb-6 text-2xl font-bold text-[#14213D] dark:text-gray-300">
             Explorez nos catégories
           </h2>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
@@ -190,7 +190,7 @@ export default async function Accueil() {
       <Reveal>
         <section className="mx-auto max-w-6xl px-4 pb-8">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-[#14213D]">Nouveautés</h2>
+            <h2 className="text-2xl font-bold text-[#14213D] dark:text-gray-300">Nouveautés</h2>
             <Link href="/produits" className="text-sm font-semibold text-[#C95900] hover:underline">
               Voir tout →
             </Link>
@@ -218,7 +218,7 @@ export default async function Accueil() {
         <Reveal key={c.id}>
           <section className="mx-auto max-w-6xl px-4 py-6">
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-[#14213D]">{c.name}</h2>
+              <h2 className="text-2xl font-bold text-[#14213D] dark:text-gray-300">{c.name}</h2>
               <Link href={`/produits?categorie=${c.slug}`} className="text-sm font-semibold text-[#C95900] hover:underline">
                 Voir tout →
               </Link>
@@ -258,25 +258,25 @@ export default async function Accueil() {
       </Reveal>
 
       {/* PIED DE PAGE */}
-      <footer className="border-t border-[#14213D]/10 bg-[#FFFBF3]">
+      <footer className="border-t border-[#14213D]/10 bg-[#FFFBF3] dark:border-white/15 dark:bg-[#1c2333]">
         <div className="mx-auto max-w-6xl px-4 py-10">
           <div className="flex flex-col gap-6 sm:flex-row sm:justify-between">
             <div>
-              <p className="text-xl font-extrabold text-[#14213D]">LIMAK</p>
-              <p className="mt-2 max-w-xs text-sm text-neutral-500">
+              <p className="text-xl font-extrabold text-[#14213D] dark:text-gray-300">LIMAK</p>
+              <p className="mt-2 max-w-xs text-sm text-neutral-500 dark:text-gray-400">
                 Votre boutique en ligne en Côte d&apos;Ivoire. Paiement à la livraison.
               </p>
             </div>
-            <div className="text-sm text-neutral-600">
-              <p className="font-semibold text-neutral-800">Une question ?</p>
+            <div className="text-sm text-neutral-600 dark:text-gray-400">
+              <p className="font-semibold text-neutral-800 dark:text-gray-300">Une question ?</p>
               <p className="mt-2">Email : limak.shopall@gmail.com</p>
               <p>WhatsApp : +225 07 17 67 87 84</p>
-              <p className="mt-1 text-xs text-neutral-400">
+              <p className="mt-1 text-xs text-neutral-400 dark:text-gray-400">
                 (pour vos questions — les commandes se passent sur le site)
               </p>
             </div>
           </div>
-          <p className="mt-8 border-t border-neutral-100 pt-6 text-center text-xs text-neutral-400">
+          <p className="mt-8 border-t border-neutral-100 pt-6 text-center text-xs text-neutral-400 dark:border-white/15 dark:text-gray-400">
             © {new Date().getFullYear()} LIMAK. Tous droits réservés.
           </p>
         </div>

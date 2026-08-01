@@ -31,70 +31,70 @@ export default function VariantList({
         <form
           key={v.id}
           action={updateVariant}
-          className="rounded-lg border border-[#14213D]/10 bg-[#FBEEDA] p-3"
+          className="rounded-lg border border-[#14213D]/10 bg-[#FBEEDA] p-3 dark:border-white/15 dark:bg-[#1c2333]"
         >
           <input type="hidden" name="variantId" value={v.id} />
           <input type="hidden" name="productId" value={productId} />
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
             <div>
-              <label className="block text-xs text-neutral-500">Couleur</label>
+              <label className="block text-xs text-neutral-500 dark:text-gray-400">Couleur</label>
               <input
                 name="color"
                 defaultValue={v.color ?? ""}
                 placeholder="ex: Rouge"
-                className="mt-1 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+                className="mt-1 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
               />
             </div>
             <div>
-              <label className="block text-xs text-neutral-500">Taille</label>
+              <label className="block text-xs text-neutral-500 dark:text-gray-400">Taille</label>
               <input
                 name="size"
                 defaultValue={v.size ?? ""}
                 placeholder="ex: 42"
-                className="mt-1 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+                className="mt-1 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
               />
             </div>
             <div>
-              <label className="block text-xs text-neutral-500">Prix (FCFA)</label>
+              <label className="block text-xs text-neutral-500 dark:text-gray-400">Prix (FCFA)</label>
               <input
                 name="price"
                 type="number"
                 defaultValue={v.price}
-                className="mt-1 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+                className="mt-1 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
               />
             </div>
             <div>
-              <label className="block text-xs text-neutral-500">Stock</label>
+              <label className="block text-xs text-neutral-500 dark:text-gray-400">Stock</label>
               <input
                 name="stock"
                 type="number"
                 defaultValue={v.stock}
-                className="mt-1 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+                className="mt-1 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
               />
             </div>
             <div>
-              <label className="block text-xs text-neutral-500">Promo (FCFA)</label>
+              <label className="block text-xs text-neutral-500 dark:text-gray-400">Promo (FCFA)</label>
               <input
                 name="comparePrice"
                 type="number"
                 defaultValue={v.comparePrice ?? ""}
                 placeholder="Vide = non"
-                className="mt-1 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+                className="mt-1 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
               />
             </div>
           </div>
 
           <div className="mt-3">
-            <label className="block text-xs text-neutral-500">
-              Prix fournisseur (FCFA) <span className="text-[#14213D]/40">— interne, jamais visible client</span>
+            <label className="block text-xs text-neutral-500 dark:text-gray-400">
+              Prix fournisseur (FCFA) <span className="text-[#14213D]/40 dark:text-gray-400">— interne, jamais visible client</span>
             </label>
             <input
               name="costPrice"
               type="number"
               defaultValue={v.costPrice ?? ""}
               placeholder="Facultatif"
-              className="mt-1 w-full max-w-xs rounded border border-[#14213D]/15 bg-[#FBEEDA] px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+              className="mt-1 w-full max-w-xs rounded border border-[#14213D]/15 bg-[#FBEEDA] px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#1c2333] dark:text-gray-300"
             />
           </div>
 

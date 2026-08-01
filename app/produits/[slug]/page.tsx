@@ -122,34 +122,34 @@ export default async function FicheProduit({
   );
 
   return (
-    <main className="mx-auto max-w-5xl bg-[#FBEEDA] px-4 py-6 sm:py-8">
+    <main className="mx-auto max-w-5xl bg-[#FBEEDA] px-4 py-6 dark:bg-[#1c2333] sm:py-8">
       <Link
         href="/produits"
-        className="mb-4 inline-block text-sm text-neutral-500 hover:text-[#14213D]"
+        className="mb-4 inline-block text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400 dark:hover:text-gray-100"
       >
         ← Retour aux articles
       </Link>
 
-      <div className="grid gap-6 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm sm:p-6 md:grid-cols-2">
+      <div className="grid gap-6 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d] sm:p-6 md:grid-cols-2">
         <ProductGallery images={produit.images} name={produit.name} />
 
         <div>
           {produit.category && (
-            <p className="text-sm text-neutral-500">{produit.category.name}</p>
+            <p className="text-sm text-neutral-500 dark:text-gray-400">{produit.category.name}</p>
           )}
-          <h1 className="mt-1 text-3xl font-extrabold text-[#14213D]">{produit.name}</h1>
+          <h1 className="mt-1 text-3xl font-extrabold text-[#14213D] dark:text-gray-300">{produit.name}</h1>
 
           {nbAvis > 0 && (
             <div className="mt-2 flex items-center gap-2 text-sm">
               <Stars value={moyenne} />
-              <span className="text-neutral-600">
+              <span className="text-neutral-600 dark:text-gray-400">
                 {moyenne.toFixed(1)} · {nbAvis} avis
               </span>
             </div>
           )}
 
           {produit.description && (
-            <p className="mt-4 leading-relaxed text-neutral-700">
+            <p className="mt-4 leading-relaxed text-neutral-700 dark:text-gray-300">
               {produit.description}
             </p>
           )}
@@ -167,8 +167,8 @@ export default async function FicheProduit({
       </div>
 
       {/* --- SECTION AVIS CLIENTS --- */}
-      <section className="mt-8 border-t border-[#14213D]/10 pt-6">
-        <h2 className="text-xl font-bold text-[#14213D]">
+      <section className="mt-8 border-t border-[#14213D]/10 pt-6 dark:border-white/15">
+        <h2 className="text-xl font-bold text-[#14213D] dark:text-gray-300">
           Avis clients{nbAvis > 0 && ` (${nbAvis})`}
         </h2>
 
@@ -176,20 +176,20 @@ export default async function FicheProduit({
 
         <div className="mt-6 space-y-3">
           {nbAvis === 0 ? (
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-neutral-500 dark:text-gray-400">
               Aucun avis pour le moment. Soyez le premier à en laisser un !
             </p>
           ) : (
             avis.map((a) => (
-              <div key={a.id} className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm">
+              <div key={a.id} className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d]">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-[#14213D]">
+                  <span className="font-medium text-[#14213D] dark:text-gray-300">
                     {a.authorName}
                     <span className="ml-2 rounded-full bg-[#1F7A5C]/10 px-2 py-0.5 text-xs font-medium text-[#1F7A5C]">
                       ✓ Achat vérifié
                     </span>
                   </span>
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-400 dark:text-gray-400">
                     {new Date(a.createdAt).toLocaleDateString("fr-FR")}
                   </span>
                 </div>
@@ -197,7 +197,7 @@ export default async function FicheProduit({
                   <Stars value={a.rating} />
                 </div>
                 {a.comment && (
-                  <p className="mt-2 text-sm leading-relaxed text-neutral-700">
+                  <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-gray-300">
                     {a.comment}
                   </p>
                 )}
@@ -209,8 +209,8 @@ export default async function FicheProduit({
 
       {/* --- PRODUITS SIMILAIRES --- */}
       {similaires.length > 0 && (
-        <section className="mt-8 border-t border-[#14213D]/10 pt-6">
-          <h2 className="mb-4 text-xl font-bold text-[#14213D]">Vous aimerez aussi</h2>
+        <section className="mt-8 border-t border-[#14213D]/10 pt-6 dark:border-white/15">
+          <h2 className="mb-4 text-xl font-bold text-[#14213D] dark:text-gray-300">Vous aimerez aussi</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {similaires.map((p) => (
               <ProductCard

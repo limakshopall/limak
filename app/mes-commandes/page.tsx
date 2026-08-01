@@ -23,7 +23,7 @@ export default async function MesCommandes() {
     return (
       <main className="mx-auto max-w-3xl px-4 py-16 text-center">
         <h1 className="text-2xl font-bold">Mes commandes</h1>
-        <p className="mt-2 text-neutral-500">
+        <p className="mt-2 text-neutral-500 dark:text-gray-400">
           Connectez-vous pour voir l&apos;historique de vos commandes.
         </p>
         <Link
@@ -48,8 +48,8 @@ export default async function MesCommandes() {
       <h1 className="mb-8 text-2xl font-bold">Mes commandes</h1>
 
       {commandes.length === 0 ? (
-        <div className="rounded-lg border border-neutral-200 bg-white p-8 text-center">
-          <p className="text-neutral-500">
+        <div className="rounded-lg border border-neutral-200 bg-white p-8 text-center dark:border-white/15 dark:bg-[#05070d]">
+          <p className="text-neutral-500 dark:text-gray-400">
             Vous n&apos;avez pas encore passé de commande.
           </p>
           <Link
@@ -64,18 +64,18 @@ export default async function MesCommandes() {
           {commandes.map((cmd) => (
             <div
               key={cmd.id}
-              className="rounded-lg border border-neutral-200 bg-white p-4"
+              className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/15 dark:bg-[#05070d]"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs text-neutral-400">
+                  <p className="text-xs text-neutral-400 dark:text-gray-400">
                     {new Date(cmd.createdAt).toLocaleDateString("fr-FR", {
                       day: "numeric",
                       month: "long",
                       year: "numeric",
                     })}
                   </p>
-                  <span className="mt-1 inline-block rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-700">
+                  <span className="mt-1 inline-block rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-700 dark:bg-white/10 dark:text-gray-300">
                     {STATUTS[cmd.status] ?? cmd.status}
                   </span>
                 </div>
@@ -84,7 +84,7 @@ export default async function MesCommandes() {
                 </p>
               </div>
 
-              <div className="mt-3 border-t border-neutral-100 pt-3 text-sm text-neutral-600">
+              <div className="mt-3 border-t border-neutral-100 pt-3 text-sm text-neutral-600 dark:border-white/15 dark:text-gray-400">
                 {cmd.items.map((item) => (
                   <div key={item.id} className="flex justify-between">
                     <span>
@@ -100,7 +100,7 @@ export default async function MesCommandes() {
                 ))}
               </div>
 
-              <p className="mt-3 text-xs text-neutral-400">
+              <p className="mt-3 text-xs text-neutral-400 dark:text-gray-400">
                 Livraison : {cmd.shippingAddress}, {cmd.shippingCity} · Paiement à
                 la livraison
               </p>

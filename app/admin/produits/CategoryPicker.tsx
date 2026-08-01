@@ -50,13 +50,13 @@ export default function CategoryPicker({
 
   return (
     <div>
-      <label className="block text-sm text-neutral-600">Catégorie</label>
+      <label className="block text-sm text-neutral-600 dark:text-gray-400">Catégorie</label>
       <div className="mt-1 flex gap-2">
         <select
           name="categoryId"
           value={selection}
           onChange={(e) => setSelection(e.target.value)}
-          className="w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#C9962B] focus:ring-1 focus:ring-[#C9962B]"
+          className="w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#C9962B] focus:ring-1 focus:ring-[#C9962B] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
         >
           <option value="">— Aucune —</option>
           {categories.map((c) => (
@@ -68,21 +68,21 @@ export default function CategoryPicker({
         <button
           type="button"
           onClick={() => setOuvert((o) => !o)}
-          className="shrink-0 rounded-lg border border-[#14213D]/15 px-3 py-2 text-sm font-medium text-[#14213D] hover:bg-[#14213D]/5"
+          className="shrink-0 rounded-lg border border-[#14213D]/15 px-3 py-2 text-sm font-medium text-[#14213D] hover:bg-[#14213D]/5 dark:border-white/15 dark:text-gray-300"
         >
           {ouvert ? "Annuler" : "+ Nouvelle"}
         </button>
       </div>
 
       {ouvert && (
-        <div className="mt-3 space-y-3 rounded-lg border border-dashed border-[#14213D]/20 bg-[#FBEEDA] p-3">
+        <div className="mt-3 space-y-3 rounded-lg border border-dashed border-[#14213D]/20 bg-[#FBEEDA] p-3 dark:border-white/15 dark:bg-[#1c2333]">
           <div>
-            <label className="block text-xs text-neutral-500">Nom de la catégorie</label>
+            <label className="block text-xs text-neutral-500 dark:text-gray-400">Nom de la catégorie</label>
             <input
               value={nom}
               onChange={(e) => setNom(e.target.value)}
               placeholder="ex: Chaussures"
-              className="mt-1 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#C9962B] focus:ring-1 focus:ring-[#C9962B]"
+              className="mt-1 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#C9962B] focus:ring-1 focus:ring-[#C9962B] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
             />
           </div>
 
@@ -92,7 +92,7 @@ export default function CategoryPicker({
                 <Image src={imageUrl} alt="" fill className="object-cover" />
               </div>
             ) : (
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-dashed border-[#14213D]/20 text-[10px] text-neutral-400">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-dashed border-[#14213D]/20 text-[10px] text-neutral-400 dark:border-white/15 dark:text-gray-400">
                 photo
               </div>
             )}

@@ -72,11 +72,11 @@ export default async function AdminHome() {
   ];
 
   return (
-    <main className="mx-auto max-w-4xl bg-[#FBEEDA] px-4 py-8">
+    <main className="mx-auto max-w-4xl bg-[#FBEEDA] px-4 py-8 dark:bg-[#1c2333]">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#14213D]">Administration</h1>
+        <h1 className="text-2xl font-bold text-[#14213D] dark:text-gray-300">Administration</h1>
         <form action={logout}>
-          <button className="text-sm text-neutral-500 hover:text-[#14213D]">
+          <button className="text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400">
             Se déconnecter
           </button>
         </form>
@@ -87,10 +87,10 @@ export default async function AdminHome() {
         {stats.map((s) => (
           <div
             key={s.label}
-            className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm"
+            className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d]"
           >
-            <p className="text-sm text-neutral-500">{s.label}</p>
-            <p className="mt-1 text-xl font-bold text-[#14213D]">{s.valeur}</p>
+            <p className="text-sm text-neutral-500 dark:text-gray-400">{s.label}</p>
+            <p className="mt-1 text-xl font-bold text-[#14213D] dark:text-gray-300">{s.valeur}</p>
           </div>
         ))}
       </div>
@@ -133,34 +133,34 @@ export default async function AdminHome() {
 
       {/* --- Dernières commandes + Top ventes --- */}
       <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm">
+        <div className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d]">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold text-[#14213D]">Dernières commandes</h2>
+            <h2 className="font-semibold text-[#14213D] dark:text-gray-300">Dernières commandes</h2>
             <Link
               href="/admin/commandes"
-              className="text-sm text-neutral-500 hover:text-[#14213D]"
+              className="text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400"
             >
               Tout voir →
             </Link>
           </div>
 
           {dernieresCommandes.length === 0 ? (
-            <p className="text-sm text-neutral-500">Aucune commande.</p>
+            <p className="text-sm text-neutral-500 dark:text-gray-400">Aucune commande.</p>
           ) : (
-            <ul className="divide-y divide-[#14213D]/5">
+            <ul className="divide-y divide-[#14213D]/5 dark:divide-white/15">
               {dernieresCommandes.map((cmd) => (
                 <li
                   key={cmd.id}
                   className="flex items-center justify-between py-2 text-sm"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-medium text-[#14213D]">{cmd.customerName}</p>
-                    <p className="text-xs text-neutral-400">
+                    <p className="truncate font-medium text-[#14213D] dark:text-gray-300">{cmd.customerName}</p>
+                    <p className="text-xs text-neutral-400 dark:text-gray-400">
                       {new Date(cmd.createdAt).toLocaleDateString("fr-FR")} ·{" "}
                       {cmd.items.length} article(s)
                     </p>
                   </div>
-                  <span className="whitespace-nowrap font-semibold text-[#14213D]">
+                  <span className="whitespace-nowrap font-semibold text-[#14213D] dark:text-gray-300">
                     {fcfa(cmd.total)}
                   </span>
                 </li>
@@ -169,11 +169,11 @@ export default async function AdminHome() {
           )}
         </div>
 
-        <div className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm">
-          <h2 className="mb-3 font-semibold text-[#14213D]">Meilleures ventes</h2>
+        <div className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d]">
+          <h2 className="mb-3 font-semibold text-[#14213D] dark:text-gray-300">Meilleures ventes</h2>
 
           {topVentes.length === 0 ? (
-            <p className="text-sm text-neutral-500">Aucune vente pour le moment.</p>
+            <p className="text-sm text-neutral-500 dark:text-gray-400">Aucune vente pour le moment.</p>
           ) : (
             <ol className="space-y-2">
               {topVentes.map((p, i) => (
@@ -181,11 +181,11 @@ export default async function AdminHome() {
                   key={p.productName}
                   className="flex items-center justify-between text-sm"
                 >
-                  <span className="min-w-0 truncate text-neutral-700">
-                    <span className="text-neutral-400">{i + 1}.</span>{" "}
+                  <span className="min-w-0 truncate text-neutral-700 dark:text-gray-300">
+                    <span className="text-neutral-400 dark:text-gray-400">{i + 1}.</span>{" "}
                     {p.productName}
                   </span>
-                  <span className="whitespace-nowrap font-semibold text-[#14213D]">
+                  <span className="whitespace-nowrap font-semibold text-[#14213D] dark:text-gray-300">
                     {p._sum.quantity ?? 0} vendu(s)
                   </span>
                 </li>
@@ -199,20 +199,20 @@ export default async function AdminHome() {
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Link
           href="/admin/commandes"
-          className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-6 shadow-sm transition hover:shadow-md"
+          className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-6 shadow-sm transition hover:shadow-md dark:border-white/15 dark:bg-[#05070d]"
         >
-          <h2 className="font-semibold text-[#14213D]">Commandes</h2>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h2 className="font-semibold text-[#14213D] dark:text-gray-300">Commandes</h2>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-gray-400">
             Voir et gérer les commandes reçues
           </p>
         </Link>
 
         <Link
           href="/admin/produits"
-          className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-6 shadow-sm transition hover:shadow-md"
+          className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-6 shadow-sm transition hover:shadow-md dark:border-white/15 dark:bg-[#05070d]"
         >
-          <h2 className="font-semibold text-[#14213D]">Articles</h2>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h2 className="font-semibold text-[#14213D] dark:text-gray-300">Articles</h2>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-gray-400">
             Gérer le catalogue et les stocks
           </p>
         </Link>

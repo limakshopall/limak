@@ -21,7 +21,7 @@ export default function ProductGallery({
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-square items-center justify-center rounded-xl bg-[#FBEEDA] text-neutral-400">
+      <div className="flex aspect-square items-center justify-center rounded-xl bg-[#FBEEDA] text-neutral-400 dark:bg-[#1c2333] dark:text-gray-400">
         photo à venir
       </div>
     );
@@ -30,7 +30,7 @@ export default function ProductGallery({
   return (
     <div>
       {/* Grande image */}
-      <div className="relative aspect-square overflow-hidden rounded-xl bg-[#FBEEDA]">
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-[#FBEEDA] dark:bg-[#1c2333]">
         <Image
           src={images[active].url}
           alt={images[active].alt ?? name}

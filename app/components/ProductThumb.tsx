@@ -15,7 +15,7 @@ export default function ProductThumb({
 }) {
   if (!src) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-neutral-100 text-xs text-neutral-400">
+      <div className="flex h-full w-full items-center justify-center bg-neutral-100 text-xs text-neutral-400 dark:bg-white/5 dark:text-gray-400">
         photo à venir
       </div>
     );

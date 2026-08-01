@@ -28,7 +28,7 @@ export default function ProductImageUploader({ productId }: { productId: string 
           alert(`Erreur de téléversement : ${error.message}`);
         }}
       />
-      <p className="mt-2 text-xs text-neutral-400">
+      <p className="mt-2 text-xs text-neutral-400 dark:text-gray-400">
         Formats image, 4 Mo max. L'image s'ajoute à l'article une fois envoyée.
       </p>
     </div>

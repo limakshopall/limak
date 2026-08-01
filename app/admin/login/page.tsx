@@ -13,16 +13,16 @@ export default async function AdminLogin({
 
   return (
     <main className="mx-auto flex min-h-[80vh] max-w-sm items-center px-4">
-      <div className="w-full rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-6 shadow-sm">
-        <h1 className="mb-6 text-xl font-bold text-[#14213D]">Espace administrateur</h1>
+      <div className="w-full rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-6 shadow-sm dark:border-white/15 dark:bg-[#05070d]">
+        <h1 className="mb-6 text-xl font-bold text-[#14213D] dark:text-gray-300">Espace administrateur</h1>
 
         <form action={login} className="space-y-4">
           <div>
-            <label className="block text-sm text-neutral-600">Mot de passe</label>
+            <label className="block text-sm text-neutral-600 dark:text-gray-400">Mot de passe</label>
             <input
               type="password"
               name="password"
-              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
             />
           </div>
 

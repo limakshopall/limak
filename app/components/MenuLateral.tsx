@@ -95,16 +95,16 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
 
       <aside
         aria-hidden={!ouvert}
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col bg-[#FFFBF3] shadow-xl transition-transform duration-300 ease-out ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col bg-[#FFFBF3] shadow-xl transition-transform duration-300 ease-out dark:bg-[#1c2333] ${
           ouvert ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-[#14213D]/10 px-4 py-4">
-          <span className="text-lg font-extrabold tracking-tight text-[#14213D]">LIMAK</span>
+        <div className="flex items-center justify-between border-b border-[#14213D]/10 px-4 py-4 dark:border-white/15">
+          <span className="text-lg font-extrabold tracking-tight text-[#14213D] dark:text-gray-300">LIMAK</span>
           <button
             onClick={() => setOuvert(false)}
             aria-label="Fermer le menu"
-            className="text-neutral-500 hover:text-[#14213D]"
+            className="text-neutral-500 hover:text-[#14213D] dark:text-gray-400 dark:hover:text-gray-100"
           >
             ✕
           </button>
@@ -114,13 +114,13 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
           <Link
             href="/produits"
             onClick={() => setOuvert(false)}
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 font-semibold text-[#14213D] transition hover:bg-[#14213D]/5"
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 font-semibold text-[#14213D] transition hover:bg-[#14213D]/5 dark:text-gray-300 dark:hover:bg-white/5"
           >
             <IconeTout className="h-4.5 w-4.5 shrink-0" />
             Tous les articles
           </Link>
 
-          <p className="mb-1 mt-4 px-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+          <p className="mb-1 mt-4 px-3 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-gray-400">
             Catégories
           </p>
           {categories.map((c) => (
@@ -128,19 +128,19 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
               key={c.slug}
               href={`/produits?categorie=${c.slug}`}
               onClick={() => setOuvert(false)}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-neutral-700 transition hover:bg-[#14213D]/5 hover:text-[#14213D]"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-neutral-700 transition hover:bg-[#14213D]/5 hover:text-[#14213D] dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-100"
             >
               <IconeEtiquette className="h-4.5 w-4.5 shrink-0" />
               {c.name}
             </Link>
           ))}
 
-          <div className="my-3 border-t border-[#14213D]/10" />
+          <div className="my-3 border-t border-[#14213D]/10 dark:border-white/15" />
 
           <Link
             href="/panier"
             onClick={() => setOuvert(false)}
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-neutral-700 transition hover:bg-[#14213D]/5 hover:text-[#14213D]"
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-neutral-700 transition hover:bg-[#14213D]/5 hover:text-[#14213D] dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-100"
           >
             <IconePanierMenu className="h-4.5 w-4.5 shrink-0" />
             Panier
@@ -148,14 +148,14 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
           <Link
             href="/mes-commandes"
             onClick={() => setOuvert(false)}
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-neutral-700 transition hover:bg-[#14213D]/5 hover:text-[#14213D]"
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-neutral-700 transition hover:bg-[#14213D]/5 hover:text-[#14213D] dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-100"
           >
             <IconeCommandesMenu className="h-4.5 w-4.5 shrink-0" />
             Mes commandes
           </Link>
         </nav>
 
-        <div className="border-t border-[#14213D]/10 px-4 py-4 text-xs text-neutral-400">
+        <div className="border-t border-[#14213D]/10 px-4 py-4 text-xs text-neutral-400 dark:border-white/15 dark:text-gray-400">
           Paiement à la livraison · Côte d&apos;Ivoire 🇨🇮
         </div>
       </aside>

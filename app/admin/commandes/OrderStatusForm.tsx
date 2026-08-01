@@ -35,13 +35,13 @@ export default function OrderStatusForm({
   }
 
   return (
-    <div className="mt-4 flex items-center gap-2 border-t border-[#14213D]/10 pt-3">
-      <label className="text-sm text-neutral-500">Statut :</label>
+    <div className="mt-4 flex items-center gap-2 border-t border-[#14213D]/10 pt-3 dark:border-white/15">
+      <label className="text-sm text-neutral-500 dark:text-gray-400">Statut :</label>
       <select
         defaultValue={currentStatus}
         disabled={isPending}
         onChange={(e) => handleChange(e.target.value)}
-        className="rounded-lg border border-[#14213D]/15 px-2 py-1 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] disabled:opacity-50"
+        className="rounded-lg border border-[#14213D]/15 px-2 py-1 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] disabled:opacity-50 dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
       >
         {Object.entries(STATUTS).map(([code, label]) => (
           <option key={code} value={code}>
@@ -49,7 +49,7 @@ export default function OrderStatusForm({
           </option>
         ))}
       </select>
-      {isPending && <span className="text-xs text-neutral-400">Enregistrement…</span>}
+      {isPending && <span className="text-xs text-neutral-400 dark:text-gray-400">Enregistrement…</span>}
     </div>
   );
 }

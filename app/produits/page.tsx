@@ -98,8 +98,8 @@ export default async function ProduitsPage({
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
       <div className="mb-6">
-        <h1 className="text-3xl font-extrabold text-[#14213D]">Nos articles</h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <h1 className="text-3xl font-extrabold text-[#14213D] dark:text-gray-300">Nos articles</h1>
+        <p className="mt-1 text-sm text-neutral-500 dark:text-gray-400">
           {liste.length} article{liste.length > 1 ? "s" : ""} disponible{liste.length > 1 ? "s" : ""}
         </p>
       </div>
@@ -107,7 +107,7 @@ export default async function ProduitsPage({
       <ProduitsFiltres categories={categories} />
 
       {liste.length === 0 ? (
-        <p className="text-neutral-500">
+        <p className="text-neutral-500 dark:text-gray-400">
           Aucun article ne correspond à votre recherche.
         </p>
       ) : (

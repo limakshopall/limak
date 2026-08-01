@@ -106,7 +106,7 @@ export default function AddToCartButton({ productId, slug, name, image, variants
           <p className="text-3xl font-extrabold text-[#B9862B]">{fcfa(variant.price)}</p>
           {variant.comparePrice != null && variant.comparePrice > variant.price && (
             <>
-              <p className="text-lg text-neutral-400 line-through">{fcfa(variant.comparePrice)}</p>
+              <p className="text-lg text-neutral-400 line-through dark:text-gray-400">{fcfa(variant.comparePrice)}</p>
               <span className="rounded-full bg-[#D6293E] px-2 py-0.5 text-sm font-bold text-white">
                 -{Math.round(((variant.comparePrice - variant.price) / variant.comparePrice) * 100)}%
               </span>
@@ -117,7 +117,7 @@ export default function AddToCartButton({ productId, slug, name, image, variants
 
       {couleurs.length > 0 && (
         <div className="mb-4">
-          <p className="mb-1.5 text-sm text-neutral-600">
+          <p className="mb-1.5 text-sm text-neutral-600 dark:text-gray-400">
             Couleur{couleurChoisie ? ` : ${couleurChoisie}` : ""}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -129,7 +129,7 @@ export default function AddToCartButton({ productId, slug, name, image, variants
                 className={`rounded-full border px-3 py-1.5 text-sm font-medium transition ${
                   c === couleurChoisie
                     ? "border-[#14213D] bg-[#14213D] text-white"
-                    : "border-[#14213D]/20 text-[#14213D] hover:border-[#14213D]/40"
+                    : "border-[#14213D]/20 text-[#14213D] hover:border-[#14213D]/40 dark:border-white/15 dark:text-gray-300 dark:hover:border-white/20"
                 }`}
               >
                 {c}
@@ -141,7 +141,7 @@ export default function AddToCartButton({ productId, slug, name, image, variants
 
       {tailles.length > 0 && (
         <div className="mb-4">
-          <p className="mb-1.5 text-sm text-neutral-600">Taille</p>
+          <p className="mb-1.5 text-sm text-neutral-600 dark:text-gray-400">Taille</p>
           <div className="flex flex-wrap gap-2">
             {tailles.map((s) => {
               // Une taille est indisponible si elle n'existe pas / plus de stock pour la couleur choisie.
@@ -159,7 +159,7 @@ export default function AddToCartButton({ productId, slug, name, image, variants
                   className={`rounded-full border px-3 py-1.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-30 ${
                     s === tailleChoisie
                       ? "border-[#14213D] bg-[#14213D] text-white"
-                      : "border-[#14213D]/20 text-[#14213D] hover:border-[#14213D]/40"
+                      : "border-[#14213D]/20 text-[#14213D] hover:border-[#14213D]/40 dark:border-white/15 dark:text-gray-300 dark:hover:border-white/20"
                   }`}
                 >
                   {s}
@@ -189,23 +189,23 @@ export default function AddToCartButton({ productId, slug, name, image, variants
 
           {!epuise && (
             <div className="mb-4 flex items-center gap-4">
-              <span className="text-sm text-neutral-600">Quantité</span>
-              <div className="flex items-center rounded-lg border border-[#14213D]/15">
+              <span className="text-sm text-neutral-600 dark:text-gray-400">Quantité</span>
+              <div className="flex items-center rounded-lg border border-[#14213D]/15 dark:border-white/15">
                 <button
                   type="button"
                   onClick={diminuer}
                   disabled={quantite <= 1}
-                  className="px-3 py-2 text-lg text-[#14213D] disabled:opacity-30"
+                  className="px-3 py-2 text-lg text-[#14213D] disabled:opacity-30 dark:text-gray-300"
                   aria-label="Diminuer la quantité"
                 >
                   −
                 </button>
-                <span className="w-10 text-center font-medium text-[#14213D]">{quantite}</span>
+                <span className="w-10 text-center font-medium text-[#14213D] dark:text-gray-300">{quantite}</span>
                 <button
                   type="button"
                   onClick={augmenter}
                   disabled={quantite >= stock}
-                  className="px-3 py-2 text-lg text-[#14213D] disabled:opacity-30"
+                  className="px-3 py-2 text-lg text-[#14213D] disabled:opacity-30 dark:text-gray-300"
                   aria-label="Augmenter la quantité"
                 >
                   +

@@ -24,10 +24,10 @@ export default function ProductCardCercle({
       href={`/produits/${slug}`}
       className="group flex w-20 shrink-0 flex-col items-center gap-1.5 text-center sm:w-24"
     >
-      <div className="relative aspect-square w-full overflow-hidden rounded-full border-2 border-[#14213D]/10 bg-[#FBEEDA] shadow-sm transition group-hover:border-[#F1720A]/40 group-hover:shadow-md">
+      <div className="relative aspect-square w-full overflow-hidden rounded-full border-2 border-[#14213D]/10 bg-[#FBEEDA] shadow-sm transition group-hover:border-[#F1720A]/40 group-hover:shadow-md dark:border-white/15 dark:bg-[#1c2333]">
         <ProductThumb src={imageUrl} alt={imageAlt ?? name} />
       </div>
-      <p className="line-clamp-2 text-sm font-semibold leading-snug text-[#14213D]">
+      <p className="line-clamp-2 text-sm font-semibold leading-snug text-[#14213D] dark:text-gray-300">
         {name}
       </p>
       <p className="text-xs font-extrabold text-[#B9862B]">

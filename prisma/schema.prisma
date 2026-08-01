@@ -139,6 +139,8 @@ model Product {
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   images   ProductImage[]
+  colors   ProductColor[]
+  sizes    ProductSize[]
   variants ProductVariant[] // un produit a TOUJOURS au moins une variante
   reviews  Review[]
 
@@ -146,29 +148,71 @@ model Product {
   @@index([categoryId])
 }
 
-// Une image d'un produit (un produit peut en avoir plusieurs)
+// Une image d'un produit (un produit peut en avoir plusieurs).
+// Si colorId est renseigné, l'image est spécifique à cette couleur
+// (ex: les 3 photos de la version Rouge) ; sinon c'est une photo générale du produit.
 model ProductImage {
-  id        String  @id @default(cuid())
+  id        String        @id @default(cuid())
   productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  colorId   String?
+  color     ProductColor? @relation(fields: [colorId], references: [id], onDelete: Cascade)
+  sizeId    String?
+  size      ProductSize?  @relation(fields: [sizeId], references: [id], onDelete: Cascade)
   url       String  // adresse de l'image (stockage cloud)
   alt       String? // texte alternatif (accessibilité / SEO)
   position  Int     @default(0) // ordre d'affichage
 
   @@index([productId])
+  @@index([colorId])
+  @@index([sizeId])
+}
+
+// Une couleur déclinable pour un produit (ex: "Rouge", "Bleu").
+// Facultative : un produit peut n'avoir aucune couleur.
+model ProductColor {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String  // ex: "Rouge"
+  hex       String? // ex: "#D6293E" — pour afficher un carré de couleur (facultatif)
+  position  Int     @default(0)
+
+  images   ProductImage[]
+  variants ProductVariant[]
+
+  @@index([productId])
+}
+
+// Une taille déclinable pour un produit (ex: "M", "42", "250ml").
+// Facultative : un produit peut n'avoir aucune taille.
+model ProductSize {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String  // ex: "M" ou "42"
+  position  Int     @default(0)
+
+  images   ProductImage[]
+  variants ProductVariant[]
+
+  @@index([productId])
 }
 
 // Une variante d'un produit : c'est ICI que vivent le prix et le stock.
-// Produit simple  -> une seule variante "Standard".
-// Produit décliné -> plusieurs variantes (ex: "Rouge / L", "Bleu / M").
+// Produit simple  -> une seule variante (colorId et sizeId nuls).
+// Produit décliné -> une variante par combinaison couleur/taille (l'une des
+// deux, ou les deux, peuvent être nulles selon ce que le produit propose).
 model ProductVariant {
-  id           String  @id @default(cuid())
+  id           String        @id @default(cuid())
   productId    String
-  product      Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  sku          String? @unique // référence interne (facultatif)
-  name         String  @default("Standard") // libellé de la variante
-  color        String? // ex: "Rouge" — facultatif, pour les produits déclinés par couleur
-  size         String? // ex: "42" ou "M" — facultatif, pour les produits déclinés par taille
+  product      Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku          String?       @unique // référence interne (facultatif)
+  name         String        @default("Standard") // libellé de la variante (affichage admin)
+  colorId      String?
+  color        ProductColor? @relation(fields: [colorId], references: [id], onDelete: Cascade)
+  sizeId       String?
+  size         ProductSize?  @relation(fields: [sizeId], references: [id], onDelete: Cascade)
   price        Int     // prix de vente actuel en FCFA
   comparePrice Int?    // ancien prix barré (FCFA) — facultatif ; rempli = produit en promo
   costPrice    Int?    // prix fournisseur (FCFA) — INTERNE, jamais exposé aux clients (visible admin only)
@@ -177,6 +221,8 @@ model ProductVariant {
   orderItems OrderItem[]
 
   @@index([productId])
+  @@index([colorId])
+  @@index([sizeId])
 }
 
 // ============================================================

@@ -1,5 +1,8 @@
 // ============================================================
-//  ACTIONS ADMIN — créer un produit (serveur)
+//  ACTION ADMIN — créer un produit complet (serveur)
+//  Couleurs, tailles et leurs photos sont montées côté client
+//  (aucun productId requis pour l'upload UploadThing) puis tout
+//  est envoyé ici en un seul appel, créé dans une transaction.
 // ============================================================
 
 "use server";
@@ -13,36 +16,44 @@ function toSlug(text: string) {
   return text
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // enlève les accents
+    .replace(/[̀-ͯ]/g, "") // enlève les accents
     .replace(/[^a-z0-9]+/g, "-") // remplace le reste par des tirets
     .replace(/(^-|-$)/g, ""); // enlève les tirets en trop
 }
 
-// La promo n'a de sens que si l'ancien prix est strictement supérieur au nouveau.
-function resolveComparePrice(compareRaw: string, price: number): number | null {
-  const trimmed = compareRaw.trim();
-  if (trimmed === "") return null;
-  const parsed = parseInt(trimmed, 10);
-  return Number.isFinite(parsed) && parsed > price ? parsed : null;
-}
+export type NewColorInput = { name: string; hex: string | null; images: string[] };
+export type NewSizeInput = { name: string; images: string[] };
+export type NewVariantInput = {
+  colorIndex: number | null;
+  sizeIndex: number | null;
+  price: number;
+  stock: number;
+  comparePrice: number | null;
+  costPrice: number | null;
+};
 
-export async function createProduct(formData: FormData) {
-  const name = String(formData.get("name") ?? "").trim();
-  const categoryId = String(formData.get("categoryId") ?? "");
-  const description = String(formData.get("description") ?? "").trim();
-  const color = String(formData.get("color") ?? "").trim();
-  const size = String(formData.get("size") ?? "").trim();
-  const price = parseInt(String(formData.get("price") ?? ""), 10);
-  const stock = parseInt(String(formData.get("stock") ?? ""), 10);
-  const compareRaw = String(formData.get("comparePrice") ?? "");
-  const costRaw = String(formData.get("costPrice") ?? "").trim();
-  const costPrice = costRaw === "" ? null : parseInt(costRaw, 10);
+export type CreateProductInput = {
+  name: string;
+  categoryId: string | null;
+  description: string | null;
+  images: string[]; // photos générales (sans couleur précise)
+  colors: NewColorInput[];
+  sizes: NewSizeInput[];
+  // Utilisées seulement si colors et sizes sont vides
+  basePrice: number;
+  baseStock: number;
+  baseComparePrice: number | null;
+  baseCostPrice: number | null;
+  // Utilisées si colors et/ou sizes existent (une entrée par combinaison)
+  variants: NewVariantInput[];
+};
 
-  if (!name) return;
+export async function createProduct(input: CreateProductInput) {
+  const name = input.name.trim();
+  if (!name) throw new Error("Le nom est requis.");
 
-  // On récupère le vendeur LIMAK (créé lors du seed)
   const vendor = await prisma.vendor.findUnique({ where: { slug: "limak" } });
-  if (!vendor) return;
+  if (!vendor) throw new Error("Vendeur introuvable.");
 
   // On fabrique un slug unique (on ajoute un petit suffixe si besoin)
   let slug = toSlug(name) || "produit";
@@ -51,30 +62,86 @@ export async function createProduct(formData: FormData) {
     slug = `${slug}-${Date.now().toString().slice(-5)}`;
   }
 
-  await prisma.product.create({
-    data: {
-      name,
-      slug,
-      description: description || null,
-      brand: "LIMAK",
-      isActive: true,
-      vendorId: vendor.id,
-      categoryId: categoryId || null,
-      variants: {
-        create: [
-          {
-            name: [color, size].filter(Boolean).join(" / ") || "Standard",
-            color: color || null,
-            size: size || null,
-            price: Number.isFinite(price) ? price : 0,
-            stock: Number.isFinite(stock) ? stock : 0,
-            comparePrice: resolveComparePrice(compareRaw, Number.isFinite(price) ? price : 0),
-            costPrice: costPrice != null && Number.isFinite(costPrice) ? costPrice : null,
-          },
-        ],
+  const hasVariants = input.colors.length > 0 || input.sizes.length > 0;
+
+  const product = await prisma.$transaction(async (tx) => {
+    const created = await tx.product.create({
+      data: {
+        name,
+        slug,
+        description: input.description || null,
+        brand: "LIMAK",
+        isActive: true,
+        vendorId: vendor.id,
+        categoryId: input.categoryId || null,
       },
-    },
+    });
+
+    for (const [i, url] of input.images.entries()) {
+      await tx.productImage.create({ data: { productId: created.id, url, position: i } });
+    }
+
+    const colorIds: string[] = [];
+    for (const [i, c] of input.colors.entries()) {
+      const colorName = c.name.trim();
+      if (!colorName) continue;
+      const color = await tx.productColor.create({
+        data: { productId: created.id, name: colorName, hex: c.hex || null, position: i },
+      });
+      colorIds[i] = color.id;
+      for (const [j, url] of c.images.entries()) {
+        await tx.productImage.create({
+          data: { productId: created.id, colorId: color.id, url, position: j },
+        });
+      }
+    }
+
+    const sizeIds: string[] = [];
+    for (const [i, s] of input.sizes.entries()) {
+      const sizeName = s.name.trim();
+      if (!sizeName) continue;
+      const size = await tx.productSize.create({
+        data: { productId: created.id, name: sizeName, position: i },
+      });
+      sizeIds[i] = size.id;
+      for (const [j, url] of s.images.entries()) {
+        await tx.productImage.create({
+          data: { productId: created.id, sizeId: size.id, url, position: j },
+        });
+      }
+    }
+
+    if (hasVariants) {
+      for (const v of input.variants) {
+        await tx.productVariant.create({
+          data: {
+            productId: created.id,
+            colorId: v.colorIndex != null ? (colorIds[v.colorIndex] ?? null) : null,
+            sizeId: v.sizeIndex != null ? (sizeIds[v.sizeIndex] ?? null) : null,
+            name: "Standard",
+            price: Number.isFinite(v.price) ? v.price : 0,
+            stock: Number.isFinite(v.stock) ? v.stock : 0,
+            comparePrice: v.comparePrice,
+            costPrice: v.costPrice,
+          },
+        });
+      }
+    } else {
+      await tx.productVariant.create({
+        data: {
+          productId: created.id,
+          name: "Standard",
+          price: Number.isFinite(input.basePrice) ? input.basePrice : 0,
+          stock: Number.isFinite(input.baseStock) ? input.baseStock : 0,
+          comparePrice: input.baseComparePrice,
+          costPrice: input.baseCostPrice,
+        },
+      });
+    }
+
+    return created;
   });
 
   redirect("/admin/produits");
+  return product;
 }

@@ -1,7 +1,7 @@
 // ============================================================
 //  TÉLÉVERSEMENT D'IMAGE PRODUIT — Client Component
 //  Envoie l'image sur UploadThing, puis enregistre son adresse
-//  en base pour ce produit.
+//  en base pour ce produit (et éventuellement une couleur précise).
 // ============================================================
 
 "use client";
@@ -10,7 +10,15 @@ import { useRouter } from "next/navigation";
 import { UploadButton } from "../../../lib/uploadthing";
 import { addProductImage } from "./actions";
 
-export default function ProductImageUploader({ productId }: { productId: string }) {
+export default function ProductImageUploader({
+  productId,
+  colorId,
+  sizeId,
+}: {
+  productId: string;
+  colorId?: string | null;
+  sizeId?: string | null;
+}) {
   const router = useRouter();
 
   return (
@@ -20,7 +28,7 @@ export default function ProductImageUploader({ productId }: { productId: string 
         onClientUploadComplete={async (res) => {
           const url = res?.[0]?.ufsUrl;
           if (url) {
-            await addProductImage(productId, url);
+            await addProductImage(productId, url, colorId ?? null, sizeId ?? null);
             router.refresh(); // rafraîchit pour afficher la nouvelle image
           }
         }}
@@ -29,7 +37,7 @@ export default function ProductImageUploader({ productId }: { productId: string 
         }}
       />
       <p className="mt-2 text-xs text-neutral-400 dark:text-gray-400">
-        Formats image, 4 Mo max. L'image s'ajoute à l'article une fois envoyée.
+        Formats image, 4 Mo max. L'image s'ajoute une fois envoyée.
       </p>
     </div>
   );

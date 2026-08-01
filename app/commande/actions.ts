@@ -42,7 +42,11 @@ export async function createOrder(input: OrderInput) {
   const variantIds = input.items.map((i) => i.variantId);
   const variants = await prisma.productVariant.findMany({
     where: { id: { in: variantIds } },
-    include: { product: { select: { name: true } } },
+    include: {
+      product: { select: { name: true } },
+      color: { select: { name: true } },
+      size: { select: { name: true } },
+    },
   });
 
   const orderItems: {
@@ -60,7 +64,7 @@ export async function createOrder(input: OrderInput) {
     const quantity = Math.max(1, Math.floor(line.quantity));
     subtotal += variant.price * quantity;
 
-    const label = [variant.color, variant.size].filter(Boolean).join(" / ");
+    const label = [variant.color?.name, variant.size?.name].filter(Boolean).join(" / ");
     orderItems.push({
       variantId: variant.id,
       productName: label ? `${variant.product.name} (${label})` : variant.product.name,

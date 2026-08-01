@@ -8,8 +8,7 @@ import { prisma } from "../../lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import ProductGallery from "./ProductGallery";
-import AddToCartButton from "./AddToCartButton";
+import ProductPurchase from "./ProductPurchase";
 import ReviewForm from "./ReviewForm";
 import ProductCard from "../../components/ProductCard";
 
@@ -70,11 +69,27 @@ export default async function FicheProduit({
   const produit = await prisma.product.findUnique({
     where: { slug },
     include: {
-      images: { orderBy: { position: "asc" } },
+      // Photos générales (non rattachées à une couleur ou une taille précise).
+      images: { where: { colorId: null, sizeId: null }, orderBy: { position: "asc" } },
+      colors: {
+        orderBy: { position: "asc" },
+        include: { images: { orderBy: { position: "asc" }, select: { id: true, url: true, alt: true } } },
+      },
+      sizes: {
+        orderBy: { position: "asc" },
+        include: { images: { orderBy: { position: "asc" }, select: { id: true, url: true, alt: true } } },
+      },
       // select explicite : costPrice (prix fournisseur) ne doit jamais atteindre le client.
       variants: {
         orderBy: { price: "asc" },
-        select: { id: true, color: true, size: true, price: true, comparePrice: true, stock: true },
+        select: {
+          id: true,
+          colorId: true,
+          sizeId: true,
+          price: true,
+          comparePrice: true,
+          stock: true,
+        },
       },
       category: true,
       reviews: { orderBy: { createdAt: "desc" } },
@@ -131,39 +146,41 @@ export default async function FicheProduit({
       </Link>
 
       <div className="grid gap-6 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d] sm:p-6 md:grid-cols-2">
-        <ProductGallery images={produit.images} name={produit.name} />
+        <ProductPurchase
+          productId={produit.id}
+          slug={produit.slug}
+          name={produit.name}
+          fallbackImages={produit.images}
+          colors={produit.colors}
+          sizes={produit.sizes}
+          variants={produit.variants}
+          before={
+            <>
+              {produit.category && (
+                <p className="text-sm text-neutral-500 dark:text-gray-400">{produit.category.name}</p>
+              )}
+              <h1 className="mt-1 text-3xl font-extrabold text-[#14213D] dark:text-gray-300">
+                {produit.name}
+              </h1>
 
-        <div>
-          {produit.category && (
-            <p className="text-sm text-neutral-500 dark:text-gray-400">{produit.category.name}</p>
-          )}
-          <h1 className="mt-1 text-3xl font-extrabold text-[#14213D] dark:text-gray-300">{produit.name}</h1>
+              {nbAvis > 0 && (
+                <div className="mt-2 flex items-center gap-2 text-sm">
+                  <Stars value={moyenne} />
+                  <span className="text-neutral-600 dark:text-gray-400">
+                    {moyenne.toFixed(1)} · {nbAvis} avis
+                  </span>
+                </div>
+              )}
 
-          {nbAvis > 0 && (
-            <div className="mt-2 flex items-center gap-2 text-sm">
-              <Stars value={moyenne} />
-              <span className="text-neutral-600 dark:text-gray-400">
-                {moyenne.toFixed(1)} · {nbAvis} avis
-              </span>
-            </div>
-          )}
-
-          {produit.description && (
-            <p className="mt-4 leading-relaxed text-neutral-700 dark:text-gray-300">
-              {produit.description}
-            </p>
-          )}
-
-          <AddToCartButton
-            productId={produit.id}
-            slug={produit.slug}
-            name={produit.name}
-            image={produit.images[0]?.url ?? null}
-            variants={produit.variants}
-          />
-
-          <ShareButtons slug={produit.slug} name={produit.name} price={prix} />
-        </div>
+              {produit.description && (
+                <p className="mt-4 leading-relaxed text-neutral-700 dark:text-gray-300">
+                  {produit.description}
+                </p>
+              )}
+            </>
+          }
+          after={<ShareButtons slug={produit.slug} name={produit.name} price={prix} />}
+        />
       </div>
 
       {/* --- SECTION AVIS CLIENTS --- */}

@@ -12,6 +12,7 @@ import Image from "next/image";
 import { useCart } from "../lib/cart-context";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import MenuLateral from "./MenuLateral";
+import ThemeToggle from "./ThemeToggle";
 
 function IconeArticles({ className }: { className?: string }) {
   return (
@@ -124,6 +125,8 @@ export default function Header({
             </Link>
             <UserButton />
           </Show>
+
+          <ThemeToggle className="text-[#14213D] hover:text-white" />
         </nav>
       </div>
     </header>

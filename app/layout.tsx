@@ -69,6 +69,16 @@ export default async function RootLayout({
         lang="fr"
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       >
+        {/* Applique le thème sauvegardé avant l'affichage, pour éviter un flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try {
+              var t = localStorage.getItem('theme');
+              var sombre = t ? t === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+              document.documentElement.classList.toggle('dark', sombre);
+            } catch (e) {}`,
+          }}
+        />
         <body className="min-h-full flex flex-col">
           <WhatsAppButton />
           <Suspense fallback={null}>

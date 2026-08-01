@@ -99,8 +99,8 @@ export default function Header({
           {/* Si NON connecté : Connexion / Créer un compte */}
           <Show when="signed-out">
             <SignInButton mode="modal">
-              <button aria-label="Connexion" className="text-[#14213D] hover:text-white">
-                <IconeCompte className="h-5 w-5 sm:hidden" />
+              <button aria-label="Connexion" className="flex items-center gap-1.5 text-[#14213D] hover:text-white">
+                <IconeCompte className="h-5 w-5" />
                 <span className="hidden whitespace-nowrap text-sm font-medium sm:inline">Connexion</span>
               </button>
             </SignInButton>

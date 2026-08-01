@@ -50,34 +50,30 @@ export default async function NouveauProduit() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-<<<<<<< HEAD
-            <label className="block text-sm text-neutral-600 dark:text-gray-400">Prix (FCFA)</label>
-=======
-            <label className="block text-sm text-neutral-600">
+            <label className="block text-sm text-neutral-600 dark:text-gray-400">
               Couleur <span className="text-neutral-400">(facultatif)</span>
             </label>
             <input
               name="color"
               placeholder="ex: Rouge"
-              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
             />
           </div>
           <div>
-            <label className="block text-sm text-neutral-600">
+            <label className="block text-sm text-neutral-600 dark:text-gray-400">
               Taille <span className="text-neutral-400">(facultatif)</span>
             </label>
             <input
               name="size"
               placeholder="ex: 42"
-              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm text-neutral-600">Prix (FCFA)</label>
->>>>>>> fcf4d53caa4bda089ddd1b116c8e55ceda9abfe0
+            <label className="block text-sm text-neutral-600 dark:text-gray-400">Prix (FCFA)</label>
             <input
               name="price"
               type="number"
@@ -96,25 +92,20 @@ export default async function NouveauProduit() {
           </div>
         </div>
 
-<<<<<<< HEAD
-        <div className="rounded-lg border border-dashed border-[#14213D]/20 bg-[#FBEEDA] p-3 dark:border-white/15 dark:bg-[#1c2333]">
-          <label className="block text-sm text-neutral-600 dark:text-gray-400">
-=======
         <div>
-          <label className="block text-sm text-neutral-600">
+          <label className="block text-sm text-neutral-600 dark:text-gray-400">
             Prix promo (FCFA) <span className="text-neutral-400">(facultatif)</span>
           </label>
           <input
             name="comparePrice"
             type="number"
             placeholder="Vide = pas de promo"
-            className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A]"
+            className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
           />
         </div>
 
-        <div className="rounded-lg border border-dashed border-[#14213D]/20 bg-[#FBEEDA] p-3">
-          <label className="block text-sm text-neutral-600">
->>>>>>> fcf4d53caa4bda089ddd1b116c8e55ceda9abfe0
+        <div className="rounded-lg border border-dashed border-[#14213D]/20 bg-[#FBEEDA] p-3 dark:border-white/15 dark:bg-[#1c2333]">
+          <label className="block text-sm text-neutral-600 dark:text-gray-400">
             Prix fournisseur (FCFA)
           </label>
           <input

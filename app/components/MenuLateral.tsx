@@ -40,6 +40,106 @@ function IconeEtiquette({ className }: { className?: string }) {
   );
 }
 
+// Icônes par catégorie (une par slug connu, IconeEtiquette en secours pour les autres).
+function IconeMontres({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="12" cy="12" r="6" />
+      <path d="M12 10v2.5l1.5 1" />
+      <path d="m15.5 7.1-.7-3.5a1.7 1.7 0 0 0-1.7-1.4h-2.2a1.7 1.7 0 0 0-1.7 1.4l-.7 3.5" />
+      <path d="m8.5 16.9.7 3.5a1.7 1.7 0 0 0 1.7 1.4h2.2a1.7 1.7 0 0 0 1.7-1.4l.7-3.5" />
+    </svg>
+  );
+}
+
+function IconeSacs({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+      <path d="M3 6h18" />
+      <path d="M16 10a4 4 0 0 1-8 0" />
+    </svg>
+  );
+}
+
+function IconeBeaute({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" />
+    </svg>
+  );
+}
+
+function IconeElectromenager({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M5 6a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2Z" />
+      <path d="M5 10h14" />
+      <path d="M9 6v3" />
+      <path d="M9 14v3" />
+    </svg>
+  );
+}
+
+function IconeLibrairie({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M12 7v14" />
+      <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3Z" />
+    </svg>
+  );
+}
+
+function IconeLunettes({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="6" cy="15" r="4" />
+      <circle cx="18" cy="15" r="4" />
+      <path d="M14 15a2 2 0 0 0-4 0" />
+      <path d="M2.5 13 5 7c.7-1.3 1.4-2 3-2" />
+      <path d="M21.5 13 19 7c-.7-1.3-1.5-2-3-2" />
+    </svg>
+  );
+}
+
+function IconeChaussures({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M3 18c0-1 .5-1.8 1.5-2.2L9 14l3-3.5c.6-.7 1.5-1 2.4-.8l4.6 1c1.2.3 2 1.3 2 2.5V17a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z" />
+      <path d="M9 14v-4" />
+    </svg>
+  );
+}
+
+function IconeVetements({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 .55.45 1 1 1h10a1 1 0 0 0 1-1V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23Z" />
+    </svg>
+  );
+}
+
+function IconeAccessoires({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M5 3 9 2 14 2 17 3 16 6 18 8 21 9 18 12 19 14 17 18 15 21 12 23 10 21 9 18 8 15 9 13 7 12 5 13 4 11 2 9 3 6 4 4Z" />
+      <path d="M19.5 16.5 21 18 20 21 18.5 19Z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+const ICONES_CATEGORIES: Record<string, (props: { className?: string }) => React.JSX.Element> = {
+  montres: IconeMontres,
+  sacs: IconeSacs,
+  beauty: IconeBeaute,
+  electromenager: IconeElectromenager,
+  librairie: IconeLibrairie,
+  lunettes: IconeLunettes,
+  chaussures: IconeChaussures,
+  vetements: IconeVetements,
+  "accessoires-traditionnelles": IconeAccessoires,
+};
+
 function IconePanierMenu({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -124,17 +224,20 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
           <p className="mb-1 mt-4 px-3 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-gray-400">
             Catégories
           </p>
-          {categories.map((c) => (
-            <Link
-              key={c.slug}
-              href={`/produits?categorie=${c.slug}`}
-              onClick={() => setOuvert(false)}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-neutral-700 transition hover:bg-[#14213D]/5 hover:text-[#14213D] dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-100"
-            >
-              <IconeEtiquette className="h-4.5 w-4.5 shrink-0" />
-              {c.name}
-            </Link>
-          ))}
+          {categories.map((c) => {
+            const IconeCategorie = ICONES_CATEGORIES[c.slug] ?? IconeEtiquette;
+            return (
+              <Link
+                key={c.slug}
+                href={`/produits?categorie=${c.slug}`}
+                onClick={() => setOuvert(false)}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-neutral-700 transition hover:bg-[#14213D]/5 hover:text-[#14213D] dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-100"
+              >
+                <IconeCategorie className="h-4.5 w-4.5 shrink-0" />
+                {c.name}
+              </Link>
+            );
+          })}
 
           <div className="my-3 border-t border-[#14213D]/10 dark:border-white/15" />
 

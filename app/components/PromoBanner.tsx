@@ -10,7 +10,7 @@ type Variant = "navy" | "gold-navy" | "luxe";
 
 const FONDS: Record<Variant, string> = {
   navy: "bg-[#14213D]",
-  "gold-navy": "bg-gradient-to-br from-[#C9A84C] via-[#8a7333] to-[#14213D]",
+  "gold-navy": "bg-gradient-to-br from-[#E8C255] via-[#8a7333] to-[#14213D]",
   luxe: "bg-gradient-to-b from-black via-[#0a0f1c] to-[#14213D]",
 };
 
@@ -32,7 +32,7 @@ export default function PromoBanner({
   return (
     <Link
       href={href}
-      className={`group relative block h-56 w-full overflow-hidden border-y-4 border-[#C9A84C] sm:h-72 ${FONDS[variant]}`}
+      className={`group relative block h-56 w-full overflow-hidden border-y-4 border-[#E8C255] sm:h-72 ${FONDS[variant]}`}
     >
       {imageUrl && (
         <Image
@@ -46,7 +46,7 @@ export default function PromoBanner({
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
       <div className="relative flex h-full flex-col items-start justify-end gap-2 px-6 pb-8 sm:items-center sm:justify-center sm:px-4 sm:text-center">
-        <h2 className="max-w-xl text-2xl font-extrabold text-[#C9A84C] drop-shadow sm:text-4xl">
+        <h2 className="max-w-xl text-2xl font-extrabold text-[#E8C255] drop-shadow sm:text-4xl">
           {title}
         </h2>
         {subtitle && (

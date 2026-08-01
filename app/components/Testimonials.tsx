@@ -43,7 +43,7 @@ const BADGES = [
 function Stars({ value }: { value: number }) {
   const rounded = Math.round(value);
   return (
-    <span className="text-sm leading-none text-[#C9A84C]">
+    <span className="text-sm leading-none text-[#E8C255]">
       {[1, 2, 3, 4, 5].map((n) => (
         <span key={n} className={n <= rounded ? "" : "opacity-25"}>★</span>
       ))}
@@ -66,7 +66,7 @@ export default async function Testimonials() {
         <div className="mb-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
           {BADGES.map(({ Icone, label }) => (
             <div key={label} className="flex items-center gap-2">
-              <Icone className="h-5 w-5 shrink-0 text-[#C9A84C]" />
+              <Icone className="h-5 w-5 shrink-0 text-[#E8C255]" />
               <span className="text-sm font-semibold text-[#14213D] dark:text-gray-300">{label}</span>
             </div>
           ))}
@@ -77,10 +77,10 @@ export default async function Testimonials() {
             {avis.map((a) => (
               <div
                 key={a.id}
-                className="w-[80%] shrink-0 snap-start rounded-2xl border border-[#C9A84C]/30 bg-[#FFFBF3] p-5 shadow-sm dark:border-white/15 dark:bg-[#05070d] sm:w-[320px]"
+                className="w-[80%] shrink-0 snap-start rounded-2xl border border-[#E8C255]/30 bg-[#FFFBF3] p-5 shadow-sm dark:border-white/15 dark:bg-[#05070d] sm:w-[320px]"
               >
                 <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#14213D] text-sm font-bold text-[#C9A84C]">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#14213D] text-sm font-bold text-[#E8C255]">
                     {a.authorName.charAt(0).toUpperCase()}
                   </span>
                   <div>

@@ -63,7 +63,7 @@ function Contenu() {
 
 export default function Ticker() {
   return (
-    <div className="overflow-hidden bg-[#C9A84C] text-[#14213D]">
+    <div className="overflow-hidden bg-[#E8C255] text-[#14213D]">
       <div className="limak-marquee-track flex w-max py-1.5">
         <Contenu />
         <Contenu />

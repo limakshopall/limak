@@ -7,6 +7,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 
@@ -161,6 +162,11 @@ function IconeCommandesMenu({ className }: { className?: string }) {
 
 export default function MenuLateral({ categories }: { categories: Categorie[] }) {
   const [ouvert, setOuvert] = useState(false);
+  // Le tiroir est téléporté dans <body> (portail) : le header a un fond flouté
+  // (backdrop-blur) qui, sinon, coincerait le "position: fixed" du tiroir dans
+  // sa propre hauteur au lieu de couvrir tout l'écran.
+  const [monte, setMonte] = useState(false);
+  useEffect(() => setMonte(true), []);
 
   // Bloque le défilement de la page derrière le tiroir + ferme sur Échap.
   useEffect(() => {
@@ -176,16 +182,8 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
     };
   }, [ouvert]);
 
-  return (
+  const tiroir = (
     <>
-      <button
-        onClick={() => setOuvert(true)}
-        aria-label="Ouvrir le menu"
-        className="shrink-0 text-[#C9A84C] hover:text-white"
-      >
-        <IconeMenu className="h-5.5 w-5.5" />
-      </button>
-
       <div
         onClick={() => setOuvert(false)}
         aria-hidden
@@ -270,6 +268,19 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
           Paiement à la livraison · Côte d&apos;Ivoire 🇨🇮
         </div>
       </aside>
+    </>
+  );
+
+  return (
+    <>
+      <button
+        onClick={() => setOuvert(true)}
+        aria-label="Ouvrir le menu"
+        className="shrink-0 text-[#E8C255] hover:text-white"
+      >
+        <IconeMenu className="h-5.5 w-5.5" />
+      </button>
+      {monte && createPortal(tiroir, document.body)}
     </>
   );
 }

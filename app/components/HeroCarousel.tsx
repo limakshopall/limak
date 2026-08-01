@@ -102,7 +102,7 @@ export default function HeroCarousel() {
   return (
     <section className="relative">
       <div
-        className="relative h-[85svh] max-h-[720px] min-h-[440px] touch-pan-y select-none overflow-hidden border-y-4 border-[#C9A84C] bg-[#14213D] md:h-[70vh]"
+        className="relative h-[85svh] max-h-[720px] min-h-[440px] touch-pan-y select-none overflow-hidden border-y-4 border-[#E8C255] bg-[#14213D] md:h-[70vh]"
         onMouseEnter={() => setPause(true)}
         onMouseLeave={() => setPause(false)}
         onPointerDown={onPointerDown}
@@ -150,11 +150,11 @@ export default function HeroCarousel() {
                   />
                   <div
                     className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full opacity-20 blur-3xl"
-                    style={{ background: "#C9A84C" }}
+                    style={{ background: "#E8C255" }}
                   />
                   {slide.badge && (
                     <span
-                      className={`relative mb-3 inline-block w-fit rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-3 py-1 text-xs font-semibold text-[#E8C97A] sm:text-sm ${
+                      className={`relative mb-3 inline-block w-fit rounded-full border border-[#E8C255]/40 bg-[#E8C255]/10 px-3 py-1 text-xs font-semibold text-[#E8C97A] sm:text-sm ${
                         i === index ? "animate-[limak-fade-up_0.6s_ease-out]" : ""
                       }`}
                     >

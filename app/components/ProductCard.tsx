@@ -77,10 +77,8 @@ export default function ProductCard({
   return (
     <Link
       href={colorId ? `/produits/${slug}?couleur=${colorId}` : `/produits/${slug}`}
-      className={`group block rounded-2xl bg-[#FFFBF3] p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-[#05070d] ${
-        premium
-          ? "relative overflow-hidden border-2 border-[#C9A84C]"
-          : "overflow-hidden border border-[#14213D]/10 dark:border-white/15"
+      className={`group relative block overflow-hidden rounded-2xl border-2 border-[#E8C255] bg-[#FFFBF3] p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-[#05070d] ${
+        premium ? "border-[3px]" : ""
       } ${epuise ? "opacity-60" : ""}`}
     >
       {/* Cadre doré animé (lumière qui se déplace) réservé aux produits "Premium Spotlight" */}
@@ -93,7 +91,7 @@ export default function ProductCard({
 
       {/* L'image "flotte" sur son propre coussin (fond + ombre) pour ne pas se fondre dans la carte.
           Pas de cadre forcé : la hauteur suit la vraie forme de la photo (carrée, portrait, paysage). */}
-      <div className="relative overflow-hidden rounded-xl border-2 border-[#C9A84C] bg-white shadow-[0_6px_14px_-6px_rgba(20,33,61,0.28)] dark:bg-[#1c2333]">
+      <div className="relative overflow-hidden rounded-xl border-2 border-[#E8C255] bg-white shadow-[0_6px_14px_-6px_rgba(20,33,61,0.28)] dark:bg-[#1c2333]">
         <ProductPhoto
           src={imageUrl}
           alt={imageAlt ?? name}
@@ -122,14 +120,14 @@ export default function ProductCard({
           </span>
         )}
         {!enPromo && isNew && !epuise && (
-          <span className="absolute right-1.5 top-1.5 rounded-full bg-[#C9A84C] px-1.5 py-0.5 text-[10px] font-bold text-[#14213D]">
+          <span className="absolute right-1.5 top-1.5 rounded-full bg-[#E8C255] px-1.5 py-0.5 text-[10px] font-bold text-[#14213D]">
             Nouveau
           </span>
         )}
 
         {/* Badge en haut à gauche : premium, sinon épuisé */}
         {premium && !epuise && (
-          <span className="absolute left-1.5 top-1.5 rounded-full bg-[#14213D] px-2 py-0.5 text-[10px] font-semibold text-[#C9A84C]">
+          <span className="absolute left-1.5 top-1.5 rounded-full bg-[#14213D] px-2 py-0.5 text-[10px] font-semibold text-[#E8C255]">
             ⭐ Sélection LIMAK
           </span>
         )}

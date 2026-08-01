@@ -41,10 +41,10 @@ export default function VentesFlash({ produits }: { produits: Produit[] }) {
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-6">
-      <div className="relative overflow-hidden rounded-2xl border border-[#C9A84C]/30 bg-[#14213D] p-5 sm:p-6">
+      <div className="relative overflow-hidden rounded-2xl border border-[#E8C255]/30 bg-[#14213D] p-5 sm:p-6">
         <div
           className="pointer-events-none absolute -left-12 -top-12 h-56 w-56 rounded-full opacity-25 blur-3xl"
-          style={{ background: "#C9A84C" }}
+          style={{ background: "#E8C255" }}
         />
         <div
           className="pointer-events-none absolute -bottom-16 -right-10 h-56 w-56 rounded-full opacity-15 blur-3xl"
@@ -53,8 +53,8 @@ export default function VentesFlash({ produits }: { produits: Produit[] }) {
 
         <div className="relative mb-5 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#C9A84C]/15">
-              <IconeSablier className="h-4 w-4 text-[#C9A84C]" />
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#E8C255]/15">
+              <IconeSablier className="h-4 w-4 text-[#E8C255]" />
             </span>
             <div>
               <h2 className="text-xl font-extrabold text-white sm:text-2xl">

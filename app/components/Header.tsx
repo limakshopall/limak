@@ -66,7 +66,7 @@ export default function Header({
           <MenuLateral categories={categories} />
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-1.5 text-lg font-extrabold tracking-tight text-[#C9A84C] sm:gap-2 sm:text-xl"
+            className="flex shrink-0 items-center gap-1.5 text-lg font-extrabold tracking-tight text-[#E8C255] sm:gap-2 sm:text-xl"
           >
             <Image src="/icon-192.png" alt="" width={40} height={40} priority className="h-9 w-9 sm:h-11 sm:w-11" />
             LIMAK
@@ -76,18 +76,18 @@ export default function Header({
         <nav className="flex shrink-0 items-center gap-3 sm:gap-5">
           <Link
             href="/produits"
-            className="flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-white hover:text-[#C9A84C]"
+            className="flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-white hover:text-[#E8C255]"
           >
-            <IconeArticles className="h-5 w-5 text-[#C9A84C]" />
+            <IconeArticles className="h-5 w-5 text-[#E8C255]" />
             <span>Articles</span>
           </Link>
 
           <Link
             href="/panier"
             aria-label="Panier"
-            className="relative flex items-center gap-1.5 text-white hover:text-[#C9A84C]"
+            className="relative flex items-center gap-1.5 text-white hover:text-[#E8C255]"
           >
-            <IconePanier className="h-5 w-5 text-[#C9A84C]" />
+            <IconePanier className="h-5 w-5 text-[#E8C255]" />
             <span className="hidden whitespace-nowrap text-sm font-medium sm:inline">Panier</span>
             {count > 0 && (
               <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#D6293E] px-1 text-[10px] font-semibold text-white sm:-right-4">
@@ -99,13 +99,13 @@ export default function Header({
           {/* Si NON connecté : Connexion / Créer un compte */}
           <Show when="signed-out">
             <SignInButton mode="modal">
-              <button aria-label="Connexion" className="flex items-center gap-1.5 text-white hover:text-[#C9A84C]">
-                <IconeCompte className="h-5 w-5 text-[#C9A84C]" />
+              <button aria-label="Connexion" className="flex items-center gap-1.5 text-white hover:text-[#E8C255]">
+                <IconeCompte className="h-5 w-5 text-[#E8C255]" />
                 <span className="hidden whitespace-nowrap text-sm font-medium sm:inline">Connexion</span>
               </button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="shrink-0 whitespace-nowrap rounded-full bg-[#C9A84C] px-3 py-1.5 text-xs font-semibold text-[#14213D] hover:bg-[#dbbb62] sm:px-4 sm:text-sm">
+              <button className="shrink-0 whitespace-nowrap rounded-full bg-[#E8C255] px-3 py-1.5 text-xs font-semibold text-[#14213D] hover:bg-[#dbbb62] sm:px-4 sm:text-sm">
                 <span className="sm:hidden">S&apos;inscrire</span>
                 <span className="hidden sm:inline">Créer un compte</span>
               </button>
@@ -117,9 +117,9 @@ export default function Header({
             <Link
               href="/mes-commandes"
               aria-label="Mes commandes"
-              className="text-white hover:text-[#C9A84C]"
+              className="text-white hover:text-[#E8C255]"
             >
-              <IconeCommandes className="h-5 w-5 text-[#C9A84C] sm:hidden" />
+              <IconeCommandes className="h-5 w-5 text-[#E8C255] sm:hidden" />
               <span className="hidden whitespace-nowrap text-sm font-medium sm:inline">Mes commandes</span>
             </Link>
             <UserButton />

@@ -21,7 +21,7 @@ export default function NewsletterForm() {
 
   if (envoye) {
     return (
-      <p className="text-sm text-[#C9A84C]">
+      <p className="text-sm text-[#E8C255]">
         Merci ! Vous serez informé(e) de nos prochaines offres.
       </p>
     );
@@ -35,11 +35,11 @@ export default function NewsletterForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Votre email"
-        className="w-full rounded-full border border-[#C9A84C]/40 bg-white/5 px-4 py-2 text-sm text-white placeholder-white/40 outline-none focus:border-[#C9A84C]"
+        className="w-full rounded-full border border-[#E8C255]/40 bg-white/5 px-4 py-2 text-sm text-white placeholder-white/40 outline-none focus:border-[#E8C255]"
       />
       <button
         type="submit"
-        className="shrink-0 rounded-full bg-[#C9A84C] px-4 py-2 text-sm font-semibold text-[#14213D] transition hover:bg-[#dbbb62]"
+        className="shrink-0 rounded-full bg-[#E8C255] px-4 py-2 text-sm font-semibold text-[#14213D] transition hover:bg-[#dbbb62]"
       >
         OK
       </button>

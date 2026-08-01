@@ -11,6 +11,7 @@ import ProductThumb from "./components/ProductThumb";
 import ProductSection, { type Disposition } from "./components/ProductSection";
 import VentesFlash from "./components/VentesFlash";
 import Reveal from "./components/Reveal";
+import { toDisplayItems } from "./lib/displayItems";
 
 // Rotation des dispositions pour casser la monotonie en descendant la page
 // (même logique que sur /produits) : une par rangée (nouveautés, puis chaque catégorie).
@@ -61,13 +62,21 @@ const REASSURANCE = [
 ];
 
 export default async function Accueil() {
+  const IMAGES_GENERALES = { where: { colorId: null }, orderBy: { position: "asc" as const }, take: 1 };
+  const COULEURS = {
+    orderBy: { position: "asc" as const },
+    include: { images: { orderBy: { position: "asc" as const }, take: 1, select: { url: true, alt: true } } },
+  };
+  const VARIANTS_COMPLET = { select: { colorId: true, price: true, comparePrice: true, stock: true } };
+
   const categories = await prisma.category.findMany({
     include: {
       products: {
         where: { isActive: true },
         include: {
-          images: { orderBy: { position: "asc" }, take: 1 },
-          variants: { orderBy: { price: "asc" }, take: 1 },
+          images: IMAGES_GENERALES,
+          colors: COULEURS,
+          variants: VARIANTS_COMPLET,
         },
         take: 4,
       },
@@ -78,8 +87,9 @@ export default async function Accueil() {
   const nouveautes = await prisma.product.findMany({
     where: { isActive: true },
     include: {
-      images: { orderBy: { position: "asc" }, take: 1 },
-      variants: { orderBy: { price: "asc" }, take: 1 },
+      images: IMAGES_GENERALES,
+      colors: COULEURS,
+      variants: VARIANTS_COMPLET,
     },
     orderBy: { createdAt: "desc" },
     take: 8,
@@ -91,21 +101,19 @@ export default async function Accueil() {
   const produitsAvecPromo = await prisma.product.findMany({
     where: { isActive: true, variants: { some: { comparePrice: { not: null } } } },
     include: {
-      images: { orderBy: { position: "asc" }, take: 1 },
-      variants: { orderBy: { price: "asc" }, take: 1 },
+      images: IMAGES_GENERALES,
+      colors: COULEURS,
+      variants: VARIANTS_COMPLET,
     },
     take: 12,
   });
-  const ventesFlash = produitsAvecPromo.filter(
-    (p) => p.variants[0]?.comparePrice != null && p.variants[0].comparePrice > p.variants[0].price
-  );
 
   // Notes moyennes de TOUS les produits affichés (nouveautés + rangées + ventes flash)
   const idsAffiches = Array.from(
     new Set([
       ...nouveautes.map((p) => p.id),
       ...categories.flatMap((c) => c.products.map((p) => p.id)),
-      ...ventesFlash.map((p) => p.id),
+      ...produitsAvecPromo.map((p) => p.id),
     ])
   );
   const notes = idsAffiches.length
@@ -119,6 +127,12 @@ export default async function Accueil() {
   const notesParProduit = new Map(
     notes.map((n) => [n.productId, { moyenne: n._avg.rating ?? 0, nb: n._count.rating }])
   );
+
+  // Une carte par couleur (densité du catalogue) — chacune ouvre la même fiche produit.
+  const nouveautesAffichees = nouveautes.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id)));
+  const ventesFlash = produitsAvecPromo
+    .flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id)))
+    .filter((item) => item.comparePrice != null && item.comparePrice > item.price);
 
   return (
     <div className="bg-[#FBEEDA] dark:bg-[#1c2333]">
@@ -143,19 +157,7 @@ export default async function Accueil() {
 
       {/* VENTES FLASH */}
       <Reveal>
-        <VentesFlash
-          produits={ventesFlash.map((p) => ({
-            id: p.id,
-            slug: p.slug,
-            name: p.name,
-            price: p.variants[0]?.price ?? 0,
-            comparePrice: p.variants[0]?.comparePrice ?? null,
-            imageUrl: p.images[0]?.url ?? null,
-            imageAlt: p.images[0]?.alt ?? null,
-            stock: p.variants[0]?.stock ?? 0,
-            note: notesParProduit.get(p.id),
-          }))}
-        />
+        <VentesFlash produits={ventesFlash} />
       </Reveal>
 
       {/* CATÉGORIES */}
@@ -166,7 +168,8 @@ export default async function Accueil() {
           </h2>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
             {categories.map((c, i) => {
-              const cover = c.products[0]?.images[0]?.url ?? null;
+              const cover =
+                c.products[0]?.images[0]?.url ?? c.products[0]?.colors[0]?.images[0]?.url ?? null;
               return (
                 <Reveal key={c.id} delay={i * 60}>
                   <Link
@@ -198,17 +201,7 @@ export default async function Accueil() {
           <ProductSection
             disposition={ROTATION_DISPOSITIONS[0]}
             variante={0}
-            produits={nouveautes.map((p) => ({
-              id: p.id,
-              slug: p.slug,
-              name: p.name,
-              price: p.variants[0]?.price ?? 0,
-              comparePrice: p.variants[0]?.comparePrice ?? null,
-              imageUrl: p.images[0]?.url ?? null,
-              imageAlt: p.images[0]?.alt ?? null,
-              stock: p.variants[0]?.stock ?? 0,
-              note: notesParProduit.get(p.id),
-            }))}
+            produits={nouveautesAffichees}
           />
         </section>
       </Reveal>
@@ -226,17 +219,7 @@ export default async function Accueil() {
             <ProductSection
               disposition={ROTATION_DISPOSITIONS[(i + 1) % ROTATION_DISPOSITIONS.length]}
               variante={i + 1}
-              produits={c.products.map((p) => ({
-                id: p.id,
-                slug: p.slug,
-                name: p.name,
-                price: p.variants[0]?.price ?? 0,
-                comparePrice: p.variants[0]?.comparePrice ?? null,
-                imageUrl: p.images[0]?.url ?? null,
-                imageAlt: p.images[0]?.alt ?? null,
-                stock: p.variants[0]?.stock ?? 0,
-                note: notesParProduit.get(p.id),
-              }))}
+              produits={c.products.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id)))}
             />
           </section>
         </Reveal>

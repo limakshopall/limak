@@ -8,6 +8,7 @@ import { prisma } from "../lib/prisma";
 import ProduitsFiltres from "../components/ProduitsFiltres";
 import ProductSection, { type Disposition } from "../components/ProductSection";
 import Reveal from "../components/Reveal";
+import { toDisplayItems } from "../lib/displayItems";
 
 // Groupes de produits + rotation des dispositions, pour casser la monotonie en descendant la page.
 const TAILLE_GROUPE = 8;
@@ -48,21 +49,18 @@ export default async function ProduitsPage({
       ...(categorie ? { category: { slug: categorie } } : {}),
     },
     include: {
-      images: { orderBy: { position: "asc" }, take: 1 },
-      variants: { orderBy: { price: "asc" }, take: 1 },
+      images: { where: { colorId: null }, orderBy: { position: "asc" }, take: 1 },
+      colors: {
+        orderBy: { position: "asc" },
+        include: { images: { orderBy: { position: "asc" }, take: 1, select: { url: true, alt: true } } },
+      },
+      variants: { select: { colorId: true, price: true, comparePrice: true, stock: true } },
     },
     orderBy,
   });
 
-  const liste = [...produits];
-  if (tri === "prix-asc") {
-    liste.sort((a, b) => (a.variants[0]?.price ?? 0) - (b.variants[0]?.price ?? 0));
-  } else if (tri === "prix-desc") {
-    liste.sort((a, b) => (b.variants[0]?.price ?? 0) - (a.variants[0]?.price ?? 0));
-  }
-
   // Notes moyennes par produit (pour les étoiles sur les cartes)
-  const ids = liste.map((p) => p.id);
+  const ids = produits.map((p) => p.id);
   const notes = ids.length
     ? await prisma.review.groupBy({
         by: ["productId"],
@@ -80,18 +78,16 @@ export default async function ProduitsPage({
     select: { slug: true, name: true, imageUrl: true },
   });
 
-  // Mise en forme des produits pour les composants d'affichage.
-  const produitsAffiches = liste.map((produit) => ({
-    id: produit.id,
-    slug: produit.slug,
-    name: produit.name,
-    price: produit.variants[0]?.price ?? 0,
-    comparePrice: produit.variants[0]?.comparePrice ?? null,
-    imageUrl: produit.images[0]?.url ?? null,
-    imageAlt: produit.images[0]?.alt ?? null,
-    stock: produit.variants[0]?.stock ?? 0,
-    note: notesParProduit.get(produit.id),
-  }));
+  // Une carte par couleur (densité du catalogue) — chacune ouvre la même fiche produit.
+  let produitsAffiches = produits.flatMap((produit) =>
+    toDisplayItems(produit, notesParProduit.get(produit.id))
+  );
+
+  if (tri === "prix-asc") {
+    produitsAffiches = [...produitsAffiches].sort((a, b) => a.price - b.price);
+  } else if (tri === "prix-desc") {
+    produitsAffiches = [...produitsAffiches].sort((a, b) => b.price - a.price);
+  }
 
   const groupes = decouper(produitsAffiches, TAILLE_GROUPE);
 
@@ -100,13 +96,14 @@ export default async function ProduitsPage({
       <div className="mb-6">
         <h1 className="text-3xl font-extrabold text-[#14213D] dark:text-gray-300">Nos articles</h1>
         <p className="mt-1 text-sm text-neutral-500 dark:text-gray-400">
-          {liste.length} article{liste.length > 1 ? "s" : ""} disponible{liste.length > 1 ? "s" : ""}
+          {produitsAffiches.length} article{produitsAffiches.length > 1 ? "s" : ""} disponible
+          {produitsAffiches.length > 1 ? "s" : ""}
         </p>
       </div>
 
       <ProduitsFiltres categories={categories} />
 
-      {liste.length === 0 ? (
+      {produitsAffiches.length === 0 ? (
         <p className="text-neutral-500 dark:text-gray-400">
           Aucun article ne correspond à votre recherche.
         </p>

@@ -30,14 +30,15 @@ export default function ProductGallery({
   return (
     <div>
       {/* Grande image */}
-      <div className="relative aspect-square overflow-hidden rounded-xl bg-[#FBEEDA] dark:bg-[#1c2333]">
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-white dark:bg-[#1c2333]">
         <Image
           src={images[active].url}
           alt={images[active].alt ?? name}
           fill
+          quality={95}
           sizes="(max-width: 768px) 100vw, 500px"
           priority
-          className="object-cover"
+          className="object-contain"
         />
       </div>
 
@@ -48,7 +49,7 @@ export default function ProductGallery({
             <button
               key={img.id}
               onClick={() => setActive(i)}
-              className={`relative aspect-square overflow-hidden rounded border-2 ${
+              className={`relative aspect-square overflow-hidden rounded border-2 bg-white dark:bg-[#1c2333] ${
                 i === active ? "border-[#F1720A]" : "border-transparent"
               }`}
             >
@@ -56,8 +57,9 @@ export default function ProductGallery({
                 src={img.url}
                 alt={img.alt ?? name}
                 fill
+                quality={90}
                 sizes="120px"
-                className="object-cover"
+                className="object-contain"
               />
             </button>
           ))}

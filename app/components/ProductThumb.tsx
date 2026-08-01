@@ -22,12 +22,15 @@ export default function ProductThumb({
   }
 
   return (
-    <Image
-      src={src}
-      alt={alt}
-      fill
-      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-      className="object-cover transition duration-500 group-hover:scale-105"
-    />
+    <div className="absolute inset-0 bg-white dark:bg-[#1c2333]">
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        quality={90}
+        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        className="object-contain transition duration-500 group-hover:scale-105"
+      />
+    </div>
   );
 }

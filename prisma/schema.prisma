@@ -245,6 +245,8 @@ model Order {
   customerPhone   String
   shippingAddress String
   shippingCity    String
+  shippingLat     Float? // position GPS du client (bouton "Utiliser ma position"), optionnelle
+  shippingLng     Float?
 
   subtotal      Int           // total des articles (FCFA)
   shipping      Int           @default(0) // frais de livraison

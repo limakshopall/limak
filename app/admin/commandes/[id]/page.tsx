@@ -61,6 +61,16 @@ export default async function DetailCommande({
           <h2 className="mb-2 font-semibold text-[#14213D] dark:text-gray-300">Livraison</h2>
           <p className="text-sm text-neutral-800 dark:text-gray-300">{cmd.shippingAddress}</p>
           <p className="text-sm text-neutral-600 dark:text-gray-400">{cmd.shippingCity}</p>
+          {cmd.shippingLat != null && cmd.shippingLng != null && (
+            <a
+              href={`https://www.google.com/maps?q=${cmd.shippingLat},${cmd.shippingLng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-block text-sm font-semibold text-[#C95900] hover:underline"
+            >
+              📍 Voir sur la carte
+            </a>
+          )}
           <p className="mt-2 text-xs text-neutral-400 dark:text-gray-400">
             Paiement à la livraison
           </p>

@@ -19,8 +19,33 @@ type OrderInput = {
   customerPhone: string;
   shippingAddress: string;
   shippingCity: string;
+  shippingLat?: number | null;
+  shippingLng?: number | null;
   items: CartLine[];
 };
+
+// Géocodage inverse (coordonnées GPS -> adresse lisible) via Nominatim/OpenStreetMap,
+// gratuit et sans clé API. Le User-Agent identifiant est exigé par leur politique d'usage.
+export async function reverseGeocode(lat: number, lng: number) {
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=fr`;
+    const res = await fetch(url, {
+      headers: { "User-Agent": "LIMAK-boutique/1.0 (limak.shopall@gmail.com)" },
+    });
+    if (!res.ok) return { ok: false as const };
+
+    const data = await res.json();
+    const a = data.address ?? {};
+    const rue = [a.road, a.house_number].filter(Boolean).join(" ");
+    const quartier = a.suburb || a.neighbourhood || a.quarter;
+    const adresse = [rue, quartier].filter(Boolean).join(", ") || data.display_name || "";
+    const ville = a.city || a.town || a.village || a.county || "";
+
+    return { ok: true as const, address: adresse, city: ville };
+  } catch {
+    return { ok: false as const };
+  }
+}
 
 class StockError extends Error {}
 
@@ -105,6 +130,8 @@ export async function createOrder(input: OrderInput) {
           customerPhone: phone,
           shippingAddress: address,
           shippingCity: city,
+          shippingLat: input.shippingLat ?? null,
+          shippingLng: input.shippingLng ?? null,
           subtotal,
           shipping,
           total,

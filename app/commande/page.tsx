@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "../lib/cart-context";
-import { createOrder } from "./actions";
+import { createOrder, reverseGeocode } from "./actions";
 
 export default function CommandePage() {
   const { items, total, count, clear } = useCart();
@@ -18,9 +18,40 @@ export default function CommandePage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locError, setLocError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  function utiliserMaPosition() {
+    if (!navigator.geolocation) {
+      setLocError("La géolocalisation n'est pas disponible sur cet appareil.");
+      return;
+    }
+    setLocating(true);
+    setLocError(null);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setCoords({ lat, lng });
+        const result = await reverseGeocode(lat, lng);
+        if (result.ok) {
+          const lieu = [result.address, result.city].filter(Boolean).join(", ");
+          if (lieu) setAddress(lieu);
+        } else {
+          setLocError("Position récupérée, mais l'adresse n'a pas pu être déduite — complète-la manuellement.");
+        }
+        setLocating(false);
+      },
+      () => {
+        setLocError("Impossible d'obtenir ta position (permission refusée ou indisponible).");
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
 
   if (count === 0) {
     return (
@@ -43,7 +74,9 @@ export default function CommandePage() {
       customerName: name,
       customerPhone: phone,
       shippingAddress: address,
-      shippingCity: city,
+      shippingCity: address,
+      shippingLat: coords?.lat,
+      shippingLng: coords?.lng,
       items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
     });
     setLoading(false);
@@ -83,18 +116,26 @@ export default function CommandePage() {
             />
           </div>
           <div>
-            <label className="block text-sm text-neutral-600 dark:text-gray-400">Adresse</label>
+            <button
+              type="button"
+              onClick={utiliserMaPosition}
+              disabled={locating}
+              className="text-sm font-semibold text-[#C95900] hover:underline disabled:opacity-50"
+            >
+              📍 {locating ? "Localisation..." : "Utiliser ma position"}
+            </button>
+            {locError && <p className="mt-1 text-xs text-[#D6293E]">{locError}</p>}
+            {coords && !locError && (
+              <p className="mt-1 text-xs text-[#1F7A5C]">Position ajoutée à la commande.</p>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm text-neutral-600 dark:text-gray-400">
+              Lieu de livraison (Ex: ville, commune, quartier)
+            </label>
             <input
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-neutral-600 dark:text-gray-400">Ville</label>
-            <input
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
               className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15"
             />
           </div>

@@ -9,6 +9,7 @@
 import { useRouter } from "next/navigation";
 import { UploadButton } from "../../../lib/uploadthing";
 import { addProductImage } from "./actions";
+import { measureImage } from "../../../lib/measureImage";
 
 export default function ProductImageUploader({
   productId,
@@ -28,7 +29,8 @@ export default function ProductImageUploader({
         onClientUploadComplete={async (res) => {
           const url = res?.[0]?.ufsUrl;
           if (url) {
-            await addProductImage(productId, url, colorId ?? null, sizeId ?? null);
+            const dims = await measureImage(url).catch(() => null);
+            await addProductImage(productId, url, colorId ?? null, sizeId ?? null, dims?.width, dims?.height);
             router.refresh(); // rafraîchit pour afficher la nouvelle image
           }
         }}

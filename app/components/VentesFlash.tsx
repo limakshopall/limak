@@ -18,6 +18,8 @@ type Produit = {
   comparePrice: number | null;
   imageUrl: string | null;
   imageAlt: string | null;
+  imageWidth?: number | null;
+  imageHeight?: number | null;
   stock: number;
   note?: Note;
 };
@@ -76,6 +78,8 @@ export default function VentesFlash({ produits }: { produits: Produit[] }) {
                 comparePrice={p.comparePrice}
                 imageUrl={p.imageUrl}
                 imageAlt={p.imageAlt}
+                imageWidth={p.imageWidth}
+                imageHeight={p.imageHeight}
                 note={p.note}
                 stock={p.stock}
               />

@@ -21,8 +21,9 @@ function toSlug(text: string) {
     .replace(/(^-|-$)/g, ""); // enlève les tirets en trop
 }
 
-export type NewColorInput = { name: string; hex: string | null; images: string[] };
-export type NewSizeInput = { name: string; images: string[] };
+export type NewImageInput = { url: string; width: number | null; height: number | null };
+export type NewColorInput = { name: string; hex: string | null; images: NewImageInput[] };
+export type NewSizeInput = { name: string; images: NewImageInput[] };
 export type NewVariantInput = {
   colorIndex: number | null;
   sizeIndex: number | null;
@@ -36,7 +37,7 @@ export type CreateProductInput = {
   name: string;
   categoryId: string | null;
   description: string | null;
-  images: string[]; // photos générales (sans couleur précise)
+  images: NewImageInput[]; // photos générales (sans couleur précise)
   colors: NewColorInput[];
   sizes: NewSizeInput[];
   // Utilisées seulement si colors et sizes sont vides
@@ -77,8 +78,10 @@ export async function createProduct(input: CreateProductInput) {
       },
     });
 
-    for (const [i, url] of input.images.entries()) {
-      await tx.productImage.create({ data: { productId: created.id, url, position: i } });
+    for (const [i, img] of input.images.entries()) {
+      await tx.productImage.create({
+        data: { productId: created.id, url: img.url, width: img.width, height: img.height, position: i },
+      });
     }
 
     const colorIds: string[] = [];
@@ -89,9 +92,16 @@ export async function createProduct(input: CreateProductInput) {
         data: { productId: created.id, name: colorName, hex: c.hex || null, position: i },
       });
       colorIds[i] = color.id;
-      for (const [j, url] of c.images.entries()) {
+      for (const [j, img] of c.images.entries()) {
         await tx.productImage.create({
-          data: { productId: created.id, colorId: color.id, url, position: j },
+          data: {
+            productId: created.id,
+            colorId: color.id,
+            url: img.url,
+            width: img.width,
+            height: img.height,
+            position: j,
+          },
         });
       }
     }
@@ -104,9 +114,16 @@ export async function createProduct(input: CreateProductInput) {
         data: { productId: created.id, name: sizeName, position: i },
       });
       sizeIds[i] = size.id;
-      for (const [j, url] of s.images.entries()) {
+      for (const [j, img] of s.images.entries()) {
         await tx.productImage.create({
-          data: { productId: created.id, sizeId: size.id, url, position: j },
+          data: {
+            productId: created.id,
+            sizeId: size.id,
+            url: img.url,
+            width: img.width,
+            height: img.height,
+            position: j,
+          },
         });
       }
     }

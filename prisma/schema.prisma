@@ -162,6 +162,8 @@ model ProductImage {
   url       String  // adresse de l'image (stockage cloud)
   alt       String? // texte alternatif (accessibilité / SEO)
   position  Int     @default(0) // ordre d'affichage
+  width     Int?    // dimensions réelles de la photo — pour l'afficher selon
+  height    Int?    // sa vraie forme (carrée, rectangle vertical/horizontal), sans la déformer
 
   @@index([productId])
   @@index([colorId])

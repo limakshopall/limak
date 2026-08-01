@@ -246,7 +246,9 @@ export async function addProductImage(
   productId: string,
   url: string,
   colorId?: string | null,
-  sizeId?: string | null
+  sizeId?: string | null,
+  width?: number | null,
+  height?: number | null
 ) {
   if (!productId || !url) return;
 
@@ -255,7 +257,15 @@ export async function addProductImage(
   });
 
   await prisma.productImage.create({
-    data: { productId, url, position: count, colorId: colorId ?? null, sizeId: sizeId ?? null },
+    data: {
+      productId,
+      url,
+      position: count,
+      colorId: colorId ?? null,
+      sizeId: sizeId ?? null,
+      width: width ?? null,
+      height: height ?? null,
+    },
   });
 
   revalidatePath(`/admin/produits/${productId}`);

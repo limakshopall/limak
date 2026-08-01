@@ -7,8 +7,9 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import ProductPhoto from "../../components/ProductPhoto";
 
-type Img = { id: string; url: string; alt: string | null };
+type Img = { id: string; url: string; alt: string | null; width?: number | null; height?: number | null };
 
 export default function ProductGallery({
   images,
@@ -29,16 +30,16 @@ export default function ProductGallery({
 
   return (
     <div>
-      {/* Grande image */}
-      <div className="relative aspect-square overflow-hidden rounded-xl bg-white dark:bg-[#1c2333]">
-        <Image
+      {/* Grande image — pas de cadre forcé : suit la vraie forme de la photo */}
+      <div className="overflow-hidden rounded-xl bg-white dark:bg-[#1c2333]">
+        <ProductPhoto
           src={images[active].url}
           alt={images[active].alt ?? name}
-          fill
+          width={images[active].width}
+          height={images[active].height}
           quality={95}
           sizes="(max-width: 768px) 100vw, 500px"
           priority
-          className="object-contain"
         />
       </div>
 

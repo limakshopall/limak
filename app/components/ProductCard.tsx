@@ -4,7 +4,7 @@
 // ============================================================
 
 import Link from "next/link";
-import ProductThumb from "./ProductThumb";
+import ProductPhoto from "./ProductPhoto";
 
 function Stars({ value }: { value: number }) {
   const rounded = Math.round(value);
@@ -31,6 +31,8 @@ export default function ProductCard({
   comparePrice,
   imageUrl,
   imageAlt,
+  imageWidth,
+  imageHeight,
   note,
   stock,
   large = false,
@@ -41,6 +43,8 @@ export default function ProductCard({
   comparePrice?: number | null;
   imageUrl: string | null;
   imageAlt?: string | null;
+  imageWidth?: number | null;
+  imageHeight?: number | null;
   note?: Note;
   stock?: number;
   large?: boolean;
@@ -59,14 +63,17 @@ export default function ProductCard({
       href={`/produits/${slug}`}
       className="group block overflow-hidden rounded-2xl border border-[#14213D]/10 bg-[#FFFBF3] p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-white/15 dark:bg-[#05070d]"
     >
-      {/* L'image "flotte" sur son propre coussin (fond + ombre) pour ne pas se fondre dans la carte. */}
-      <div
-        className={`relative overflow-hidden rounded-xl bg-white shadow-[0_6px_14px_-6px_rgba(20,33,61,0.28)] dark:bg-[#1c2333] ${
-          large ? "aspect-[4/3]" : "aspect-square"
-        }`}
-      >
+      {/* L'image "flotte" sur son propre coussin (fond + ombre) pour ne pas se fondre dans la carte.
+          Pas de cadre forcé : la hauteur suit la vraie forme de la photo (carrée, portrait, paysage). */}
+      <div className="relative overflow-hidden rounded-xl bg-white shadow-[0_6px_14px_-6px_rgba(20,33,61,0.28)] dark:bg-[#1c2333]">
         <div className={epuise ? "opacity-40" : ""}>
-          <ProductThumb src={imageUrl} alt={imageAlt ?? name} />
+          <ProductPhoto
+            src={imageUrl}
+            alt={imageAlt ?? name}
+            width={imageWidth}
+            height={imageHeight}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
         </div>
 
         {/* Badge promo (en haut à droite) */}

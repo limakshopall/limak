@@ -16,11 +16,13 @@ export type DisplayItem = {
   comparePrice: number | null;
   imageUrl: string | null;
   imageAlt: string | null;
+  imageWidth: number | null;
+  imageHeight: number | null;
   stock: number;
   note?: Note;
 };
 
-type Img = { url: string; alt: string | null };
+type Img = { url: string; alt: string | null; width: number | null; height: number | null };
 type ColorForDisplay = { id: string; name: string; images: Img[] };
 type VariantForDisplay = { colorId: string | null; price: number; comparePrice: number | null; stock: number };
 
@@ -37,6 +39,7 @@ export function toDisplayItems(product: ProductForDisplay, note?: Note): Display
   if (product.colors.length === 0) {
     const cheapest = [...product.variants].sort((a, b) => a.price - b.price)[0];
     const stock = product.variants.reduce((s, v) => s + v.stock, 0);
+    const image = product.images[0];
     return [
       {
         id: product.id,
@@ -44,8 +47,10 @@ export function toDisplayItems(product: ProductForDisplay, note?: Note): Display
         name: product.name,
         price: cheapest?.price ?? 0,
         comparePrice: cheapest?.comparePrice ?? null,
-        imageUrl: product.images[0]?.url ?? null,
-        imageAlt: product.images[0]?.alt ?? null,
+        imageUrl: image?.url ?? null,
+        imageAlt: image?.alt ?? null,
+        imageWidth: image?.width ?? null,
+        imageHeight: image?.height ?? null,
         stock,
         note,
       },
@@ -65,6 +70,8 @@ export function toDisplayItems(product: ProductForDisplay, note?: Note): Display
       comparePrice: cheapest?.comparePrice ?? null,
       imageUrl: image?.url ?? null,
       imageAlt: image?.alt ?? null,
+      imageWidth: image?.width ?? null,
+      imageHeight: image?.height ?? null,
       stock,
       note,
     };

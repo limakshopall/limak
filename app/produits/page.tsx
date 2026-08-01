@@ -52,7 +52,7 @@ export default async function ProduitsPage({
       images: { where: { colorId: null }, orderBy: { position: "asc" }, take: 1 },
       colors: {
         orderBy: { position: "asc" },
-        include: { images: { orderBy: { position: "asc" }, take: 1, select: { url: true, alt: true } } },
+        include: { images: { orderBy: { position: "asc" }, take: 1, select: { url: true, alt: true, width: true, height: true } } },
       },
       variants: { select: { colorId: true, price: true, comparePrice: true, stock: true } },
     },

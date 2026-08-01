@@ -237,6 +237,8 @@ export default async function FicheProduit({
                 price={p.variants[0]?.price ?? 0}
                 imageUrl={p.images[0]?.url ?? null}
                 imageAlt={p.images[0]?.alt ?? null}
+                imageWidth={p.images[0]?.width ?? null}
+                imageHeight={p.images[0]?.height ?? null}
                 note={notesSimParProduit.get(p.id)}
                 stock={p.variants[0]?.stock ?? 0}
               />

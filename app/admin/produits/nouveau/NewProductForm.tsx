@@ -13,11 +13,13 @@ import Image from "next/image";
 import { UploadButton } from "../../../lib/uploadthing";
 import { createProduct } from "./actions";
 import CategoryPicker from "../CategoryPicker";
+import { measureImage } from "../../../lib/measureImage";
 
 type Categorie = { id: string; name: string; imageUrl: string | null };
 
-type Couleur = { name: string; hex: string; images: string[] };
-type Taille = { name: string; images: string[] };
+type PhotoUploadee = { url: string; width: number | null; height: number | null };
+type Couleur = { name: string; hex: string; images: PhotoUploadee[] };
+type Taille = { name: string; images: PhotoUploadee[] };
 
 function inputClass() {
   return "mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300";
@@ -41,7 +43,7 @@ export default function NewProductForm({ categories }: { categories: Categorie[]
   const [erreur, setErreur] = useState("");
   const [pending, startTransition] = useTransition();
 
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<PhotoUploadee[]>([]);
   const [colors, setColors] = useState<Couleur[]>([]);
   const [sizes, setSizes] = useState<Taille[]>([]);
 
@@ -84,13 +86,13 @@ export default function NewProductForm({ categories }: { categories: Categorie[]
     setColors((prev) => prev.filter((_, i) => i !== index));
   }
 
-  function ajouterPhotoCouleur(index: number, url: string) {
-    setColors((prev) => prev.map((c, i) => (i === index ? { ...c, images: [...c.images, url] } : c)));
+  function ajouterPhotoCouleur(index: number, photo: PhotoUploadee) {
+    setColors((prev) => prev.map((c, i) => (i === index ? { ...c, images: [...c.images, photo] } : c)));
   }
 
   function supprimerPhotoCouleur(index: number, url: string) {
     setColors((prev) =>
-      prev.map((c, i) => (i === index ? { ...c, images: c.images.filter((u) => u !== url) } : c))
+      prev.map((c, i) => (i === index ? { ...c, images: c.images.filter((p) => p.url !== url) } : c))
     );
   }
 
@@ -104,13 +106,13 @@ export default function NewProductForm({ categories }: { categories: Categorie[]
     setSizes((prev) => prev.filter((_, i) => i !== index));
   }
 
-  function ajouterPhotoTaille(index: number, url: string) {
-    setSizes((prev) => prev.map((s, i) => (i === index ? { ...s, images: [...s.images, url] } : s)));
+  function ajouterPhotoTaille(index: number, photo: PhotoUploadee) {
+    setSizes((prev) => prev.map((s, i) => (i === index ? { ...s, images: [...s.images, photo] } : s)));
   }
 
   function supprimerPhotoTaille(index: number, url: string) {
     setSizes((prev) =>
-      prev.map((s, i) => (i === index ? { ...s, images: s.images.filter((u) => u !== url) } : s))
+      prev.map((s, i) => (i === index ? { ...s, images: s.images.filter((p) => p.url !== url) } : s))
     );
   }
 
@@ -195,14 +197,14 @@ export default function NewProductForm({ categories }: { categories: Categorie[]
         <p className="mb-2 text-sm font-medium text-[#14213D] dark:text-gray-300">Photos</p>
         {images.length > 0 && (
           <div className="mb-3 grid grid-cols-4 gap-2">
-            {images.map((url) => (
-              <div key={url} className="group relative">
-                <div className="relative aspect-square overflow-hidden rounded-lg">
-                  <Image src={url} alt="" fill className="object-cover" sizes="120px" />
+            {images.map((photo) => (
+              <div key={photo.url} className="group relative">
+                <div className="relative aspect-square overflow-hidden rounded-lg bg-white dark:bg-[#1c2333]">
+                  <Image src={photo.url} alt="" fill className="object-contain" sizes="120px" />
                 </div>
                 <button
                   type="button"
-                  onClick={() => setImages((prev) => prev.filter((u) => u !== url))}
+                  onClick={() => setImages((prev) => prev.filter((p) => p.url !== photo.url))}
                   className="absolute right-1 top-1 rounded bg-[#14213D]/70 px-1.5 text-xs text-white hover:bg-[#D6293E]"
                   aria-label="Supprimer la photo"
                 >
@@ -214,9 +216,12 @@ export default function NewProductForm({ categories }: { categories: Categorie[]
         )}
         <UploadButton
           endpoint="imageUploader"
-          onClientUploadComplete={(res) => {
+          onClientUploadComplete={async (res) => {
             const url = res?.[0]?.ufsUrl;
-            if (url) setImages((prev) => [...prev, url]);
+            if (url) {
+              const dims = await measureImage(url).catch(() => null);
+              setImages((prev) => [...prev, { url, width: dims?.width ?? null, height: dims?.height ?? null }]);
+            }
           }}
           onUploadError={(err: Error) => setErreur(`Erreur d'image : ${err.message}`)}
         />
@@ -253,14 +258,14 @@ export default function NewProductForm({ categories }: { categories: Categorie[]
 
               {c.images.length > 0 && (
                 <div className="mt-2 grid grid-cols-4 gap-2">
-                  {c.images.map((url) => (
-                    <div key={url} className="group relative">
-                      <div className="relative aspect-square overflow-hidden rounded-lg">
-                        <Image src={url} alt="" fill className="object-cover" sizes="120px" />
+                  {c.images.map((photo) => (
+                    <div key={photo.url} className="group relative">
+                      <div className="relative aspect-square overflow-hidden rounded-lg bg-white dark:bg-[#1c2333]">
+                        <Image src={photo.url} alt="" fill className="object-contain" sizes="120px" />
                       </div>
                       <button
                         type="button"
-                        onClick={() => supprimerPhotoCouleur(i, url)}
+                        onClick={() => supprimerPhotoCouleur(i, photo.url)}
                         className="absolute right-1 top-1 rounded bg-[#14213D]/70 px-1.5 text-xs text-white hover:bg-[#D6293E]"
                         aria-label="Supprimer la photo"
                       >
@@ -273,9 +278,12 @@ export default function NewProductForm({ categories }: { categories: Categorie[]
               <div className="mt-2">
                 <UploadButton
                   endpoint="imageUploader"
-                  onClientUploadComplete={(res) => {
+                  onClientUploadComplete={async (res) => {
                     const url = res?.[0]?.ufsUrl;
-                    if (url) ajouterPhotoCouleur(i, url);
+                    if (url) {
+                      const dims = await measureImage(url).catch(() => null);
+                      ajouterPhotoCouleur(i, { url, width: dims?.width ?? null, height: dims?.height ?? null });
+                    }
                   }}
                   onUploadError={(err: Error) => setErreur(`Erreur d'image : ${err.message}`)}
                 />
@@ -333,14 +341,14 @@ export default function NewProductForm({ categories }: { categories: Categorie[]
 
               {s.images.length > 0 && (
                 <div className="mt-2 grid grid-cols-4 gap-2">
-                  {s.images.map((url) => (
-                    <div key={url} className="group relative">
-                      <div className="relative aspect-square overflow-hidden rounded-lg">
-                        <Image src={url} alt="" fill className="object-cover" sizes="120px" />
+                  {s.images.map((photo) => (
+                    <div key={photo.url} className="group relative">
+                      <div className="relative aspect-square overflow-hidden rounded-lg bg-white dark:bg-[#1c2333]">
+                        <Image src={photo.url} alt="" fill className="object-contain" sizes="120px" />
                       </div>
                       <button
                         type="button"
-                        onClick={() => supprimerPhotoTaille(i, url)}
+                        onClick={() => supprimerPhotoTaille(i, photo.url)}
                         className="absolute right-1 top-1 rounded bg-[#14213D]/70 px-1.5 text-xs text-white hover:bg-[#D6293E]"
                         aria-label="Supprimer la photo"
                       >
@@ -353,9 +361,12 @@ export default function NewProductForm({ categories }: { categories: Categorie[]
               <div className="mt-2">
                 <UploadButton
                   endpoint="imageUploader"
-                  onClientUploadComplete={(res) => {
+                  onClientUploadComplete={async (res) => {
                     const url = res?.[0]?.ufsUrl;
-                    if (url) ajouterPhotoTaille(i, url);
+                    if (url) {
+                      const dims = await measureImage(url).catch(() => null);
+                      ajouterPhotoTaille(i, { url, width: dims?.width ?? null, height: dims?.height ?? null });
+                    }
                   }}
                   onUploadError={(err: Error) => setErreur(`Erreur d'image : ${err.message}`)}
                 />

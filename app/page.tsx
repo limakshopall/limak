@@ -65,7 +65,7 @@ export default async function Accueil() {
   const IMAGES_GENERALES = { where: { colorId: null }, orderBy: { position: "asc" as const }, take: 1 };
   const COULEURS = {
     orderBy: { position: "asc" as const },
-    include: { images: { orderBy: { position: "asc" as const }, take: 1, select: { url: true, alt: true } } },
+    include: { images: { orderBy: { position: "asc" as const }, take: 1, select: { url: true, alt: true, width: true, height: true } } },
   };
   const VARIANTS_COMPLET = { select: { colorId: true, price: true, comparePrice: true, stock: true } };
 

@@ -56,7 +56,7 @@ function IconeCadenas({ className }: { className?: string }) {
 const REASSURANCE = [
   { Icone: IconeCamion, titre: "Livraison rapide" },
   { Icone: IconeBillet, titre: "Paiement à la livraison" },
-  { Icone: IconeBadge, titre: "Produits vérifiés" },
+  { Icone: IconeBadge, titre: "Articles vérifiés" },
   { Icone: IconeCadenas, titre: "Achat sécurisé" },
 ];
 
@@ -251,7 +251,7 @@ export default async function Accueil() {
               Parcourez tout le catalogue et commandez en quelques clics.
             </p>
             <Link href="/produits" className="mt-6 inline-block rounded-full bg-[#F1720A] px-8 py-3 font-semibold text-white transition hover:bg-[#C95900] hover:scale-105">
-              Voir tous les produits
+              Voir tous les articles
             </Link>
           </div>
         </section>

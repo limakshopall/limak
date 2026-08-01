@@ -44,10 +44,10 @@ export default async function EditProduit({
         href="/admin/produits"
         className="mb-6 inline-block text-sm text-neutral-500 hover:text-[#14213D]"
       >
-        ← Retour aux produits
+        ← Retour aux articles
       </Link>
 
-      <h1 className="mb-6 text-2xl font-bold text-[#14213D]">Modifier le produit</h1>
+      <h1 className="mb-6 text-2xl font-bold text-[#14213D]">Modifier l'article</h1>
 
       <form action={updateProduct} className="space-y-4 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm">
         <input type="hidden" name="id" value={produit.id} />
@@ -66,7 +66,7 @@ export default async function EditProduit({
         <label className="flex items-center gap-2">
           <input name="isActive" type="checkbox" defaultChecked={produit.isActive} />
           <span className="text-sm text-neutral-700">
-            Produit visible sur la boutique
+            Article visible sur la boutique
           </span>
         </label>
 
@@ -82,7 +82,7 @@ export default async function EditProduit({
       <div className="mt-6 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm">
         <h2 className="mb-1 font-semibold text-[#14213D]">Variantes</h2>
         <p className="mb-3 text-xs text-neutral-500">
-          Pour un produit simple, garde une seule variante. Pour un produit décliné
+          Pour un article simple, garde une seule variante. Pour un article décliné
           (ex: baskets par couleur/pointure), ajoute une variante par combinaison.
         </p>
         <VariantList productId={produit.id} variants={produit.variants} />

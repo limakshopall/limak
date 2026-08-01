@@ -118,7 +118,7 @@ export async function deleteVariant(
 
   const total = await prisma.productVariant.count({ where: { productId } });
   if (total <= 1) {
-    return { ok: false, error: "Impossible de supprimer la seule variante du produit." };
+    return { ok: false, error: "Impossible de supprimer la seule variante de l'article." };
   }
 
   try {
@@ -138,7 +138,7 @@ export async function deleteVariant(
 export async function deleteProduct(
   id: string
 ): Promise<{ ok: boolean; error?: string }> {
-  if (!id) return { ok: false, error: "Produit introuvable." };
+  if (!id) return { ok: false, error: "Article introuvable." };
 
   try {
     // Récupère les images pour les supprimer aussi côté UploadThing.
@@ -157,7 +157,7 @@ export async function deleteProduct(
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003") {
       return {
         ok: false,
-        error: "Impossible de supprimer : ce produit a déjà été commandé. Désactive-le plutôt.",
+        error: "Impossible de supprimer : cet article a déjà été commandé. Désactive-le plutôt.",
       };
     }
     throw err;

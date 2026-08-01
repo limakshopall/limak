@@ -70,7 +70,7 @@ export async function createOrder(input: OrderInput) {
   }
 
   if (orderItems.length === 0) {
-    return { ok: false as const, error: "Aucun produit valide dans le panier." };
+    return { ok: false as const, error: "Aucun article valide dans le panier." };
   }
 
   const shipping = 0;

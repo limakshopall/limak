@@ -67,7 +67,7 @@ export default function Header({
             href="/produits"
             className="whitespace-nowrap text-sm font-medium text-[#14213D] hover:text-white"
           >
-            Produits
+            Articles
           </Link>
 
           <Link

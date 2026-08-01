@@ -29,7 +29,7 @@ export default function ProductImageUploader({ productId }: { productId: string 
         }}
       />
       <p className="mt-2 text-xs text-neutral-400">
-        Formats image, 4 Mo max. L'image s'ajoute au produit une fois envoyée.
+        Formats image, 4 Mo max. L'image s'ajoute à l'article une fois envoyée.
       </p>
     </div>
   );

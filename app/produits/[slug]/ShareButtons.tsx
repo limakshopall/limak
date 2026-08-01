@@ -27,7 +27,7 @@ export default function ShareButtons({
   }
 
   const prixTxt = new Intl.NumberFormat("fr-FR").format(price);
-  const texte = `Regarde ce produit sur LIMAK : ${name} à ${prixTxt} FCFA`;
+  const texte = `Regarde cet article sur LIMAK : ${name} à ${prixTxt} FCFA`;
 
   // Menu de partage natif du téléphone (WhatsApp, Facebook, SMS, Gmail…)
   async function partager() {

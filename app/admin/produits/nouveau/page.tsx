@@ -20,10 +20,10 @@ export default async function NouveauProduit() {
         href="/admin/produits"
         className="mb-6 inline-block text-sm text-neutral-500 hover:text-[#14213D]"
       >
-        ← Retour aux produits
+        ← Retour aux articles
       </Link>
 
-      <h1 className="mb-6 text-2xl font-bold text-[#14213D]">Ajouter un produit</h1>
+      <h1 className="mb-6 text-2xl font-bold text-[#14213D]">Ajouter un article</h1>
 
       <form action={createProduct} className="space-y-4 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm">
         <div>
@@ -88,7 +88,7 @@ export default async function NouveauProduit() {
           type="submit"
           className="rounded-full bg-[#F1720A] px-6 py-3 font-semibold text-white transition hover:bg-[#C95900]"
         >
-          Créer le produit
+          Créer l'article
         </button>
       </form>
 

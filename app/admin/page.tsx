@@ -102,7 +102,7 @@ export default async function AdminHome() {
             ⚠️ Stock à surveiller ({stockBas.length})
           </h2>
           <p className="mb-3 mt-1 text-sm text-[#C95900]/80">
-            Ces produits sont épuisés ou bientôt en rupture.
+            Ces articles sont épuisés ou bientôt en rupture.
           </p>
           <ul className="divide-y divide-[#F1720A]/10">
             {stockBas.map((v) => (
@@ -211,7 +211,7 @@ export default async function AdminHome() {
           href="/admin/produits"
           className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-6 shadow-sm transition hover:shadow-md"
         >
-          <h2 className="font-semibold text-[#14213D]">Produits</h2>
+          <h2 className="font-semibold text-[#14213D]">Articles</h2>
           <p className="mt-1 text-sm text-neutral-500">
             Gérer le catalogue et les stocks
           </p>

@@ -117,7 +117,7 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
             className="flex items-center gap-3 rounded-lg px-3 py-2.5 font-semibold text-[#14213D] transition hover:bg-[#14213D]/5"
           >
             <IconeTout className="h-4.5 w-4.5 shrink-0" />
-            Tous les produits
+            Tous les articles
           </Link>
 
           <p className="mb-1 mt-4 px-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">

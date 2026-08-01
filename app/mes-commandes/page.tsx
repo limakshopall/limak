@@ -56,7 +56,7 @@ export default async function MesCommandes() {
             href="/produits"
             className="mt-4 inline-block rounded-full bg-[#F1720A] px-6 py-3 font-semibold text-white hover:bg-[#C95900]"
           >
-            Découvrir les produits
+            Découvrir les articles
           </Link>
         </div>
       ) : (

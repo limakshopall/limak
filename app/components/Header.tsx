@@ -13,6 +13,17 @@ import { useCart } from "../lib/cart-context";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import MenuLateral from "./MenuLateral";
 
+function IconeArticles({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+    </svg>
+  );
+}
+
 function IconePanier({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -65,17 +76,18 @@ export default function Header({
         <nav className="flex shrink-0 items-center gap-3 sm:gap-5">
           <Link
             href="/produits"
-            className="whitespace-nowrap text-sm font-medium text-[#14213D] hover:text-white"
+            className="flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-[#14213D] hover:text-white"
           >
-            Produits
+            <IconeArticles className="h-5 w-5" />
+            <span>Articles</span>
           </Link>
 
           <Link
             href="/panier"
             aria-label="Panier"
-            className="relative text-[#14213D] hover:text-white"
+            className="relative flex items-center gap-1.5 text-[#14213D] hover:text-white"
           >
-            <IconePanier className="h-5 w-5 sm:hidden" />
+            <IconePanier className="h-5 w-5" />
             <span className="hidden whitespace-nowrap text-sm font-medium sm:inline">Panier</span>
             {count > 0 && (
               <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#D6293E] px-1 text-[10px] font-semibold text-white sm:-right-4">
@@ -87,8 +99,8 @@ export default function Header({
           {/* Si NON connecté : Connexion / Créer un compte */}
           <Show when="signed-out">
             <SignInButton mode="modal">
-              <button aria-label="Connexion" className="text-[#14213D] hover:text-white">
-                <IconeCompte className="h-5 w-5 sm:hidden" />
+              <button aria-label="Connexion" className="flex items-center gap-1.5 text-[#14213D] hover:text-white">
+                <IconeCompte className="h-5 w-5" />
                 <span className="hidden whitespace-nowrap text-sm font-medium sm:inline">Connexion</span>
               </button>
             </SignInButton>

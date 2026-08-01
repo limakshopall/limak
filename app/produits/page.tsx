@@ -22,7 +22,7 @@ function decouper<T>(liste: T[], taille: number): T[][] {
 }
 
 export const metadata: Metadata = {
-  title: "Nos produits",
+  title: "Nos articles",
   description:
     "Parcourez tout le catalogue LIMAK : montres, sacs, beauté, électroménager, librairie et plus. Paiement à la livraison en Côte d'Ivoire.",
 };
@@ -98,7 +98,7 @@ export default async function ProduitsPage({
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
       <div className="mb-6">
-        <h1 className="text-3xl font-extrabold text-[#14213D]">Nos produits</h1>
+        <h1 className="text-3xl font-extrabold text-[#14213D]">Nos articles</h1>
         <p className="mt-1 text-sm text-neutral-500">
           {liste.length} article{liste.length > 1 ? "s" : ""} disponible{liste.length > 1 ? "s" : ""}
         </p>
@@ -108,7 +108,7 @@ export default async function ProduitsPage({
 
       {liste.length === 0 ? (
         <p className="text-neutral-500">
-          Aucun produit ne correspond à votre recherche.
+          Aucun article ne correspond à votre recherche.
         </p>
       ) : (
         <div className="flex flex-col gap-10">

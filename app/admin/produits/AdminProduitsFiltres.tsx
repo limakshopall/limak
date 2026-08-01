@@ -36,7 +36,7 @@ export default function AdminProduitsFiltres() {
       <input
         value={recherche}
         onChange={(e) => setRecherche(e.target.value)}
-        placeholder="Rechercher un produit…"
+        placeholder="Rechercher un article…"
         className="w-full rounded-lg border border-[#14213D]/15 px-3 py-2 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] sm:max-w-xs"
       />
 

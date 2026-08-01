@@ -40,7 +40,7 @@ export async function generateMetadata({
   });
 
   if (!produit) {
-    return { title: "Produit introuvable" };
+    return { title: "Article introuvable" };
   }
 
   const image = produit.images[0]?.url;
@@ -127,7 +127,7 @@ export default async function FicheProduit({
         href="/produits"
         className="mb-4 inline-block text-sm text-neutral-500 hover:text-[#14213D]"
       >
-        ← Retour aux produits
+        ← Retour aux articles
       </Link>
 
       <div className="grid gap-6 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm sm:p-6 md:grid-cols-2">

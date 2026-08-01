@@ -42,7 +42,7 @@ export async function submitReview(input: ReviewInput) {
   if (!aCommande) {
     return {
       ok: false as const,
-      error: "Vous ne pouvez laisser un avis que sur un produit que vous avez commandé.",
+      error: "Vous ne pouvez laisser un avis que sur un article que vous avez commandé.",
     };
   }
 

@@ -15,7 +15,7 @@ export default function DeleteProductButton({ id }: { id: string }) {
   function handleClick() {
     // Confirmation avant l'action irréversible
     const ok = window.confirm(
-      "Supprimer définitivement ce produit ? Cette action est irréversible."
+      "Supprimer définitivement cet article ? Cette action est irréversible."
     );
     if (!ok) return;
 
@@ -36,7 +36,7 @@ export default function DeleteProductButton({ id }: { id: string }) {
       disabled={isPending}
       className="text-sm font-medium text-[#D6293E] hover:underline disabled:opacity-50"
     >
-      {isPending ? "Suppression…" : "Supprimer ce produit"}
+      {isPending ? "Suppression…" : "Supprimer cet article"}
     </button>
   );
 }

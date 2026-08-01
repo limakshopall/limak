@@ -87,7 +87,7 @@ export default function ProduitsFiltres({
           <input
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
-            placeholder="Rechercher un produit…"
+            placeholder="Rechercher un article…"
             className="w-full bg-transparent py-2.5 pl-10 pr-9 text-sm font-medium text-[#14213D] placeholder-[#14213D]/60 outline-none focus:ring-2 focus:ring-white/60"
           />
           {recherche && (

@@ -45,12 +45,12 @@ export default async function AdminProduits({
       </Link>
 
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#14213D]">Produits ({produits.length})</h1>
+        <h1 className="text-2xl font-bold text-[#14213D]">Articles ({produits.length})</h1>
         <Link
           href="/admin/produits/nouveau"
           className="rounded-full bg-[#F1720A] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#C95900]"
         >
-          + Ajouter un produit
+          + Ajouter un article
         </Link>
       </div>
 

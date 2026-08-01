@@ -22,7 +22,7 @@ export default function PanierPage() {
           href="/produits"
           className="mt-6 inline-block rounded-full bg-[#F1720A] px-6 py-3 font-semibold text-white transition hover:bg-[#C95900]"
         >
-          Voir les produits
+          Voir les articles
         </Link>
       </main>
     );

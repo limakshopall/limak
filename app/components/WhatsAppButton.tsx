@@ -7,7 +7,7 @@ import Link from "next/link";
 
 // Ton numéro au format international SANS le "+" ni espaces.
 const NUMERO = "2250717678784";
-const MESSAGE = "Bonjour LIMAK, j'ai une question à propos de vos produits.";
+const MESSAGE = "Bonjour LIMAK, j'ai une question à propos de vos articles.";
 
 export default function WhatsAppButton() {
   const href = `https://wa.me/${NUMERO}?text=${encodeURIComponent(MESSAGE)}`;

@@ -271,9 +271,6 @@ export default async function Accueil() {
               <p className="font-semibold text-neutral-800 dark:text-gray-300">Une question ?</p>
               <p className="mt-2">Email : limak.shopall@gmail.com</p>
               <p>WhatsApp : +225 07 17 67 87 84</p>
-              <p className="mt-1 text-xs text-neutral-400 dark:text-gray-400">
-                (pour vos questions — les commandes se passent sur le site)
-              </p>
             </div>
           </div>
           <p className="mt-8 border-t border-neutral-100 pt-6 text-center text-xs text-neutral-400 dark:border-white/15 dark:text-gray-400">

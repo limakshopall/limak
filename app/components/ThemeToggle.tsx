@@ -26,7 +26,14 @@ function IconeLune({ className }: { className?: string }) {
   );
 }
 
-export default function ThemeToggle({ className }: { className?: string }) {
+export default function ThemeToggle({
+  className,
+  // "icon" : juste l'icône (usage header). "item" : icône + libellé sur toute la largeur (usage menu latéral).
+  variant = "icon",
+}: {
+  className?: string;
+  variant?: "icon" | "item";
+}) {
   const [dark, setDark] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -43,7 +50,23 @@ export default function ThemeToggle({ className }: { className?: string }) {
   // Tant qu'on ne connaît pas l'état réel (posé par le script inline avant
   // hydratation), on affiche un espace vide pour éviter un mismatch React.
   if (dark === null) {
+    if (variant === "item") {
+      return <div className={className} style={{ height: 42 }} />;
+    }
     return <span className={className} style={{ display: "inline-block", width: 20, height: 20 }} />;
+  }
+
+  if (variant === "item") {
+    return (
+      <button
+        type="button"
+        onClick={basculer}
+        className={className}
+      >
+        {dark ? <IconeSoleil className="h-4.5 w-4.5 shrink-0" /> : <IconeLune className="h-4.5 w-4.5 shrink-0" />}
+        {dark ? "Mode clair" : "Mode sombre"}
+      </button>
+    );
   }
 
   return (

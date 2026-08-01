@@ -8,6 +8,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import ThemeToggle from "./ThemeToggle";
 
 type Categorie = { name: string; slug: string };
 
@@ -153,6 +154,13 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
             <IconeCommandesMenu className="h-4.5 w-4.5 shrink-0" />
             Mes commandes
           </Link>
+
+          <div className="my-3 border-t border-[#14213D]/10 dark:border-white/15" />
+
+          <ThemeToggle
+            variant="item"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-neutral-700 transition hover:bg-[#14213D]/5 hover:text-[#14213D] dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-100"
+          />
         </nav>
 
         <div className="border-t border-[#14213D]/10 px-4 py-4 text-xs text-neutral-400 dark:border-white/15 dark:text-gray-400">

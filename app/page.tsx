@@ -34,6 +34,11 @@ export default async function Accueil() {
   };
   const VARIANTS_COMPLET = { select: { colorId: true, price: true, comparePrice: true, stock: true } };
 
+  const [heroSlides, heroSettings] = await Promise.all([
+    prisma.heroSlide.findMany({ where: { isActive: true }, orderBy: { position: "asc" } }),
+    prisma.heroSettings.findFirst(),
+  ]);
+
   const categories = await prisma.category.findMany({
     include: {
       products: {
@@ -123,7 +128,11 @@ export default async function Accueil() {
   return (
     <div className="bg-[#FBEEDA] dark:bg-[#1c2333]">
       {/* 3. HERO IMMERSIF */}
-      <HeroCarousel />
+      <HeroCarousel
+        slides={heroSlides}
+        heightVh={heroSettings?.heightVh ?? 45}
+        slideDuration={heroSettings?.slideDuration ?? 5000}
+      />
 
       {/* 4. CATÉGORIES VISUELLES */}
       <Reveal>

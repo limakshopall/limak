@@ -295,3 +295,30 @@ model Review {
   @@unique([productId, clerkUserId]) // un seul avis par produit et par client
   @@index([productId])
 }
+
+// ============================================================
+//  CARROUSEL D'ACCUEIL — gérable depuis l'admin
+// ============================================================
+
+// Une diapositive : soit une image cliquable, soit un texte accrocheur
+// (titre + accroche + badge) sur fond bleu nuit. "type" vaut "image" ou "texte".
+model HeroSlide {
+  id        String   @id @default(cuid())
+  type      String   @default("image")
+  imageUrl  String? // utilisé si type = "image"
+  alt       String?
+  title     String? // utilisé si type = "texte"
+  subtitle  String?
+  badge     String?
+  href      String   @default("/produits")
+  position  Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+// Réglages du carrousel (une seule ligne en base).
+model HeroSettings {
+  id            String @id @default(cuid())
+  heightVh      Int    @default(45) // hauteur du carrousel, en % de la hauteur d'écran
+  slideDuration Int    @default(5000) // temps entre 2 diapositives, en millisecondes
+}

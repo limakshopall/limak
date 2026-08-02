@@ -60,13 +60,19 @@ body {
   }
 }
 
-/* Barre de progression des points du carrousel d'accueil */
+/* Barre de progression des points du carrousel d'accueil
+   (durée dynamique posée en style inline — réglable depuis l'admin) */
 @keyframes limak-progress {
   from { width: 0%; }
   to { width: 100%; }
 }
+.limak-progress-bar {
+  animation-name: limak-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
 @media (prefers-reduced-motion: reduce) {
-  [class*="animate-[limak-progress"] {
+  .limak-progress-bar {
     animation: none;
     width: 100%;
   }

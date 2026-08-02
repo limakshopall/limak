@@ -102,7 +102,7 @@ export default function HeroCarousel() {
   return (
     <section className="relative">
       <div
-        className="relative h-[85svh] max-h-[720px] min-h-[440px] touch-pan-y select-none overflow-hidden border-y-4 border-[#E8C255] bg-[#14213D] md:h-[70vh]"
+        className="relative h-[45svh] max-h-[480px] min-h-[300px] touch-pan-y select-none overflow-hidden border-y-4 border-[#E8C255] bg-[#14213D] md:h-[45vh]"
         onMouseEnter={() => setPause(true)}
         onMouseLeave={() => setPause(false)}
         onPointerDown={onPointerDown}

@@ -8,7 +8,7 @@ import { prisma } from "../../lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export type SlideInput = {
-  type: "image" | "texte";
+  type: "image" | "video" | "texte";
   imageUrl: string | null;
   alt: string | null;
   title: string | null;
@@ -23,8 +23,10 @@ function revalider() {
 }
 
 export async function createSlide(input: SlideInput) {
-  if (input.type === "image" && !input.imageUrl) {
-    throw new Error("Une image est requise pour ce type de diapositive.");
+  if ((input.type === "image" || input.type === "video") && !input.imageUrl) {
+    throw new Error(
+      input.type === "video" ? "Une vidéo est requise pour ce type de diapositive." : "Une image est requise pour ce type de diapositive."
+    );
   }
   if (input.type === "texte" && !input.title?.trim()) {
     throw new Error("Le titre est requis pour ce type de diapositive.");

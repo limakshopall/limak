@@ -13,8 +13,8 @@ import Image from "next/image";
 
 export type Slide = {
   id: string;
-  type: string; // "image" ou "texte"
-  imageUrl: string | null;
+  type: string; // "image", "video" ou "texte"
+  imageUrl: string | null; // aussi utilisé pour l'adresse de la vidéo si type = "video"
   alt: string | null;
   title: string | null;
   subtitle: string | null;
@@ -118,6 +118,23 @@ export default function HeroCarousel({
                     />
                   )}
                   {/* Léger assombrissement en bas pour la profondeur, façon vitrine */}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/50 to-transparent" />
+                </>
+              ) : slide.type === "video" ? (
+                <>
+                  {slide.imageUrl && (
+                    <video
+                      src={slide.imageUrl}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      // On ne joue que la diapositive visible, pour ne pas gaspiller
+                      // la data/batterie des autres en arrière-plan.
+                      preload={i === index ? "auto" : "none"}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  )}
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/50 to-transparent" />
                 </>
               ) : (

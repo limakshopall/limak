@@ -34,7 +34,9 @@ export default function SlideForm({
   const [pending, startTransition] = useTransition();
   const [erreur, setErreur] = useState("");
 
-  const [type, setType] = useState<"image" | "texte">((slide?.type as "image" | "texte") ?? "image");
+  const [type, setType] = useState<"image" | "video" | "texte">(
+    (slide?.type as "image" | "video" | "texte") ?? "image"
+  );
   const [imageUrl, setImageUrl] = useState(slide?.imageUrl ?? "");
   const [alt, setAlt] = useState(slide?.alt ?? "");
   const [title, setTitle] = useState(slide?.title ?? "");
@@ -48,6 +50,10 @@ export default function SlideForm({
       setErreur("Ajoute une image pour cette diapositive.");
       return;
     }
+    if (type === "video" && !imageUrl) {
+      setErreur("Ajoute une vidéo pour cette diapositive.");
+      return;
+    }
     if (type === "texte" && !title.trim()) {
       setErreur("Le titre est requis.");
       return;
@@ -55,7 +61,7 @@ export default function SlideForm({
 
     const input: SlideInput = {
       type,
-      imageUrl: type === "image" ? imageUrl : null,
+      imageUrl: type === "image" || type === "video" ? imageUrl : null,
       alt: alt || null,
       title: type === "texte" ? title : null,
       subtitle: type === "texte" ? subtitle : null,
@@ -100,6 +106,15 @@ export default function SlideForm({
         </button>
         <button
           type="button"
+          onClick={() => setType("video")}
+          className={`rounded-full px-3 py-1 text-xs font-semibold ${
+            type === "video" ? "bg-[#14213D] text-white" : "border border-[#14213D]/20 text-[#14213D] dark:text-gray-300"
+          }`}
+        >
+          Vidéo
+        </button>
+        <button
+          type="button"
           onClick={() => setType("texte")}
           className={`rounded-full px-3 py-1 text-xs font-semibold ${
             type === "texte" ? "bg-[#14213D] text-white" : "border border-[#14213D]/20 text-[#14213D] dark:text-gray-300"
@@ -130,6 +145,26 @@ export default function SlideForm({
             placeholder="Texte alternatif (accessibilité)"
             className="mt-2 w-full rounded border border-[#14213D]/15 px-2 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
           />
+        </div>
+      ) : type === "video" ? (
+        <div>
+          {imageUrl && (
+            <div className="relative mb-2 aspect-[16/6] w-full overflow-hidden rounded-lg bg-white dark:bg-[#05070d]">
+              {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+              <video src={imageUrl} muted loop autoPlay playsInline className="h-full w-full object-cover" />
+            </div>
+          )}
+          <UploadButton
+            endpoint="videoUploader"
+            onClientUploadComplete={(res) => {
+              const url = res?.[0]?.ufsUrl;
+              if (url) setImageUrl(url);
+            }}
+            onUploadError={(err: Error) => setErreur(`Erreur de vidéo : ${err.message}`)}
+          />
+          <p className="mt-1 text-xs text-neutral-400 dark:text-gray-400">
+            32 Mo max. Vidéo courte recommandée (5-10 sec, sans son — il sera coupé automatiquement).
+          </p>
         </div>
       ) : (
         <div className="space-y-2">

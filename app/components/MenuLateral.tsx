@@ -9,6 +9,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 
 type Categorie = { name: string; slug: string };
@@ -17,6 +18,16 @@ function IconeMenu({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
       <path d="M3 6h18M3 12h18M3 18h18" />
+    </svg>
+  );
+}
+
+function IconeAccueil({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="m3 11 9-8 9 8" />
+      <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
+      <path d="M9 21v-6h6v6" />
     </svg>
   );
 }
@@ -161,6 +172,7 @@ function IconeCommandesMenu({ className }: { className?: string }) {
 }
 
 export default function MenuLateral({ categories }: { categories: Categorie[] }) {
+  const pathname = usePathname();
   const [ouvert, setOuvert] = useState(false);
   // Le tiroir est téléporté dans <body> (portail) : le header a un fond flouté
   // (backdrop-blur) qui, sinon, coincerait le "position: fixed" du tiroir dans
@@ -210,6 +222,16 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
         </div>
 
         <nav className="flex-1 overflow-y-auto px-2 py-3">
+          {pathname !== "/" && (
+            <Link
+              href="/"
+              onClick={() => setOuvert(false)}
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 font-semibold text-[#14213D] transition hover:bg-[#14213D]/5 dark:text-gray-300 dark:hover:bg-white/5"
+            >
+              <IconeAccueil className="h-4.5 w-4.5 shrink-0" />
+              Accéder à la page d&apos;accueil
+            </Link>
+          )}
           <Link
             href="/produits"
             onClick={() => setOuvert(false)}

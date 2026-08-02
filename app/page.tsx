@@ -261,17 +261,6 @@ export default async function Accueil() {
         </Reveal>
       ))}
 
-      {/* 11. BANNIÈRE PUB #4 — Confiance / livraison */}
-      <Reveal>
-        <PromoBanner
-          href="/produits"
-          title="Livraison partout en Côte d'Ivoire 🇨🇮"
-          subtitle="Paiement à la livraison — commandez en toute confiance"
-          variant="navy"
-          cta="Commander"
-        />
-      </Reveal>
-
       {/* APPEL FINAL */}
       <Reveal>
         <section className="mx-auto max-w-6xl px-4 py-14">
@@ -288,6 +277,17 @@ export default async function Accueil() {
             </Link>
           </div>
         </section>
+      </Reveal>
+
+      {/* 11. BANNIÈRE PUB #4 — Confiance / livraison */}
+      <Reveal>
+        <PromoBanner
+          href="/panier"
+          title="Livraison partout en Côte d'Ivoire 🇨🇮"
+          subtitle="Paiement à la livraison — commandez en toute confiance"
+          variant="navy"
+          cta="Commander"
+        />
       </Reveal>
 
       {/* 12. TÉMOIGNAGES / CONFIANCE */}

@@ -133,6 +133,8 @@ export default function HeroCarousel({
                       // la data/batterie des autres en arrière-plan.
                       preload={i === index ? "auto" : "none"}
                       className="absolute inset-0 h-full w-full object-cover"
+                      // Compense des vidéos sources un peu sombres/sous-exposées.
+                      style={{ filter: "brightness(1.3) contrast(1.05) saturate(1.05)" }}
                     />
                   )}
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/50 to-transparent" />

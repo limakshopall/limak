@@ -11,6 +11,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
+import { useHydrated } from "../lib/useHydrated";
 
 type Categorie = { name: string; slug: string };
 
@@ -188,8 +189,7 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
   // Le tiroir est téléporté dans <body> (portail) : le header a un fond flouté
   // (backdrop-blur) qui, sinon, coincerait le "position: fixed" du tiroir dans
   // sa propre hauteur au lieu de couvrir tout l'écran.
-  const [monte, setMonte] = useState(false);
-  useEffect(() => setMonte(true), []);
+  const monte = useHydrated();
 
   // Bloque le défilement de la page derrière le tiroir + ferme sur Échap.
   useEffect(() => {

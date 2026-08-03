@@ -41,7 +41,7 @@ export default async function AdminProduits({
         href="/admin"
         className="mb-6 inline-block text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400"
       >
-        ← Retour à l'administration
+        ← Retour à l&apos;administration
       </Link>
 
       <div className="mb-6 flex items-center justify-between">

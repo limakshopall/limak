@@ -39,7 +39,7 @@ export default function ProductImageUploader({
         }}
       />
       <p className="mt-2 text-xs text-neutral-400 dark:text-gray-400">
-        Formats image, 4 Mo max. L'image s'ajoute une fois envoyée.
+        Formats image, 4 Mo max. L&apos;image s&apos;ajoute une fois envoyée.
       </p>
     </div>
   );

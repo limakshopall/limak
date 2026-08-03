@@ -43,7 +43,7 @@ export default async function AdminCommandes({
         href="/admin"
         className="mb-6 inline-block text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400"
       >
-        ← Retour à l'administration
+        ← Retour à l&apos;administration
       </Link>
 
       <h1 className="mb-6 text-2xl font-bold text-[#14213D] dark:text-gray-300">Commandes</h1>

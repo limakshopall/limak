@@ -60,7 +60,7 @@ export default async function EditProduit({
         ← Retour aux articles
       </Link>
 
-      <h1 className="mb-6 text-2xl font-bold text-[#14213D] dark:text-gray-300">Modifier l'article</h1>
+      <h1 className="mb-6 text-2xl font-bold text-[#14213D] dark:text-gray-300">Modifier l&apos;article</h1>
 
       <form action={updateProduct} className="space-y-4 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d]">
         <input type="hidden" name="id" value={produit.id} />

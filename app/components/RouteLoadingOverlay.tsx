@@ -17,10 +17,19 @@ export default function RouteLoadingOverlay() {
   const filetSecurite = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // La page a changé : la navigation est terminée, on cache l'écran.
-  useEffect(() => {
+  // Fait pendant le rendu (pas dans un effet), en comparant à la route
+  // précédente, pour rester conforme à react-hooks/set-state-in-effect.
+  const cleRoute = `${pathname}?${searchParams.toString()}`;
+  const [cleRoutePrecedente, setCleRoutePrecedente] = useState(cleRoute);
+  if (cleRoute !== cleRoutePrecedente) {
+    setCleRoutePrecedente(cleRoute);
     setVisible(false);
+  }
+
+  // Annule le filet de sécurité de la navigation précédente (pas de setState ici).
+  useEffect(() => {
     if (filetSecurite.current) clearTimeout(filetSecurite.current);
-  }, [pathname, searchParams]);
+  }, [cleRoute]);
 
   // On surveille les clics sur les liens internes pour afficher l'écran tout de suite.
   useEffect(() => {

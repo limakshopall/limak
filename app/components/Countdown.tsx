@@ -7,6 +7,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useHydrated } from "../lib/useHydrated";
 
 function tempsRestantAujourdhui() {
   const maintenant = new Date();
@@ -20,13 +21,22 @@ function pad(n: number) {
 }
 
 export default function Countdown() {
+  const hydrated = useHydrated();
   const [ms, setMs] = useState<number | null>(null);
+  const [demarre, setDemarre] = useState(false);
+
+  // Premier calcul fait pendant le rendu (pas dans l'effet) une fois monté,
+  // pour rester conforme à react-hooks/set-state-in-effect.
+  if (hydrated && !demarre) {
+    setDemarre(true);
+    setMs(tempsRestantAujourdhui());
+  }
 
   useEffect(() => {
-    setMs(tempsRestantAujourdhui());
+    if (!hydrated) return;
     const t = setInterval(() => setMs(tempsRestantAujourdhui()), 1000);
     return () => clearInterval(t);
-  }, []);
+  }, [hydrated]);
 
   // null le temps du premier rendu client (évite un décalage avec le serveur, qui n'a pas d'heure locale fiable)
   if (ms === null) return null;

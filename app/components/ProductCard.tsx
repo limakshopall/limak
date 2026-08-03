@@ -44,7 +44,6 @@ export default function ProductCard({
   stock,
   isNew = false,
   premium = false,
-  large = false,
 }: {
   slug: string;
   colorId?: string | null;

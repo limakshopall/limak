@@ -7,7 +7,8 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useHydrated } from "../lib/useHydrated";
 
 function IconeSoleil({ className }: { className?: string }) {
   return (
@@ -44,13 +45,18 @@ export default function ThemeToggle({
   className?: string;
   variant?: "icon" | "item";
 }) {
+  const hydrated = useHydrated();
   const [dark, setDark] = useState<boolean | null>(null);
   const [override, setOverride] = useState(false);
+  const [lu, setLu] = useState(false);
 
-  useEffect(() => {
+  // Lecture faite pendant le rendu (pas dans un effet) une fois monté,
+  // pour rester conforme à react-hooks/set-state-in-effect.
+  if (hydrated && !lu) {
+    setLu(true);
     setDark(document.documentElement.classList.contains("dark"));
     setOverride(localStorage.getItem("theme") !== null);
-  }, []);
+  }
 
   function basculer() {
     const prochain = !document.documentElement.classList.contains("dark");

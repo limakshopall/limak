@@ -19,12 +19,12 @@ export default async function AdminCategories() {
         href="/admin"
         className="mb-6 inline-block text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400"
       >
-        ← Retour à l'administration
+        ← Retour à l&apos;administration
       </Link>
 
       <h1 className="mb-2 text-2xl font-bold text-[#14213D] dark:text-gray-300">Catégories</h1>
       <p className="mb-6 text-sm text-neutral-500 dark:text-gray-400">
-        La photo apparaît sur l'accueil et dans le filtre catégorie du catalogue.
+        La photo apparaît sur l&apos;accueil et dans le filtre catégorie du catalogue.
         Le nom peut être modifié sans casser les liens existants.
       </p>
 

@@ -6,6 +6,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useHydrated } from "../lib/useHydrated";
 
 // L'événement "beforeinstallprompt" n'est pas typé par défaut.
 type BIPEvent = Event & {
@@ -16,29 +17,45 @@ type BIPEvent = Event & {
 const DISMISS_KEY = "limak-install-dismissed";
 
 export default function InstallBanner() {
+  const hydrated = useHydrated();
   const [deferred, setDeferred] = useState<BIPEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const [decide, setDecide] = useState(false);
 
-  useEffect(() => {
+  // Décision prise pendant le rendu (pas dans un effet) une fois monté,
+  // pour rester conforme à react-hooks/set-state-in-effect.
+  if (hydrated && !decide) {
+    setDecide(true);
+
     // Déjà installé (ouvert en mode appli) → on ne montre rien
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-    if (standalone) return;
 
     // Déjà fermé par l'utilisateur → on ne réaffiche pas
+    const dismissed = localStorage.getItem(DISMISS_KEY) === "1";
+
+    if (!standalone && !dismissed) {
+      // iPhone : pas d'installation automatique → on affiche une consigne
+      const ua = window.navigator.userAgent.toLowerCase();
+      if (/iphone|ipad|ipod/.test(ua)) {
+        setIsIOS(true);
+        setVisible(true);
+      }
+    }
+  }
+
+  // Android/Chrome : on capte l'événement d'installation
+  useEffect(() => {
+    if (!hydrated || isIOS) return;
+
+    const standalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+    if (standalone) return;
     if (localStorage.getItem(DISMISS_KEY) === "1") return;
 
-    // iPhone : pas d'installation automatique → on affiche une consigne
-    const ua = window.navigator.userAgent.toLowerCase();
-    if (/iphone|ipad|ipod/.test(ua)) {
-      setIsIOS(true);
-      setVisible(true);
-      return;
-    }
-
-    // Android/Chrome : on capte l'événement d'installation
     function onBIP(e: Event) {
       e.preventDefault();
       setDeferred(e as BIPEvent);
@@ -46,7 +63,7 @@ export default function InstallBanner() {
     }
     window.addEventListener("beforeinstallprompt", onBIP);
     return () => window.removeEventListener("beforeinstallprompt", onBIP);
-  }, []);
+  }, [hydrated, isIOS]);
 
   function fermer() {
     setVisible(false);

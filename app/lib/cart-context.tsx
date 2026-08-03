@@ -6,6 +6,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { useHydrated } from "./useHydrated";
 
 // La forme d'un article dans le panier
 // (une ligne = une variante précise : ex. "Basket rouge, taille 42")
@@ -38,11 +39,15 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 const STORAGE_KEY = "limak-cart";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const hydrated = useHydrated();
   const [items, setItems] = useState<CartItem[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [charge, setCharge] = useState(false);
 
-  // Au chargement : on relit le panier sauvegardé dans le navigateur.
-  useEffect(() => {
+  // Au montage : on relit le panier sauvegardé dans le navigateur.
+  // Fait pendant le rendu (pas dans un effet), pour rester conforme
+  // à react-hooks/set-state-in-effect.
+  if (hydrated && !charge) {
+    setCharge(true);
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -56,15 +61,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // panier illisible : on ignore
     }
-    setLoaded(true);
-  }, []);
+  }
 
   // À chaque changement du panier : on le sauvegarde dans le navigateur.
   useEffect(() => {
-    if (loaded) {
+    if (hydrated) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     }
-  }, [items, loaded]);
+  }, [items, hydrated]);
 
   // Ajouter un article (s'il y est déjà, on augmente la quantité de 1,
   // sans jamais dépasser le stock connu).

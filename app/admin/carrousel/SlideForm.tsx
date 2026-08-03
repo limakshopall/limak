@@ -150,7 +150,6 @@ export default function SlideForm({
         <div>
           {imageUrl && (
             <div className="relative mb-2 aspect-[16/6] w-full overflow-hidden rounded-lg bg-white dark:bg-[#05070d]">
-              {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
               <video src={imageUrl} muted loop autoPlay playsInline className="h-full w-full object-cover" />
             </div>
           )}

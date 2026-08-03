@@ -2,7 +2,7 @@
 
 import { prisma } from "../../lib/prisma";
 import { sendOrderStatusSms } from "../../lib/sms";
-import { annulerCommandeEtRestaurerStock } from "../../lib/orders";
+import { annulerCommandeEtRestaurerStock, livrerCommandeEtCrediterMakPoints } from "../../lib/orders";
 
 export async function updateOrderStatus(orderId: string, status: string) {
   const allowed = ["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"];
@@ -11,12 +11,14 @@ export async function updateOrderStatus(orderId: string, status: string) {
   const order =
     status === "CANCELLED"
       ? await annulerCommandeEtRestaurerStock(orderId)
-      : await prisma.order.update({
-          where: { id: orderId },
-          data: {
-            status: status as "PENDING" | "CONFIRMED" | "SHIPPED" | "DELIVERED",
-          },
-        });
+      : status === "DELIVERED"
+        ? await livrerCommandeEtCrediterMakPoints(orderId)
+        : await prisma.order.update({
+            where: { id: orderId },
+            data: {
+              status: status as "PENDING" | "CONFIRMED" | "SHIPPED",
+            },
+          });
   if (!order) return;
 
   if (status !== "PENDING") {

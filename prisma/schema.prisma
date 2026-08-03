@@ -331,6 +331,22 @@ model Friendship {
 }
 
 // ============================================================
+//  MAK POINTS — récompense de fidélité
+// ============================================================
+
+// Une ligne = les points gagnés pour UNE commande livrée (15% du sous-total).
+// orderId est unique : impossible de créditer deux fois la même commande.
+model MakPointEntry {
+  id          String   @id @default(cuid())
+  clerkUserId String   // clerkUserId du client crédité
+  orderId     String   @unique
+  points      Int
+  createdAt   DateTime @default(now())
+
+  @@index([clerkUserId])
+}
+
+// ============================================================
 //  CARROUSEL D'ACCUEIL — gérable depuis l'admin
 // ============================================================
 

@@ -44,6 +44,14 @@ export default async function MesCommandes() {
     orderBy: { createdAt: "desc" },
   });
 
+  // Mak Points gagnés (crédités à la livraison, 15% du sous-total) —
+  // indexés par commande pour afficher le gain sur chaque carte.
+  const makPointEntries = await prisma.makPointEntry.findMany({
+    where: { clerkUserId: userId },
+  });
+  const makPointsParCommande = new Map(makPointEntries.map((e) => [e.orderId, e.points]));
+  const soldeMakPoints = makPointEntries.reduce((n, e) => n + e.points, 0);
+
   // Cadeaux que des amis lui ont offerts — prix caché, c'est une surprise !
   const cadeauxRecus = await prisma.order.findMany({
     where: { giftForClerkUserId: userId },
@@ -53,7 +61,15 @@ export default async function MesCommandes() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="mb-8 text-2xl font-bold">Mes commandes</h1>
+      <h1 className="mb-2 text-2xl font-bold">Mes commandes</h1>
+
+      <div className="mb-8 flex items-center gap-3 rounded-lg border border-[#E8C255]/40 bg-[#E8C255]/10 px-4 py-3">
+        <span className="text-2xl">⭐</span>
+        <p className="text-sm text-[#14213D] dark:text-gray-300">
+          <span className="font-bold">{soldeMakPoints.toLocaleString("fr-FR")} Mak Points</span>{" "}
+          gagnés — 15% du sous-total de chaque commande livrée.
+        </p>
+      </div>
 
       {cadeauxRecus.length > 0 && (
         <div className="mb-8 space-y-4">
@@ -153,6 +169,12 @@ export default async function MesCommandes() {
                 Livraison : {cmd.shippingAddress}, {cmd.shippingCity} · Paiement à
                 la livraison
               </p>
+
+              {makPointsParCommande.has(cmd.id) && (
+                <p className="mt-2 text-xs font-semibold text-[#C95900]">
+                  ⭐ +{makPointsParCommande.get(cmd.id)!.toLocaleString("fr-FR")} Mak Points gagnés
+                </p>
+              )}
 
               {cmd.status === "PENDING" && <AnnulerCommandeButton orderId={cmd.id} />}
             </div>

@@ -1,5 +1,8 @@
 // ============================================================
-//  FORMULAIRE — envoyer une demande d'ami par email (Client Component)
+//  FORMULAIRE — ajouter un ami : par WhatsApp (invitation générique,
+//  fonctionne même sans compte LIMAK côté ami) ou par email (crée
+//  directement une demande PENDING si l'ami a déjà un compte)
+//  (Client Component)
 // ============================================================
 
 "use client";
@@ -7,6 +10,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { envoyerDemandeAmi } from "./actions";
+import PartagerWhatsAppButton from "./PartagerWhatsAppButton";
 
 export default function AjouterAmiForm() {
   const router = useRouter();
@@ -32,6 +36,20 @@ export default function AjouterAmiForm() {
 
   return (
     <div>
+      <p className="mb-2 text-sm text-neutral-500 dark:text-gray-400">
+        Invite un ami sur WhatsApp (même s&apos;il n&apos;a pas encore de compte LIMAK) :
+      </p>
+      <PartagerWhatsAppButton />
+
+      <div className="my-4 flex items-center gap-3 text-xs text-neutral-400 dark:text-gray-500">
+        <span className="h-px flex-1 bg-current/20" />
+        ou
+        <span className="h-px flex-1 bg-current/20" />
+      </div>
+
+      <p className="mb-2 text-sm text-neutral-500 dark:text-gray-400">
+        Il a déjà un compte LIMAK ? Ajoute-le directement par email :
+      </p>
       <div className="flex gap-2">
         <input
           type="email"

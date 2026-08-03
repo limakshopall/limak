@@ -8,6 +8,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "../lib/prisma";
 import AjouterAmiForm from "./AjouterAmiForm";
 import DemandeActions from "./DemandeActions";
+import PartagerWhatsAppButton from "./PartagerWhatsAppButton";
 
 export const metadata = { title: "Mes amis" };
 
@@ -54,10 +55,7 @@ export default async function AmisPage() {
       <h1 className="mb-6 text-2xl font-bold text-[#14213D] dark:text-gray-300">Mes amis</h1>
 
       <div className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d]">
-        <h2 className="mb-2 font-semibold text-[#14213D] dark:text-gray-300">Ajouter un ami</h2>
-        <p className="mb-3 text-sm text-neutral-500 dark:text-gray-400">
-          Entre l&apos;email du compte LIMAK de ton ami.
-        </p>
+        <h2 className="mb-3 font-semibold text-[#14213D] dark:text-gray-300">Ajouter un ami</h2>
         <AjouterAmiForm />
       </div>
 
@@ -86,7 +84,10 @@ export default async function AmisPage() {
             {envoyees.map((f) => (
               <li key={f.id} className="flex items-center justify-between gap-2 text-sm text-neutral-700 dark:text-gray-300">
                 <span className="truncate">{nomDe(f.addresseeId)}</span>
-                <span className="shrink-0 text-xs text-neutral-400 dark:text-gray-400">En attente</span>
+                <span className="flex shrink-0 items-center gap-2">
+                  <span className="text-xs text-neutral-400 dark:text-gray-400">En attente</span>
+                  <PartagerWhatsAppButton compact />
+                </span>
               </li>
             ))}
           </ul>

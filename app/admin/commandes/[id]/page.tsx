@@ -49,6 +49,17 @@ export default async function DetailCommande({
         </span>
       </div>
 
+      {cmd.isGift && (
+        <div className="mb-4 rounded-xl border border-[#F1720A]/30 bg-[#F1720A]/5 p-4">
+          <p className="text-sm font-semibold text-[#14213D] dark:text-gray-300">
+            🎁 Commande-cadeau offerte par {cmd.giftFromName ?? "un client"}
+          </p>
+          {cmd.giftMessage && (
+            <p className="mt-1 text-sm italic text-neutral-600 dark:text-gray-400">« {cmd.giftMessage} »</p>
+          )}
+        </div>
+      )}
+
       {/* Infos client / livraison */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d]">

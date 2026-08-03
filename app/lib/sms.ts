@@ -95,7 +95,22 @@ export async function sendAdminOrderAlertSms(input: AdminAlertInput): Promise<vo
     `${itemCount} article(s), total ${Number(total).toLocaleString("fr-FR")} FCFA.`;
   await sendSms(adminPhone, message, "admin");
 }
-// 3) SMS de suivi envoyé au CLIENT quand le statut de sa commande change.
+type GiftSmsInput = {
+  phone: string;
+  orderId: string | number;
+  giftFromName: string;
+};
+
+// 3) SMS envoyé au DESTINATAIRE d'un cadeau (jamais le prix, c'est une surprise).
+export async function sendGiftNotificationSms(input: GiftSmsInput): Promise<void> {
+  const { phone, orderId, giftFromName } = input;
+  const message =
+    `🎁 ${giftFromName} vous offre un colis LIMAK ! Commande n°${orderId} en préparation, ` +
+    `livraison bientôt chez vous. Paiement à la livraison comme d'habitude — voyez avec ${giftFromName} pour ça.`;
+  await sendSms(phone, message, "cadeau");
+}
+
+// 4) SMS de suivi envoyé au CLIENT quand le statut de sa commande change.
 type StatusSmsInput = {
   phone: string;
   orderId: string | number;

@@ -5,15 +5,17 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
 import { useCart } from "../lib/cart-context";
-import { createOrder, reverseGeocode } from "./actions";
+import { createOrder, reverseGeocode, listerAmisAcceptes, suggestionAdresseAmi } from "./actions";
 
 export default function CommandePage() {
   const { items, total, count, clear } = useCart();
   const router = useRouter();
+  const { isSignedIn } = useUser();
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -23,6 +25,32 @@ export default function CommandePage() {
   const [locError, setLocError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Offrir à un ami
+  const [amis, setAmis] = useState<{ clerkUserId: string; nom: string }[]>([]);
+  const [estCadeau, setEstCadeau] = useState(false);
+  const [amiChoisi, setAmiChoisi] = useState("");
+  const [giftMessage, setGiftMessage] = useState("");
+
+  useEffect(() => {
+    if (!isSignedIn) return;
+    listerAmisAcceptes().then(setAmis);
+  }, [isSignedIn]);
+
+  async function choisirAmi(clerkUserId: string) {
+    setAmiChoisi(clerkUserId);
+    if (!clerkUserId) return;
+    const result = await suggestionAdresseAmi(clerkUserId);
+    if (result.ok && result.suggestion) {
+      setName(result.suggestion.customerName);
+      setPhone(result.suggestion.customerPhone);
+      setAddress(result.suggestion.shippingAddress);
+    } else {
+      setName("");
+      setPhone("");
+      setAddress("");
+    }
+  }
 
   function utiliserMaPosition() {
     if (!navigator.geolocation) {
@@ -69,6 +97,10 @@ export default function CommandePage() {
 
   async function handleSubmit() {
     setError(null);
+    if (estCadeau && !amiChoisi) {
+      setError("Choisis l'ami à qui offrir cette commande.");
+      return;
+    }
     setLoading(true);
     const result = await createOrder({
       customerName: name,
@@ -77,6 +109,8 @@ export default function CommandePage() {
       shippingCity: address,
       shippingLat: coords?.lat,
       shippingLng: coords?.lng,
+      giftForClerkUserId: estCadeau ? amiChoisi : undefined,
+      giftMessage: estCadeau ? giftMessage : undefined,
       items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
     });
     setLoading(false);
@@ -99,8 +133,61 @@ export default function CommandePage() {
         <div className="space-y-4 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d]">
           <h2 className="font-semibold text-[#14213D] dark:text-gray-300">Informations de livraison</h2>
 
+          {isSignedIn && amis.length > 0 && (
+            <div className="rounded-lg border border-[#F1720A]/30 bg-[#F1720A]/5 p-3">
+              <label className="flex items-center gap-2 text-sm font-semibold text-[#14213D] dark:text-gray-300">
+                <input
+                  type="checkbox"
+                  checked={estCadeau}
+                  onChange={(e) => {
+                    setEstCadeau(e.target.checked);
+                    if (!e.target.checked) choisirAmi("");
+                  }}
+                />
+                🎁 Offrir cette commande à un ami
+              </label>
+
+              {estCadeau && (
+                <div className="mt-3 space-y-3">
+                  <div>
+                    <label className="block text-sm text-neutral-600 dark:text-gray-400">Ami</label>
+                    <select
+                      value={amiChoisi}
+                      onChange={(e) => choisirAmi(e.target.value)}
+                      className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-transparent"
+                    >
+                      <option value="">— Choisir —</option>
+                      {amis.map((a) => (
+                        <option key={a.clerkUserId} value={a.clerkUserId}>
+                          {a.nom}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-xs text-neutral-400 dark:text-gray-400">
+                      Coordonnées de livraison pré-remplies si ton ami a déjà commandé — vérifie-les avant d&apos;envoyer.
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-neutral-600 dark:text-gray-400">Message (optionnel)</label>
+                    <textarea
+                      value={giftMessage}
+                      onChange={(e) => setGiftMessage(e.target.value)}
+                      rows={2}
+                      className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-transparent"
+                    />
+                  </div>
+                  <p className="text-xs text-[#D6293E]">
+                    ⚠️ Paiement à la livraison : ton ami paiera à la réception, sauf si vous vous arrangez autrement.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           <div>
-            <label className="block text-sm text-neutral-600 dark:text-gray-400">Nom complet</label>
+            <label className="block text-sm text-neutral-600 dark:text-gray-400">
+              {estCadeau ? "Nom complet de l'ami" : "Nom complet"}
+            </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -108,7 +195,9 @@ export default function CommandePage() {
             />
           </div>
           <div>
-            <label className="block text-sm text-neutral-600 dark:text-gray-400">Téléphone</label>
+            <label className="block text-sm text-neutral-600 dark:text-gray-400">
+              {estCadeau ? "Téléphone de l'ami" : "Téléphone"}
+            </label>
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -131,7 +220,9 @@ export default function CommandePage() {
           </div>
           <div>
             <label className="block text-sm text-neutral-600 dark:text-gray-400">
-              Lieu de livraison (Ex: ville, commune, quartier)
+              {estCadeau
+                ? "Lieu de livraison de l'ami (Ex: ville, commune, quartier)"
+                : "Lieu de livraison (Ex: ville, commune, quartier)"}
             </label>
             <input
               value={address}

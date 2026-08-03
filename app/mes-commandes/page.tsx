@@ -36,9 +36,16 @@ export default async function MesCommandes() {
     );
   }
 
-  // Les commandes de ce client
+  // Les commandes de ce client (y compris celles qu'il a offertes)
   const commandes = await prisma.order.findMany({
     where: { clerkUserId: userId },
+    include: { items: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  // Cadeaux que des amis lui ont offerts — prix caché, c'est une surprise !
+  const cadeauxRecus = await prisma.order.findMany({
+    where: { giftForClerkUserId: userId },
     include: { items: true },
     orderBy: { createdAt: "desc" },
   });
@@ -46,6 +53,42 @@ export default async function MesCommandes() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="mb-8 text-2xl font-bold">Mes commandes</h1>
+
+      {cadeauxRecus.length > 0 && (
+        <div className="mb-8 space-y-4">
+          <h2 className="text-lg font-semibold text-[#14213D] dark:text-gray-300">
+            🎁 Cadeaux reçus ({cadeauxRecus.length})
+          </h2>
+          {cadeauxRecus.map((cadeau) => (
+            <div
+              key={cadeau.id}
+              className="rounded-lg border border-[#F1720A]/30 bg-[#F1720A]/5 p-4"
+            >
+              <p className="text-sm font-semibold text-[#14213D] dark:text-gray-300">
+                De la part de {cadeau.giftFromName ?? "un ami"}
+              </p>
+              {cadeau.giftMessage && (
+                <p className="mt-1 text-sm italic text-neutral-600 dark:text-gray-400">
+                  « {cadeau.giftMessage} »
+                </p>
+              )}
+              <span className="mt-2 inline-block rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-700 dark:bg-white/10 dark:text-gray-300">
+                {STATUTS[cadeau.status] ?? cadeau.status}
+              </span>
+              <div className="mt-3 border-t border-[#14213D]/10 pt-3 text-sm text-neutral-600 dark:border-white/15 dark:text-gray-400">
+                {cadeau.items.map((item) => (
+                  <div key={item.id}>
+                    {item.productName} × {item.quantity}
+                  </div>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-neutral-400 dark:text-gray-400">
+                Prix gardé secret 🤫 — livraison : {cadeau.shippingAddress}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {commandes.length === 0 ? (
         <div className="rounded-lg border border-neutral-200 bg-white p-8 text-center dark:border-white/15 dark:bg-[#05070d]">
@@ -78,6 +121,11 @@ export default async function MesCommandes() {
                   <span className="mt-1 inline-block rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-700 dark:bg-white/10 dark:text-gray-300">
                     {STATUTS[cmd.status] ?? cmd.status}
                   </span>
+                  {cmd.isGift && (
+                    <span className="ml-2 mt-1 inline-block rounded-full bg-[#F1720A]/10 px-3 py-1 text-xs font-medium text-[#C95900]">
+                      🎁 Offert à un ami
+                    </span>
+                  )}
                 </div>
                 <p className="text-lg font-bold">
                   {new Intl.NumberFormat("fr-FR").format(cmd.total)} FCFA

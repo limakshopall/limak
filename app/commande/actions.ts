@@ -9,8 +9,8 @@
 "use server";
 
 import { prisma } from "../lib/prisma";
-import { auth } from "@clerk/nextjs/server";
-import { sendOrderConfirmationSms, sendAdminOrderAlertSms } from "../lib/sms";
+import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
+import { sendOrderConfirmationSms, sendAdminOrderAlertSms, sendGiftNotificationSms } from "../lib/sms";
 
 type CartLine = { variantId: string; quantity: number };
 
@@ -21,8 +21,60 @@ type OrderInput = {
   shippingCity: string;
   shippingLat?: number | null;
   shippingLng?: number | null;
+  giftForClerkUserId?: string | null;
+  giftMessage?: string | null;
   items: CartLine[];
 };
+
+// Amis (demandes acceptées) du client connecté, pour le sélecteur "Offrir à un ami".
+export async function listerAmisAcceptes() {
+  const { userId } = await auth();
+  if (!userId) return [];
+
+  const liens = await prisma.friendship.findMany({
+    where: {
+      status: "ACCEPTED",
+      OR: [{ requesterId: userId }, { addresseeId: userId }],
+    },
+  });
+  if (liens.length === 0) return [];
+
+  const amiIds = liens.map((f) => (f.requesterId === userId ? f.addresseeId : f.requesterId));
+  const client = await clerkClient();
+  const { data } = await client.users.getUserList({ userId: amiIds, limit: amiIds.length });
+
+  return data.map((u) => ({
+    clerkUserId: u.id,
+    nom: u.fullName || u.primaryEmailAddress?.emailAddress || "Ami LIMAK",
+  }));
+}
+
+// Pré-remplit le formulaire de livraison avec les coordonnées de la dernière
+// commande de l'ami (si il en a déjà passé une) — juste une suggestion, modifiable.
+export async function suggestionAdresseAmi(amiClerkUserId: string) {
+  const { userId } = await auth();
+  if (!userId) return { ok: false as const };
+
+  // Sécurité : on ne renseigne cette suggestion que si c'est un ami confirmé.
+  const lien = await prisma.friendship.findFirst({
+    where: {
+      status: "ACCEPTED",
+      OR: [
+        { requesterId: userId, addresseeId: amiClerkUserId },
+        { requesterId: amiClerkUserId, addresseeId: userId },
+      ],
+    },
+  });
+  if (!lien) return { ok: false as const };
+
+  const derniereCommande = await prisma.order.findFirst({
+    where: { clerkUserId: amiClerkUserId, isGift: false },
+    orderBy: { createdAt: "desc" },
+    select: { customerName: true, customerPhone: true, shippingAddress: true, shippingCity: true },
+  });
+
+  return { ok: true as const, suggestion: derniereCommande };
+}
 
 // Géocodage inverse (coordonnées GPS -> adresse lisible) via Nominatim/OpenStreetMap,
 // gratuit et sans clé API. Le User-Agent identifiant est exigé par leur politique d'usage.
@@ -63,6 +115,30 @@ export async function createOrder(input: OrderInput) {
   }
 
   const { userId } = await auth();
+
+  // Commande-cadeau : vérifie que le destinataire est bien un ami confirmé
+  // (on ne fait pas confiance à ce que le client envoie).
+  let giftFromName: string | null = null;
+  const isGift = Boolean(input.giftForClerkUserId);
+  if (isGift) {
+    if (!userId) {
+      return { ok: false as const, error: "Connecte-toi pour offrir une commande à un ami." };
+    }
+    const lien = await prisma.friendship.findFirst({
+      where: {
+        status: "ACCEPTED",
+        OR: [
+          { requesterId: userId, addresseeId: input.giftForClerkUserId! },
+          { requesterId: input.giftForClerkUserId!, addresseeId: userId },
+        ],
+      },
+    });
+    if (!lien) {
+      return { ok: false as const, error: "Cette personne n'est pas dans ta liste d'amis." };
+    }
+    const moi = await currentUser();
+    giftFromName = moi?.fullName || moi?.primaryEmailAddress?.emailAddress || "Un ami";
+  }
 
   const variantIds = input.items.map((i) => i.variantId);
   const variants = await prisma.productVariant.findMany({
@@ -132,6 +208,10 @@ export async function createOrder(input: OrderInput) {
           shippingCity: city,
           shippingLat: input.shippingLat ?? null,
           shippingLng: input.shippingLng ?? null,
+          isGift,
+          giftForClerkUserId: isGift ? input.giftForClerkUserId : null,
+          giftFromName,
+          giftMessage: isGift ? input.giftMessage?.trim() || null : null,
           subtotal,
           shipping,
           total,
@@ -150,16 +230,21 @@ export async function createOrder(input: OrderInput) {
   const orderRef = order.id.slice(-6).toUpperCase();
   const itemCount = orderItems.reduce((n, i) => n + i.quantity, 0);
 
-  await sendOrderConfirmationSms({
-    phone,
-    orderId: orderRef,
-    customerName: name,
-    total,
-  });
+  if (isGift && giftFromName) {
+    // Le destinataire reçoit une notification cadeau (jamais le prix).
+    await sendGiftNotificationSms({ phone, orderId: orderRef, giftFromName });
+  } else {
+    await sendOrderConfirmationSms({
+      phone,
+      orderId: orderRef,
+      customerName: name,
+      total,
+    });
+  }
 
   await sendAdminOrderAlertSms({
     orderId: orderRef,
-    customerName: name,
+    customerName: isGift ? `${name} (🎁 cadeau de ${giftFromName})` : name,
     customerPhone: phone,
     shippingCity: city,
     total,

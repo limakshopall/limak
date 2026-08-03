@@ -250,6 +250,14 @@ model Order {
   shippingLat     Float? // position GPS du client (bouton "Utiliser ma position"), optionnelle
   shippingLng     Float?
 
+  // Commande-cadeau : offerte à un ami (voir modèle Friendship). Le champ
+  // clerkUserId ci-dessus reste celui de l'OFFRANT (qui passe la commande) ;
+  // les champs customerName/Phone/shipping* ci-dessus deviennent ceux du DESTINATAIRE.
+  isGift            Boolean @default(false)
+  giftForClerkUserId String? // clerkUserId de l'ami qui reçoit le cadeau
+  giftFromName        String? // nom de l'offrant, capturé au moment de la commande
+  giftMessage         String? // message personnel optionnel
+
   subtotal      Int           // total des articles (FCFA)
   shipping      Int           @default(0) // frais de livraison
   total         Int           // subtotal + shipping
@@ -260,6 +268,7 @@ model Order {
   items OrderItem[]
 
   @@index([userId])
+  @@index([giftForClerkUserId])
 }
 
 // Une ligne de commande. On COPIE le nom et le prix au moment de l'achat
@@ -294,6 +303,31 @@ model Review {
 
   @@unique([productId, clerkUserId]) // un seul avis par produit et par client
   @@index([productId])
+}
+
+// ============================================================
+//  AMIS  (demandes d'ami, pour le futur système de cadeaux entre comptes)
+// ============================================================
+
+enum FriendshipStatus {
+  PENDING  // demande envoyée, pas encore répondue
+  ACCEPTED // amis
+  DECLINED // demande refusée
+}
+
+// Une demande d'ami entre deux comptes Clerk. requesterId = celui qui
+// envoie la demande, addresseeId = celui qui la reçoit.
+model Friendship {
+  id          String           @id @default(cuid())
+  requesterId String           // clerkUserId de l'expéditeur
+  addresseeId String           // clerkUserId du destinataire
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([requesterId, addresseeId]) // pas deux demandes entre les 2 mêmes comptes
+  @@index([requesterId])
+  @@index([addresseeId])
 }
 
 // ============================================================

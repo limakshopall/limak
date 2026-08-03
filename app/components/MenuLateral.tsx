@@ -171,6 +171,17 @@ function IconeCommandesMenu({ className }: { className?: string }) {
   );
 }
 
+function IconeAmis({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
+      <path d="M16.5 5.5a3.5 3.5 0 0 1 0 6.9" />
+      <path d="M18.5 13.2a6.5 6.5 0 0 1 3 5.6" />
+    </svg>
+  );
+}
+
 export default function MenuLateral({ categories }: { categories: Categorie[] }) {
   const pathname = usePathname();
   const [ouvert, setOuvert] = useState(false);
@@ -276,6 +287,14 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
           >
             <IconeCommandesMenu className="h-4.5 w-4.5 shrink-0" />
             Mes commandes
+          </Link>
+          <Link
+            href="/amis"
+            onClick={() => setOuvert(false)}
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-neutral-700 transition hover:bg-[#14213D]/5 hover:text-[#14213D] dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-100"
+          >
+            <IconeAmis className="h-4.5 w-4.5 shrink-0" />
+            Mes amis
           </Link>
 
           <div className="my-3 border-t border-[#14213D]/10 dark:border-white/15" />

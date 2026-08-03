@@ -6,6 +6,7 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "../lib/prisma";
+import AnnulerCommandeButton from "./AnnulerCommandeButton";
 
 const STATUTS: Record<string, string> = {
   PENDING: "En attente",
@@ -152,6 +153,8 @@ export default async function MesCommandes() {
                 Livraison : {cmd.shippingAddress}, {cmd.shippingCity} · Paiement à
                 la livraison
               </p>
+
+              {cmd.status === "PENDING" && <AnnulerCommandeButton orderId={cmd.id} />}
             </div>
           ))}
         </div>

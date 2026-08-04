@@ -37,3 +37,39 @@ export async function attribuerParrainageSiNouveauCompte(
     // Créé entre-temps par une requête concurrente (contrainte unique) : ignore.
   }
 }
+
+// Crée (ou renvoie) la demande d'ami liée au lien de parrainage WhatsApp.
+// Le parrain devient "requester", la personne qui ouvre le lien "addressee".
+// Silencieux si une demande/amitié existe déjà entre les deux, dans un sens ou l'autre.
+export async function creerDemandeAmiDepuisLien(
+  refereeClerkUserId: string,
+  referrerClerkUserId: string
+) {
+  if (!referrerClerkUserId || referrerClerkUserId === refereeClerkUserId) return null;
+
+  const existante = await prisma.friendship.findFirst({
+    where: {
+      OR: [
+        { requesterId: referrerClerkUserId, addresseeId: refereeClerkUserId },
+        { requesterId: refereeClerkUserId, addresseeId: referrerClerkUserId },
+      ],
+    },
+  });
+  if (existante) return existante;
+
+  try {
+    return await prisma.friendship.create({
+      data: { requesterId: referrerClerkUserId, addresseeId: refereeClerkUserId, status: "PENDING" },
+    });
+  } catch {
+    // Créée entre-temps par une requête concurrente (contrainte unique) : on la relit.
+    return prisma.friendship.findFirst({
+      where: {
+        OR: [
+          { requesterId: referrerClerkUserId, addresseeId: refereeClerkUserId },
+          { requesterId: refereeClerkUserId, addresseeId: referrerClerkUserId },
+        ],
+      },
+    });
+  }
+}

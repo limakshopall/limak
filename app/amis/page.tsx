@@ -6,7 +6,7 @@
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "../lib/prisma";
-import { attribuerParrainageSiNouveauCompte } from "../lib/referrals";
+import { attribuerParrainageSiNouveauCompte, creerDemandeAmiDepuisLien } from "../lib/referrals";
 import AjouterAmiForm from "./AjouterAmiForm";
 import DemandeActions from "./DemandeActions";
 import PartagerWhatsAppButton from "./PartagerWhatsAppButton";
@@ -21,8 +21,10 @@ export default async function AmisPage({
   const { userId } = await auth();
   const { ref } = await searchParams;
 
+  let demandeLien = null;
   if (userId && ref) {
     await attribuerParrainageSiNouveauCompte(userId, ref);
+    demandeLien = await creerDemandeAmiDepuisLien(userId, ref);
   }
 
   if (!userId) {
@@ -42,12 +44,18 @@ export default async function AmisPage({
   });
 
   const amis = liens.filter((f) => f.status === "ACCEPTED");
-  const recues = liens.filter((f) => f.status === "PENDING" && f.addresseeId === userId);
+  const recues = liens.filter(
+    (f) => f.status === "PENDING" && f.addresseeId === userId && f.id !== demandeLien?.id
+  );
   const envoyees = liens.filter((f) => f.status === "PENDING" && f.requesterId === userId);
 
   // Profils Clerk (nom/email) des comptes en face, récupérés en un seul appel groupé.
   const autresIds = Array.from(
-    new Set([...amis, ...recues, ...envoyees].map((f) => (f.requesterId === userId ? f.addresseeId : f.requesterId)))
+    new Set(
+      [...amis, ...recues, ...envoyees]
+        .map((f) => (f.requesterId === userId ? f.addresseeId : f.requesterId))
+        .concat(ref ? [ref] : [])
+    )
   );
 
   const profils = new Map<string, string>();
@@ -63,6 +71,17 @@ export default async function AmisPage({
   return (
     <main className="mx-auto max-w-2xl bg-[#FBEEDA] px-4 py-8 dark:bg-[#1c2333]">
       <h1 className="mb-6 text-2xl font-bold text-[#14213D] dark:text-gray-300">Mes amis</h1>
+
+      {demandeLien?.status === "PENDING" && demandeLien.addresseeId === userId && (
+        <div className="mb-6 rounded-xl border border-[#F1720A]/30 bg-[#F1720A]/10 p-4 text-center">
+          <p className="text-sm text-[#14213D] dark:text-gray-200">
+            <span className="font-semibold">{nomDe(ref!)}</span> souhaite devenir votre ami(e).
+          </p>
+          <div className="mt-3 flex justify-center gap-3">
+            <DemandeActions friendshipId={demandeLien.id} mode="repondre" />
+          </div>
+        </div>
+      )}
 
       <div className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d]">
         <h2 className="mb-3 font-semibold text-[#14213D] dark:text-gray-300">Ajouter un ami</h2>

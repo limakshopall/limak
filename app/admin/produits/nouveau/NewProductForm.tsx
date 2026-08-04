@@ -195,36 +195,36 @@ export default function NewProductForm({ categories }: { categories: Categorie[]
       {/* --- PHOTOS GÉNÉRALES --- */}
       <div className="rounded-lg border border-dashed border-[#14213D]/20 p-3 dark:border-white/15">
         <p className="mb-2 text-sm font-medium text-[#14213D] dark:text-gray-300">Photos</p>
-        {images.length > 0 && (
-          <div className="mb-3 grid grid-cols-4 gap-2">
-            {images.map((photo) => (
-              <div key={photo.url} className="group relative">
-                <div className="relative aspect-square overflow-hidden rounded-lg bg-white dark:bg-[#1c2333]">
-                  <Image src={photo.url} alt="" fill className="object-contain" sizes="120px" />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setImages((prev) => prev.filter((p) => p.url !== photo.url))}
-                  className="absolute right-1 top-1 rounded bg-[#14213D]/70 px-1.5 text-xs text-white hover:bg-[#D6293E]"
-                  aria-label="Supprimer la photo"
-                >
-                  ✕
-                </button>
+        <div className="flex flex-wrap items-start gap-2">
+          {images.map((photo) => (
+            <div key={photo.url} className="group relative h-20 w-20 shrink-0">
+              <div className="relative h-full w-full overflow-hidden rounded-lg bg-white dark:bg-[#1c2333]">
+                <Image src={photo.url} alt="" fill className="object-contain" sizes="80px" />
               </div>
-            ))}
+              <button
+                type="button"
+                onClick={() => setImages((prev) => prev.filter((p) => p.url !== photo.url))}
+                className="absolute right-1 top-1 rounded bg-[#14213D]/70 px-1.5 text-xs text-white hover:bg-[#D6293E]"
+                aria-label="Supprimer la photo"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          <div className="w-40 shrink-0">
+            <UploadButton
+              endpoint="imageUploader"
+              onClientUploadComplete={async (res) => {
+                const url = res?.[0]?.ufsUrl;
+                if (url) {
+                  const dims = await measureImage(url).catch(() => null);
+                  setImages((prev) => [...prev, { url, width: dims?.width ?? null, height: dims?.height ?? null }]);
+                }
+              }}
+              onUploadError={(err: Error) => setErreur(`Erreur d'image : ${err.message}`)}
+            />
           </div>
-        )}
-        <UploadButton
-          endpoint="imageUploader"
-          onClientUploadComplete={async (res) => {
-            const url = res?.[0]?.ufsUrl;
-            if (url) {
-              const dims = await measureImage(url).catch(() => null);
-              setImages((prev) => [...prev, { url, width: dims?.width ?? null, height: dims?.height ?? null }]);
-            }
-          }}
-          onUploadError={(err: Error) => setErreur(`Erreur d'image : ${err.message}`)}
-        />
+        </div>
       </div>
 
       {/* --- COULEURS (facultatif, indépendant des tailles) --- */}
@@ -256,37 +256,35 @@ export default function NewProductForm({ categories }: { categories: Categorie[]
                 </button>
               </div>
 
-              {c.images.length > 0 && (
-                <div className="mt-2 grid grid-cols-4 gap-2">
-                  {c.images.map((photo) => (
-                    <div key={photo.url} className="group relative">
-                      <div className="relative aspect-square overflow-hidden rounded-lg bg-white dark:bg-[#1c2333]">
-                        <Image src={photo.url} alt="" fill className="object-contain" sizes="120px" />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => supprimerPhotoCouleur(i, photo.url)}
-                        className="absolute right-1 top-1 rounded bg-[#14213D]/70 px-1.5 text-xs text-white hover:bg-[#D6293E]"
-                        aria-label="Supprimer la photo"
-                      >
-                        ✕
-                      </button>
+              <div className="mt-2 flex flex-wrap items-start gap-2">
+                {c.images.map((photo) => (
+                  <div key={photo.url} className="group relative h-20 w-20 shrink-0">
+                    <div className="relative h-full w-full overflow-hidden rounded-lg bg-white dark:bg-[#1c2333]">
+                      <Image src={photo.url} alt="" fill className="object-contain" sizes="80px" />
                     </div>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={() => supprimerPhotoCouleur(i, photo.url)}
+                      className="absolute right-1 top-1 rounded bg-[#14213D]/70 px-1.5 text-xs text-white hover:bg-[#D6293E]"
+                      aria-label="Supprimer la photo"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                <div className="w-40 shrink-0">
+                  <UploadButton
+                    endpoint="imageUploader"
+                    onClientUploadComplete={async (res) => {
+                      const url = res?.[0]?.ufsUrl;
+                      if (url) {
+                        const dims = await measureImage(url).catch(() => null);
+                        ajouterPhotoCouleur(i, { url, width: dims?.width ?? null, height: dims?.height ?? null });
+                      }
+                    }}
+                    onUploadError={(err: Error) => setErreur(`Erreur d'image : ${err.message}`)}
+                  />
                 </div>
-              )}
-              <div className="mt-2">
-                <UploadButton
-                  endpoint="imageUploader"
-                  onClientUploadComplete={async (res) => {
-                    const url = res?.[0]?.ufsUrl;
-                    if (url) {
-                      const dims = await measureImage(url).catch(() => null);
-                      ajouterPhotoCouleur(i, { url, width: dims?.width ?? null, height: dims?.height ?? null });
-                    }
-                  }}
-                  onUploadError={(err: Error) => setErreur(`Erreur d'image : ${err.message}`)}
-                />
               </div>
             </div>
           ))}
@@ -339,37 +337,35 @@ export default function NewProductForm({ categories }: { categories: Categorie[]
                 </button>
               </div>
 
-              {s.images.length > 0 && (
-                <div className="mt-2 grid grid-cols-4 gap-2">
-                  {s.images.map((photo) => (
-                    <div key={photo.url} className="group relative">
-                      <div className="relative aspect-square overflow-hidden rounded-lg bg-white dark:bg-[#1c2333]">
-                        <Image src={photo.url} alt="" fill className="object-contain" sizes="120px" />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => supprimerPhotoTaille(i, photo.url)}
-                        className="absolute right-1 top-1 rounded bg-[#14213D]/70 px-1.5 text-xs text-white hover:bg-[#D6293E]"
-                        aria-label="Supprimer la photo"
-                      >
-                        ✕
-                      </button>
+              <div className="mt-2 flex flex-wrap items-start gap-2">
+                {s.images.map((photo) => (
+                  <div key={photo.url} className="group relative h-20 w-20 shrink-0">
+                    <div className="relative h-full w-full overflow-hidden rounded-lg bg-white dark:bg-[#1c2333]">
+                      <Image src={photo.url} alt="" fill className="object-contain" sizes="80px" />
                     </div>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={() => supprimerPhotoTaille(i, photo.url)}
+                      className="absolute right-1 top-1 rounded bg-[#14213D]/70 px-1.5 text-xs text-white hover:bg-[#D6293E]"
+                      aria-label="Supprimer la photo"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                <div className="w-40 shrink-0">
+                  <UploadButton
+                    endpoint="imageUploader"
+                    onClientUploadComplete={async (res) => {
+                      const url = res?.[0]?.ufsUrl;
+                      if (url) {
+                        const dims = await measureImage(url).catch(() => null);
+                        ajouterPhotoTaille(i, { url, width: dims?.width ?? null, height: dims?.height ?? null });
+                      }
+                    }}
+                    onUploadError={(err: Error) => setErreur(`Erreur d'image : ${err.message}`)}
+                  />
                 </div>
-              )}
-              <div className="mt-2">
-                <UploadButton
-                  endpoint="imageUploader"
-                  onClientUploadComplete={async (res) => {
-                    const url = res?.[0]?.ufsUrl;
-                    if (url) {
-                      const dims = await measureImage(url).catch(() => null);
-                      ajouterPhotoTaille(i, { url, width: dims?.width ?? null, height: dims?.height ?? null });
-                    }
-                  }}
-                  onUploadError={(err: Error) => setErreur(`Erreur d'image : ${err.message}`)}
-                />
               </div>
             </div>
           ))}

@@ -128,8 +128,8 @@ export default async function EditProduit({
             ? "Utilisées si aucune photo n'est définie pour la couleur sélectionnée."
             : "Photos de l'article."}
         </p>
-        <ProductImageList images={produit.images} />
-        <div className="mt-4">
+        <div className="flex flex-wrap items-start gap-3">
+          <ProductImageList images={produit.images} />
           <ProductImageUploader productId={produit.id} />
         </div>
       </div>

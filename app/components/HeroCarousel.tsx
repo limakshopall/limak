@@ -1,8 +1,10 @@
 // ============================================================
 //  CARROUSEL D'ACCUEIL — Client Component
 //  Diapositives, hauteur et vitesse gérées depuis l'admin (/admin/carrousel).
-//  Glisse (drag/swipe) + défile automatiquement + flèches + points avec
-//  barre de progression. Images optimisées (next/image).
+//  Glisse (drag/swipe) + défile automatiquement + flèches.
+//  Boucle "sans fin" : après la dernière diapo, on continue dans le
+//  même sens (pas de retour en arrière visible) grâce à des clones
+//  invisibles au début/à la fin de la piste. Images optimisées (next/image).
 // ============================================================
 
 "use client";
@@ -34,23 +36,59 @@ export default function HeroCarousel({
   heightVh?: number;
   slideDuration?: number;
 }) {
-  const [index, setIndex] = useState(0);
+  const realTotal = slides.length;
+  const boucle = realTotal > 1; // pas de boucle utile pour 0 ou 1 diapositive
+
+  // Piste étendue : un clone de la dernière diapo au début, un clone de la
+  // première à la fin. Ça permet d'avancer "tout droit" au lieu de revenir
+  // en arrière quand on boucle. index 1 = 1re vraie diapo, index realTotal
+  // = dernière vraie diapo.
+  const extended = boucle ? [slides[realTotal - 1], ...slides, slides[0]] : slides;
+  const trackCount = extended.length;
+  const depart = boucle ? 1 : 0;
+
+  const [index, setIndex] = useState(depart);
   const [pause, setPause] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
-  const total = slides.length;
+  const [snapping, setSnapping] = useState(false); // true = saut sans animation (recalage de boucle)
 
   const dragStartX = useRef<number | null>(null);
   const aGlisse = useRef(false);
 
-  const suivant = useCallback(() => setIndex((i) => (i + 1) % total), [total]);
-  const precedent = useCallback(() => setIndex((i) => (i - 1 + total) % total), [total]);
+  const suivant = useCallback(() => setIndex((i) => i + 1), []);
+  const precedent = useCallback(() => setIndex((i) => i - 1), []);
 
   useEffect(() => {
-    if (pause || dragging || total <= 1) return;
+    if (pause || dragging || realTotal <= 1) return;
     const t = setInterval(suivant, slideDuration);
     return () => clearInterval(t);
-  }, [suivant, pause, dragging, slideDuration, total]);
+  }, [suivant, pause, dragging, slideDuration, realTotal]);
+
+  // Une fois arrivé sur un clone (début ou fin de piste), on se recale
+  // instantanément sur la vraie diapositive correspondante, sans transition
+  // visible — c'est ce qui donne l'impression d'une boucle sans fin.
+  function onTransitionEnd() {
+    if (!boucle) return;
+    if (index === trackCount - 1) {
+      setSnapping(true);
+      setIndex(depart);
+    } else if (index === 0) {
+      setSnapping(true);
+      setIndex(realTotal);
+    }
+  }
+
+  const snapFrameRef = useRef(0);
+  useEffect(() => {
+    if (!snapping) return;
+    // Double rAF : on laisse le navigateur peindre le saut sans transition
+    // avant de réactiver l'animation pour le prochain mouvement.
+    snapFrameRef.current = requestAnimationFrame(() => {
+      snapFrameRef.current = requestAnimationFrame(() => setSnapping(false));
+    });
+    return () => cancelAnimationFrame(snapFrameRef.current);
+  }, [snapping]);
 
   function onPointerDown(e: React.PointerEvent) {
     dragStartX.current = e.clientX;
@@ -72,7 +110,7 @@ export default function HeroCarousel({
     setDragging(false);
   }
 
-  if (total === 0) return null;
+  if (realTotal === 0) return null;
 
   return (
     <section className="relative">
@@ -88,21 +126,22 @@ export default function HeroCarousel({
         onPointerLeave={() => dragging && terminerGlissement()}
       >
         <div
-          className={`flex h-full ${dragging ? "" : "transition-transform duration-700 ease-out"}`}
+          className={`flex h-full ${dragging || snapping ? "" : "transition-transform duration-700 ease-out"}`}
           style={{
-            width: `${total * 100}%`,
-            transform: `translateX(calc(${-index * (100 / total)}% + ${dragOffset}px))`,
+            width: `${trackCount * 100}%`,
+            transform: `translateX(calc(${-index * (100 / trackCount)}% + ${dragOffset}px))`,
           }}
+          onTransitionEnd={onTransitionEnd}
         >
-          {slides.map((slide, i) => (
+          {extended.map((slide, i) => (
             <Link
-              key={slide.id}
+              key={`${slide.id}-${i}`}
               href={slide.href}
               draggable={false}
               onClick={(e) => {
                 if (aGlisse.current) e.preventDefault();
               }}
-              style={{ width: `${100 / total}%` }}
+              style={{ width: `${100 / trackCount}%` }}
               className="relative block h-full shrink-0"
             >
               {slide.type === "image" ? (
@@ -113,7 +152,7 @@ export default function HeroCarousel({
                       alt={slide.alt ?? ""}
                       fill
                       sizes="(max-width: 768px) 100vw, 1152px"
-                      priority={i === 0} // la 1re image se charge en priorité
+                      priority={i === depart} // la 1re vraie diapo se charge en priorité
                       className="object-cover"
                     />
                   )}
@@ -187,7 +226,7 @@ export default function HeroCarousel({
           ))}
         </div>
 
-        {total > 1 && (
+        {realTotal > 1 && (
           <>
             <button
               onClick={precedent}
@@ -203,31 +242,6 @@ export default function HeroCarousel({
             >
               ›
             </button>
-
-            <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-2">
-              {slides.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setIndex(i)}
-                  aria-label={`Panneau ${i + 1}`}
-                  className="relative h-1.5 w-8 overflow-hidden rounded-full bg-white/30"
-                >
-                  <span
-                    className={`absolute inset-y-0 left-0 rounded-full bg-white ${
-                      i < index ? "w-full" : i === index ? "limak-progress-bar w-0" : "w-0"
-                    }`}
-                    style={
-                      i === index
-                        ? {
-                            animationDuration: `${slideDuration}ms`,
-                            animationPlayState: pause || dragging ? "paused" : "running",
-                          }
-                        : undefined
-                    }
-                  />
-                </button>
-              ))}
-            </div>
           </>
         )}
       </div>

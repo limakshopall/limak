@@ -3,6 +3,7 @@
 // ============================================================
 
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "../../lib/prisma";
 import AdminProduitsFiltres from "./AdminProduitsFiltres";
 
@@ -21,6 +22,8 @@ export default async function AdminProduits({
     include: {
       category: true,
       variants: { orderBy: { price: "asc" }, take: 1 },
+      images: { where: { colorId: null }, orderBy: { position: "asc" }, take: 1 },
+      colors: { orderBy: { position: "asc" }, take: 1, include: { images: { orderBy: { position: "asc" }, take: 1 } } },
     },
     orderBy: { name: "asc" },
   });
@@ -60,6 +63,8 @@ export default async function AdminProduits({
         <table className="w-full text-sm">
           <thead className="bg-[#14213D]/5 text-left text-neutral-500 dark:bg-white/5 dark:text-gray-400">
             <tr>
+              <th className="px-4 py-2"></th>
+              <th className="px-4 py-2 text-right">N°</th>
               <th className="px-4 py-2">Nom</th>
               <th className="px-4 py-2">Catégorie</th>
               <th className="px-4 py-2 text-right">Prix</th>
@@ -69,12 +74,25 @@ export default async function AdminProduits({
             </tr>
           </thead>
           <tbody>
-            {produitsTries.map((p) => {
+            {produitsTries.map((p, i) => {
               const v = p.variants[0];
               const enPromo = v?.comparePrice != null && v.comparePrice > v.price;
               const stock = v?.stock ?? 0;
+              const cover = p.images[0]?.url ?? p.colors[0]?.images[0]?.url ?? null;
               return (
                 <tr key={p.id} className="border-t border-[#14213D]/5 dark:border-white/15">
+                  <td className="px-2 py-2">
+                    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-[#FBEEDA] dark:bg-white/5">
+                      {cover ? (
+                        <Image src={cover} alt="" fill sizes="40px" className="object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-[9px] text-neutral-400 dark:text-gray-500">
+                          —
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2 text-right text-neutral-400 dark:text-gray-500">{i + 1}</td>
                   <td className="px-4 py-2 font-medium text-[#14213D] dark:text-gray-300">{p.name}</td>
                   <td className="px-4 py-2 text-neutral-500 dark:text-gray-400">
                     {p.category?.name ?? "—"}

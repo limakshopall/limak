@@ -7,9 +7,9 @@
 // ============================================================
 
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "./lib/prisma";
 import HeroCarousel from "./components/HeroCarousel";
-import ProductPhoto from "./components/ProductPhoto";
 import ProductCard from "./components/ProductCard";
 import ProductSection, { type Disposition } from "./components/ProductSection";
 import VentesFlash from "./components/VentesFlash";
@@ -46,6 +46,7 @@ export default async function Accueil() {
         include: { images: IMAGES_GENERALES, colors: COULEURS, variants: VARIANTS_COMPLET },
         take: 4,
       },
+      _count: { select: { products: { where: { isActive: true } } } },
     },
     orderBy: { name: "asc" },
   });
@@ -139,21 +140,49 @@ export default async function Accueil() {
         <section className="mx-auto max-w-6xl px-4 py-10">
           <h2 className="mb-1 text-2xl font-bold text-[#14213D] dark:text-gray-300">Explorez nos catégories</h2>
           <span className="mb-6 block h-1 w-14 rounded-full bg-[#E8C255]" aria-hidden />
-          <div className="scrollbar-none -mx-4 flex gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 lg:grid-cols-6">
+          <div className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:px-0 lg:grid-cols-6">
             {categories.map((c, i) => {
               const cover =
                 c.products[0]?.images[0]?.url ?? c.products[0]?.colors[0]?.images[0]?.url ?? null;
+              const nbArticles = c._count.products;
               return (
-                <Reveal key={c.id} delay={i * 60} className="w-28 shrink-0 sm:w-auto">
+                <Reveal key={c.id} delay={i * 60} className="w-36 shrink-0 snap-start sm:w-auto">
                   <Link
                     href={`/produits?categorie=${c.slug}`}
-                    className="group relative block aspect-square overflow-hidden rounded-full border-[3px] border-[#E8C255] bg-neutral-200 transition duration-300 hover:scale-105 hover:shadow-[0_0_0_6px_rgba(201,168,76,0.25)]"
+                    className="group relative block aspect-[4/5] overflow-hidden rounded-2xl bg-neutral-200 shadow-sm ring-1 ring-[#14213D]/5 transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#E8C255]/20 dark:bg-white/5 dark:ring-white/10"
                   >
-                    <ProductPhoto src={cover} alt={c.name} sizes="140px" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                    <span className="absolute inset-x-1 bottom-2 z-10 text-center text-xs font-bold text-white drop-shadow sm:text-sm">
-                      {c.name}
+                    {cover ? (
+                      <Image
+                        src={cover}
+                        alt={c.name}
+                        fill
+                        sizes="(max-width: 640px) 144px, 220px"
+                        className="object-cover transition duration-500 ease-out group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-xs text-neutral-400 dark:text-gray-500">
+                        photo à venir
+                      </div>
+                    )}
+                    {/* Assombrissement pour la lisibilité du texte */}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
+                    {/* Liseré doré qui se révèle au survol */}
+                    <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-[#E8C255]/0 transition duration-300 group-hover:ring-2 group-hover:ring-[#E8C255]/70" />
+
+                    <span className="absolute right-3 top-3 flex h-7 w-7 translate-x-2 items-center justify-center rounded-full bg-white/15 text-white opacity-0 backdrop-blur-sm transition duration-300 ease-out group-hover:translate-x-0 group-hover:opacity-100">
+                      →
                     </span>
+
+                    <div className="absolute inset-x-0 bottom-0 p-3">
+                      <span className="block text-sm font-bold leading-tight text-white drop-shadow sm:text-base">
+                        {c.name}
+                      </span>
+                      {nbArticles > 0 && (
+                        <span className="mt-0.5 block text-[11px] font-medium text-white/70">
+                          {nbArticles} article{nbArticles > 1 ? "s" : ""}
+                        </span>
+                      )}
+                    </div>
                   </Link>
                 </Reveal>
               );

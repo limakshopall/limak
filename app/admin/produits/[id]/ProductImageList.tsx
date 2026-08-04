@@ -16,7 +16,7 @@ export default function ProductImageList({ images }: { images: Img[] }) {
   const [isPending, startTransition] = useTransition();
 
   if (images.length === 0) {
-    return <p className="text-sm text-neutral-400 dark:text-gray-400">Aucune image pour l&apos;instant.</p>;
+    return null;
   }
 
   function handleDelete(imageId: string) {
@@ -27,14 +27,14 @@ export default function ProductImageList({ images }: { images: Img[] }) {
   }
 
   return (
-    <div className="grid grid-cols-4 gap-2">
+    <>
       {images.map((img) => (
-        <div key={img.id} className="group relative">
+        <div key={img.id} className="group relative h-20 w-20 shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={img.url}
             alt=""
-            className="aspect-square w-full rounded-lg object-cover"
+            className="h-full w-full rounded-lg object-cover"
           />
           <button
             onClick={() => handleDelete(img.id)}
@@ -46,6 +46,6 @@ export default function ProductImageList({ images }: { images: Img[] }) {
           </button>
         </div>
       ))}
-    </div>
+    </>
   );
 }

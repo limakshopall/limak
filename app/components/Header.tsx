@@ -54,8 +54,10 @@ function IconeCommandes({ className }: { className?: string }) {
 
 export default function Header({
   categories = [],
+  makPoints = 0,
 }: {
   categories?: { name: string; slug: string }[];
+  makPoints?: number;
 }) {
   const { count } = useCart();
 
@@ -74,6 +76,17 @@ export default function Header({
         </div>
 
         <nav className="flex shrink-0 items-center gap-3 sm:gap-5">
+          {/* Solde Mak Points, visible seulement si connecté */}
+          <Show when="signed-in">
+            <Link
+              href="/mes-commandes"
+              aria-label="Mak Points"
+              className="flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-[#E8C255]"
+            >
+              ⭐ {makPoints.toLocaleString("fr-FR")}
+            </Link>
+          </Show>
+
           <Link
             href="/produits"
             className="flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-white hover:text-[#E8C255]"

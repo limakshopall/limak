@@ -11,6 +11,7 @@ import { frFR } from "@clerk/localizations";
 import { CartProvider } from "./lib/cart-context";
 import Header from "./components/Header";
 import { prisma } from "./lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -63,6 +64,17 @@ export default async function RootLayout({
     select: { name: true, slug: true },
   });
 
+  // Solde Mak Points affiché dans l'en-tête (juste pour un client connecté).
+  const { userId } = await auth();
+  const makPoints = userId
+    ? (
+        await prisma.makPointEntry.aggregate({
+          where: { clerkUserId: userId },
+          _sum: { points: true },
+        })
+      )._sum.points ?? 0
+    : 0;
+
   return (
     <ClerkProvider localization={frFR}>
       <html
@@ -85,7 +97,7 @@ export default async function RootLayout({
             <RouteLoadingOverlay />
           </Suspense>
           <CartProvider>
-            <Header categories={categories} />
+            <Header categories={categories} makPoints={makPoints} />
             <Ticker />
             <InstallBanner />
             <div className="flex-1">{children}</div>

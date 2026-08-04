@@ -23,7 +23,7 @@ export default function ProductImageUploader({
   const router = useRouter();
 
   return (
-    <div>
+    <div className="w-40 shrink-0">
       <UploadButton
         endpoint="imageUploader"
         onClientUploadComplete={async (res) => {

@@ -49,8 +49,13 @@ export default async function MesCommandes() {
   const makPointEntries = await prisma.makPointEntry.findMany({
     where: { clerkUserId: userId },
   });
-  const makPointsParCommande = new Map(makPointEntries.map((e) => [e.orderId, e.points]));
+  const makPointsParCommande = new Map(
+    makPointEntries.filter((e) => e.type === "ACHAT").map((e) => [e.orderId, e.points])
+  );
   const soldeMakPoints = makPointEntries.reduce((n, e) => n + e.points, 0);
+  const bonusParrainage = makPointEntries
+    .filter((e) => e.type === "PARRAINAGE")
+    .reduce((n, e) => n + e.points, 0);
 
   // Cadeaux que des amis lui ont offerts — prix caché, c'est une surprise !
   const cadeauxRecus = await prisma.order.findMany({
@@ -68,6 +73,14 @@ export default async function MesCommandes() {
         <p className="text-sm text-[#14213D] dark:text-gray-300">
           <span className="font-bold">{soldeMakPoints.toLocaleString("fr-FR")} Mak Points</span>{" "}
           gagnés — 15% du sous-total de chaque commande livrée.
+          {bonusParrainage > 0 && (
+            <>
+              {" "}
+              Dont{" "}
+              <span className="font-bold">{bonusParrainage.toLocaleString("fr-FR")}</span> grâce à
+              vos filleuls 🎉
+            </>
+          )}
         </p>
       </div>
 

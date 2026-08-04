@@ -13,7 +13,9 @@ export default function PartagerWhatsAppButton({ compact = false }: { compact?: 
 
   function partager() {
     const nom = user?.fullName || "Un ami LIMAK";
-    const lien = `${window.location.origin}/amis`;
+    const lien = user?.id
+      ? `${window.location.origin}/amis?ref=${user.id}`
+      : `${window.location.origin}/amis`;
     const texte = `${nom} t'invite à devenir ami sur LIMAK ! Clique ici pour accepter ou refuser : ${lien}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(texte)}`, "_blank", "noopener,noreferrer");
   }

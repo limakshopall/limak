@@ -330,20 +330,42 @@ model Friendship {
   @@index([addresseeId])
 }
 
+// Un compte créé suite à une invitation WhatsApp d'un autre compte
+// (lien ?ref=<clerkUserId> partagé depuis /amis). refereeClerkUserId est
+// unique : un filleul n'a qu'un seul parrain, pour toujours.
+model Referral {
+  id                   String   @id @default(cuid())
+  referrerClerkUserId  String   // parrain (celui qui a invité)
+  refereeClerkUserId   String   @unique // filleul (nouveau compte)
+  createdAt            DateTime @default(now())
+
+  @@index([referrerClerkUserId])
+}
+
 // ============================================================
 //  MAK POINTS — récompense de fidélité
 // ============================================================
 
 // Une ligne = les points gagnés pour UNE commande livrée (15% du sous-total).
 // orderId est unique : impossible de créditer deux fois la même commande.
-model MakPointEntry {
-  id          String   @id @default(cuid())
-  clerkUserId String   // clerkUserId du client crédité
-  orderId     String   @unique
-  points      Int
-  createdAt   DateTime @default(now())
+// ACHAT = 15% du sous-total pour l'acheteur, PARRAINAGE = bonus pour le
+// parrain quand une commande de son filleul est livrée.
+enum MakPointEntryType {
+  ACHAT
+  PARRAINAGE
+}
 
+model MakPointEntry {
+  id          String            @id @default(cuid())
+  clerkUserId String            // clerkUserId du compte crédité
+  orderId     String            // commande à l'origine du crédit
+  type        MakPointEntryType @default(ACHAT)
+  points      Int
+  createdAt   DateTime          @default(now())
+
+  @@unique([clerkUserId, orderId, type]) // pas de double crédit du même type pour la même commande
   @@index([clerkUserId])
+  @@index([orderId])
 }
 
 // ============================================================

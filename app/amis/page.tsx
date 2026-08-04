@@ -6,14 +6,24 @@
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "../lib/prisma";
+import { attribuerParrainageSiNouveauCompte } from "../lib/referrals";
 import AjouterAmiForm from "./AjouterAmiForm";
 import DemandeActions from "./DemandeActions";
 import PartagerWhatsAppButton from "./PartagerWhatsAppButton";
 
 export const metadata = { title: "Mes amis" };
 
-export default async function AmisPage() {
+export default async function AmisPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ref?: string }>;
+}) {
   const { userId } = await auth();
+  const { ref } = await searchParams;
+
+  if (userId && ref) {
+    await attribuerParrainageSiNouveauCompte(userId, ref);
+  }
 
   if (!userId) {
     return (

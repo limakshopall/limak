@@ -79,11 +79,9 @@ export default function SizeManager({
             </button>
           </div>
 
-          <div className="mt-3">
+          <div className="mt-3 flex flex-wrap items-start gap-2">
             <ProductImageList images={s.images} />
-            <div className="mt-2">
-              <ProductImageUploader productId={productId} sizeId={s.id} />
-            </div>
+            <ProductImageUploader productId={productId} sizeId={s.id} />
           </div>
         </div>
       ))}

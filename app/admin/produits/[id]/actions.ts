@@ -211,6 +211,31 @@ export async function updateVariantPricing(formData: FormData) {
   revalidatePath(`/admin/produits/${productId}`);
 }
 
+// Applique le même prix/promo/prix fournisseur à TOUTES les variantes du
+// produit d'un coup (utile pour un article décliné en tailles/couleurs qui
+// doit garder un prix uniforme). Le stock n'est pas touché — il reste propre
+// à chaque variante. On peut toujours modifier une variante individuellement
+// après coup, ce formulaire ne fait qu'un réglage groupé initial.
+export async function updateAllVariantsPricing(formData: FormData) {
+  const productId = String(formData.get("productId") ?? "");
+  const price = parseInt(String(formData.get("price") ?? ""), 10);
+  const compareRaw = String(formData.get("comparePrice") ?? "");
+  const costRaw = String(formData.get("costPrice") ?? "");
+
+  if (!productId || !Number.isFinite(price)) return;
+
+  await prisma.productVariant.updateMany({
+    where: { productId },
+    data: {
+      price,
+      comparePrice: resolveComparePrice(compareRaw, price),
+      costPrice: resolveCostPrice(costRaw),
+    },
+  });
+
+  revalidatePath(`/admin/produits/${productId}`);
+}
+
 export async function deleteProduct(
   id: string
 ): Promise<{ ok: boolean; error?: string }> {

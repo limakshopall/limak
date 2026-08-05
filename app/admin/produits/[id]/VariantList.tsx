@@ -6,6 +6,7 @@
 // ============================================================
 
 import { updateVariantPricing } from "./actions";
+import BulkPricingForm from "./BulkPricingForm";
 
 type Variant = {
   id: string;
@@ -26,6 +27,10 @@ export default function VariantList({
 }) {
   return (
     <div className="space-y-3">
+      {variants.length > 1 && (
+        <BulkPricingForm productId={productId} nbVariantes={variants.length} />
+      )}
+
       {variants.map((v) => {
         const label = [v.color?.name, v.size?.name].filter(Boolean).join(" / ") || "Standard";
         return (

@@ -10,6 +10,10 @@ import { prisma } from "./prisma";
 // (pas de compte "invité" -> pas de points si la commande n'a pas de clerkUserId).
 const TAUX_MAK_POINTS = 0.15;
 
+// Bonus de parrainage : crédité au parrain à chaque commande livrée de son
+// filleul (compte créé via un lien d'invitation, cf. app/lib/referrals.ts).
+const BONUS_MAK_POINTS_PARRAINAGE = 500;
+
 export async function annulerCommandeEtRestaurerStock(orderId: string) {
   return prisma.$transaction(async (tx) => {
     const commande = await tx.order.findUnique({
@@ -52,9 +56,24 @@ export async function livrerCommandeEtCrediterMakPoints(orderId: string) {
         data: {
           clerkUserId: commande.clerkUserId,
           orderId,
+          type: "ACHAT",
           points: Math.round(commande.subtotal * TAUX_MAK_POINTS),
         },
       });
+
+      const parrainage = await tx.referral.findUnique({
+        where: { refereeClerkUserId: commande.clerkUserId },
+      });
+      if (parrainage) {
+        await tx.makPointEntry.create({
+          data: {
+            clerkUserId: parrainage.referrerClerkUserId,
+            orderId,
+            type: "PARRAINAGE",
+            points: BONUS_MAK_POINTS_PARRAINAGE,
+          },
+        });
+      }
     }
 
     return updated;

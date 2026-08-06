@@ -177,7 +177,7 @@ export default async function FicheProduit({
               )}
 
               {produit.description && (
-                <p className="mt-4 leading-relaxed text-neutral-700 dark:text-gray-300">
+                <p className="mt-4 whitespace-pre-line leading-relaxed text-neutral-700 dark:text-gray-300">
                   {produit.description}
                 </p>
               )}

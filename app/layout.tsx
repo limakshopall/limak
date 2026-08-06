@@ -60,13 +60,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-    select: { name: true, slug: true },
-  });
+  // Indépendantes l'une de l'autre — en parallèle, car ce layout s'exécute
+  // sur CHAQUE page du site (une requête série ici ralentit tout le site).
+  const [categories, { userId }] = await Promise.all([
+    prisma.category.findMany({
+      orderBy: { name: "asc" },
+      select: { name: true, slug: true },
+    }),
+    auth(),
+  ]);
 
   // Solde Mak Points affiché dans l'en-tête (juste pour un client connecté).
-  const { userId } = await auth();
   const makPoints = userId
     ? (
         await prisma.makPointEntry.aggregate({

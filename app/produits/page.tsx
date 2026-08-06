@@ -42,24 +42,31 @@ export default async function ProduitsPage({
         ? { name: "desc" as const }
         : { createdAt: "desc" as const };
 
-  const produits = await prisma.product.findMany({
-    where: {
-      isActive: true,
-      ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
-      ...(categorie ? { category: { slug: categorie } } : {}),
-    },
-    include: {
-      images: { where: { colorId: null }, orderBy: { position: "asc" }, take: 1 },
-      colors: {
-        orderBy: { position: "asc" },
-        include: { images: { orderBy: { position: "asc" }, take: 1, select: { url: true, alt: true, width: true, height: true } } },
+  // Indépendantes l'une de l'autre : en parallèle plutôt qu'en série.
+  const [produits, categories] = await Promise.all([
+    prisma.product.findMany({
+      where: {
+        isActive: true,
+        ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
+        ...(categorie ? { category: { slug: categorie } } : {}),
       },
-      variants: { select: { colorId: true, price: true, comparePrice: true, stock: true } },
-    },
-    orderBy,
-  });
+      include: {
+        images: { where: { colorId: null }, orderBy: { position: "asc" }, take: 1 },
+        colors: {
+          orderBy: { position: "asc" },
+          include: { images: { orderBy: { position: "asc" }, take: 1, select: { url: true, alt: true, width: true, height: true } } },
+        },
+        variants: { select: { colorId: true, price: true, comparePrice: true, stock: true } },
+      },
+      orderBy,
+    }),
+    prisma.category.findMany({
+      orderBy: { name: "asc" },
+      select: { slug: true, name: true, imageUrl: true },
+    }),
+  ]);
 
-  // Notes moyennes par produit (pour les étoiles sur les cartes)
+  // Notes moyennes par produit (pour les étoiles sur les cartes) — dépend des ids ci-dessus.
   const ids = produits.map((p) => p.id);
   const notes = ids.length
     ? await prisma.review.groupBy({
@@ -72,11 +79,6 @@ export default async function ProduitsPage({
   const notesParProduit = new Map(
     notes.map((n) => [n.productId, { moyenne: n._avg.rating ?? 0, nb: n._count.rating }])
   );
-
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-    select: { slug: true, name: true, imageUrl: true },
-  });
 
   // Une carte par couleur (densité du catalogue) — chacune ouvre la même fiche produit.
   let produitsAffiches = produits.flatMap((produit) =>

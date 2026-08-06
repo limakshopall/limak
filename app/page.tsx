@@ -33,68 +33,105 @@ export default async function Accueil() {
   };
   const VARIANTS_COMPLET = { select: { colorId: true, price: true, comparePrice: true, stock: true } };
 
-  const [heroSlides, heroSettings] = await Promise.all([
-    prisma.heroSlide.findMany({ where: { isActive: true }, orderBy: { position: "asc" } }),
-    prisma.heroSettings.findFirst(),
-  ]);
-
-  const categories = await prisma.category.findMany({
-    include: {
-      products: {
+  // Toutes les requêtes indépendantes en parallèle (avant : 5 allers-retours
+  // en série vers la base, d'où la lenteur de l'accueil).
+  const [
+    heroSlides,
+    heroSettings,
+    categories,
+    nouveautes,
+    produitsAvecPromo,
+    prixTousActifs,
+    bannerSneakers,
+    bannerChaussuresFemme,
+    bannerBerluti,
+  ] = await Promise.all([
+      prisma.heroSlide.findMany({ where: { isActive: true }, orderBy: { position: "asc" } }),
+      prisma.heroSettings.findFirst(),
+      prisma.category.findMany({
+        include: {
+          products: {
+            where: { isActive: true },
+            include: { images: IMAGES_GENERALES, colors: COULEURS, variants: VARIANTS_COMPLET },
+            take: 4,
+          },
+          _count: { select: { products: { where: { isActive: true } } } },
+        },
+        orderBy: { name: "asc" },
+      }),
+      prisma.product.findMany({
         where: { isActive: true },
         include: { images: IMAGES_GENERALES, colors: COULEURS, variants: VARIANTS_COMPLET },
-        take: 4,
-      },
-      _count: { select: { products: { where: { isActive: true } } } },
-    },
-    orderBy: { name: "asc" },
-  });
-
-  const nouveautes = await prisma.product.findMany({
-    where: { isActive: true },
-    include: { images: IMAGES_GENERALES, colors: COULEURS, variants: VARIANTS_COMPLET },
-    orderBy: { createdAt: "desc" },
-    take: 8,
-  });
+        orderBy: { createdAt: "desc" },
+        take: 8,
+      }),
+      // Ventes flash : produits actifs ayant une variante en promo (comparePrice > prix).
+      prisma.product.findMany({
+        where: { isActive: true, variants: { some: { comparePrice: { not: null } } } },
+        include: { images: IMAGES_GENERALES, colors: COULEURS, variants: VARIANTS_COMPLET },
+        take: 12,
+      }),
+      // Juste les prix (pas d'images/couleurs) pour trouver les 3 plus chers
+      // sans charger tout le catalogue en mémoire.
+      prisma.product.findMany({
+        where: { isActive: true },
+        select: { id: true, variants: { select: { price: true } } },
+      }),
+      // Images pour les bannières publicitaires (photos déjà en catalogue).
+      prisma.product.findUnique({ where: { slug: "nike-air-max-90" }, select: { images: { take: 1, select: { url: true } } } }),
+      prisma.product.findUnique({
+        where: { slug: "mules-plateforme-aaron-fay" },
+        select: { colors: { take: 1, select: { images: { take: 1, select: { url: true } } } } },
+      }),
+      prisma.product.findUnique({
+        where: { slug: "berluti-shadow-knit" },
+        select: { colors: { take: 1, select: { images: { take: 1, select: { url: true } } } } },
+      }),
+    ]);
 
   const categoriesAvecProduits = categories.filter((c) => c.products.length > 0);
 
-  // Ventes flash : produits actifs ayant une variante en promo (comparePrice > prix).
-  const produitsAvecPromo = await prisma.product.findMany({
-    where: { isActive: true, variants: { some: { comparePrice: { not: null } } } },
-    include: { images: IMAGES_GENERALES, colors: COULEURS, variants: VARIANTS_COMPLET },
-    take: 12,
-  });
-
   // "Premium Spotlight" : les 3 articles les plus chers (prix de la variante la moins chère).
-  const tousActifs = await prisma.product.findMany({
-    where: { isActive: true },
-    include: { images: IMAGES_GENERALES, colors: COULEURS, variants: VARIANTS_COMPLET },
-  });
-  const premiumSpotlight = [...tousActifs]
+  const idsPremium = [...prixTousActifs]
     .sort((a, b) => {
       const prixMin = (p: typeof a) => Math.min(...p.variants.map((v) => v.price), Infinity);
       return prixMin(b) - prixMin(a);
     })
-    .slice(0, 3);
+    .slice(0, 3)
+    .map((p) => p.id);
 
-  // Notes moyennes de TOUS les produits affichés
-  const idsAffiches = Array.from(
-    new Set([
-      ...nouveautes.map((p) => p.id),
-      ...categories.flatMap((c) => c.products.map((p) => p.id)),
-      ...produitsAvecPromo.map((p) => p.id),
-      ...premiumSpotlight.map((p) => p.id),
-    ])
-  );
-  const notes = idsAffiches.length
-    ? await prisma.review.groupBy({
-        by: ["productId"],
-        where: { productId: { in: idsAffiches } },
-        _avg: { rating: true },
-        _count: { rating: true },
-      })
-    : [];
+  const [premiumSpotlightBrut, notes] = await Promise.all([
+    idsPremium.length
+      ? prisma.product.findMany({
+          where: { id: { in: idsPremium } },
+          include: { images: IMAGES_GENERALES, colors: COULEURS, variants: VARIANTS_COMPLET },
+        })
+      : Promise.resolve([]),
+    // Notes moyennes de tous les produits affichés (nouveautés + catégories + promos).
+    // Le spotlight est ajouté après (ses ids sont connus dès maintenant).
+    prisma.review.groupBy({
+      by: ["productId"],
+      where: {
+        productId: {
+          in: Array.from(
+            new Set([
+              ...nouveautes.map((p) => p.id),
+              ...categories.flatMap((c) => c.products.map((p) => p.id)),
+              ...produitsAvecPromo.map((p) => p.id),
+              ...idsPremium,
+            ])
+          ),
+        },
+      },
+      _avg: { rating: true },
+      _count: { rating: true },
+    }),
+  ]);
+  // Reconstitue l'ordre du tri par prix (le "in" ci-dessus ne le garantit pas).
+  const premiumSpotlight = idsPremium
+    .map((id) => premiumSpotlightBrut.find((p) => p.id === id))
+    .filter((p): p is (typeof premiumSpotlightBrut)[number] => p != null);
+
   const notesParProduit = new Map(
     notes.map((n) => [n.productId, { moyenne: n._avg.rating ?? 0, nb: n._count.rating }])
   );
@@ -111,19 +148,6 @@ export default async function Accueil() {
     })
   );
   const premiumAffiches = premiumSpotlight.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id))).slice(0, 3);
-
-  // Images pour les bannières publicitaires (photos déjà en catalogue).
-  const [bannerSneakers, bannerChaussuresFemme, bannerBerluti] = await Promise.all([
-    prisma.product.findUnique({ where: { slug: "nike-air-max-90" }, select: { images: { take: 1, select: { url: true } } } }),
-    prisma.product.findUnique({
-      where: { slug: "mules-plateforme-aaron-fay" },
-      select: { colors: { take: 1, select: { images: { take: 1, select: { url: true } } } } },
-    }),
-    prisma.product.findUnique({
-      where: { slug: "berluti-shadow-knit" },
-      select: { colors: { take: 1, select: { images: { take: 1, select: { url: true } } } } },
-    }),
-  ]);
 
   return (
     <div className="bg-[#FBEEDA] dark:bg-[#1c2333]">

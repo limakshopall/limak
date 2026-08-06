@@ -35,7 +35,11 @@ export default function VariantList({
         const label = [v.color?.name, v.size?.name].filter(Boolean).join(" / ") || "Standard";
         return (
           <form
-            key={v.id}
+            // La clé inclut les valeurs : après un prix uniforme appliqué à
+            // toutes les variantes (ou toute modif serveur), le formulaire est
+            // reconstruit avec les nouvelles valeurs au lieu de garder l'ancien
+            // contenu affiché (React ne rafraîchit pas defaultValue tout seul).
+            key={`${v.id}-${v.price}-${v.comparePrice}-${v.costPrice}-${v.stock}`}
             action={updateVariantPricing}
             className="rounded-lg border border-[#14213D]/10 bg-[#FBEEDA] p-3 dark:border-white/15 dark:bg-[#1c2333]"
           >

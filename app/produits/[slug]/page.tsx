@@ -175,15 +175,18 @@ export default async function FicheProduit({
                   </span>
                 </div>
               )}
-
+            </>
+          }
+          after={
+            <>
               {produit.description && (
                 <p className="mt-4 whitespace-pre-line leading-relaxed text-neutral-700 dark:text-gray-300">
                   {produit.description}
                 </p>
               )}
+              <ShareButtons slug={produit.slug} name={produit.name} price={prix} />
             </>
           }
-          after={<ShareButtons slug={produit.slug} name={produit.name} price={prix} />}
         />
       </div>
 

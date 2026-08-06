@@ -15,10 +15,12 @@
     "@prisma/adapter-pg": "^7.9.0",
     "@prisma/client": "^7.9.0",
     "@uploadthing/react": "^7.3.3",
+    "konva": "^10.3.0",
     "next": "16.2.12",
     "pg": "^8.22.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-konva": "^19.2.5",
     "resend": "^6.18.1",
     "uploadthing": "^7.7.4"
   },

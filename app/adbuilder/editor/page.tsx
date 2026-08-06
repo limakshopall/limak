@@ -274,13 +274,23 @@ function EditeurContenu() {
               Photo produit
             </label>
             <div className="mt-1 flex items-center gap-3">
+              {/* Input caché : le vrai bouton cliquable est celui juste en dessous
+                  (l'input "brut" du navigateur a une zone cliquable trop étroite
+                  et prêtait à confusion — "rien ne s'ouvre" en cliquant à côté). */}
               <input
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 onChange={handleUpload}
-                className="block flex-1 text-sm text-neutral-600 dark:text-gray-400"
+                className="hidden"
               />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="rounded-full border border-[#14213D]/20 px-4 py-1.5 text-sm font-semibold text-[#14213D] transition hover:bg-[#14213D]/5 dark:border-white/20 dark:text-gray-300"
+              >
+                {image ? "Changer la photo" : "Choisir une photo"}
+              </button>
               {image && (
                 <button
                   type="button"

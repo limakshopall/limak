@@ -1,24 +1,29 @@
 // ============================================================
 //  LISTE DES IMAGES D'UN PRODUIT — Client Component
-//  Affiche les images + un numéro d'ordre modifiable (1 = photo
-//  principale, affichée en premier) + un bouton pour en supprimer une.
+//  Glisser-déposer une vignette sur une autre pour les échanger —
+//  les numéros (1 = photo principale) se réajustent automatiquement.
+//  Bouton pour supprimer une photo.
 // ============================================================
 
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { deleteProductImage, updateImagePosition } from "./actions";
+import { deleteProductImage, reorderProductImages } from "./actions";
 
 type Img = { id: string; url: string; position: number };
 
-export default function ProductImageList({ images }: { images: Img[] }) {
+export default function ProductImageList({
+  productId,
+  images,
+}: {
+  productId: string;
+  images: Img[];
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  // Numéros affichés localement (1-indexés) pendant la saisie, avant l'enregistrement.
-  const [numeros, setNumeros] = useState<Record<string, string>>(() =>
-    Object.fromEntries(images.map((img) => [img.id, String(img.position + 1)]))
-  );
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const dragFrom = useRef<number | null>(null);
 
   if (images.length === 0) {
     return null;
@@ -31,40 +36,58 @@ export default function ProductImageList({ images }: { images: Img[] }) {
     });
   }
 
-  function handleNumeroChange(imageId: string, valeur: string) {
-    setNumeros((prev) => ({ ...prev, [imageId]: valeur }));
-  }
+  function handleDrop(indexCible: number) {
+    const from = dragFrom.current;
+    dragFrom.current = null;
+    setDragIndex(null);
+    if (from === null || from === indexCible) return;
 
-  function handleNumeroValider(imageId: string) {
-    const n = parseInt(numeros[imageId], 10);
-    if (!Number.isFinite(n) || n < 1) return;
+    const reordonnees = [...images];
+    const [deplacee] = reordonnees.splice(from, 1);
+    reordonnees.splice(indexCible, 0, deplacee);
+
     startTransition(async () => {
-      await updateImagePosition(imageId, n);
+      await reorderProductImages(
+        productId,
+        reordonnees.map((img) => img.id)
+      );
       router.refresh();
     });
   }
 
   return (
     <>
-      {images.map((img) => (
-        <div key={img.id} className="group relative h-20 w-20 shrink-0">
+      {images.map((img, i) => (
+        <div
+          key={img.id}
+          draggable
+          onDragStart={() => {
+            dragFrom.current = i;
+            setDragIndex(i);
+          }}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={() => handleDrop(i)}
+          onDragEnd={() => {
+            dragFrom.current = null;
+            setDragIndex(null);
+          }}
+          className={`group relative h-20 w-20 shrink-0 cursor-move transition ${
+            dragIndex === i ? "opacity-40" : ""
+          } ${isPending ? "pointer-events-none opacity-70" : ""}`}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={img.url}
             alt=""
+            draggable={false}
             className="h-full w-full rounded-lg object-cover"
           />
-          <input
-            type="number"
-            min={1}
-            value={numeros[img.id] ?? ""}
-            onChange={(e) => handleNumeroChange(img.id, e.target.value)}
-            onBlur={() => handleNumeroValider(img.id)}
-            onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-            disabled={isPending}
-            title="Numéro d'affichage (1 = photo principale)"
-            className="absolute left-1 top-1 h-6 w-6 rounded-full border-2 border-white bg-[#F1720A] p-0 text-center text-xs font-bold text-white shadow outline-none focus:bg-[#C95900] disabled:opacity-50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-          />
+          <span
+            title="Position (1 = photo principale) — glisse la photo pour changer l'ordre"
+            className="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-[#F1720A] text-xs font-bold text-white shadow"
+          >
+            {i + 1}
+          </span>
           <button
             onClick={() => handleDelete(img.id)}
             disabled={isPending}

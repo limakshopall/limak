@@ -310,6 +310,18 @@ export async function updateImagePosition(imageId: string, position: number) {
   revalidatePath(`/admin/produits/${image.productId}`);
 }
 
+// Réordonne un groupe de photos après un glisser-déposer : imageIds est le
+// nouvel ordre complet, on renumérote 0,1,2... en conséquence.
+export async function reorderProductImages(productId: string, imageIds: string[]) {
+  if (!imageIds || imageIds.length === 0) return;
+
+  await prisma.$transaction(
+    imageIds.map((id, i) => prisma.productImage.update({ where: { id }, data: { position: i } }))
+  );
+
+  revalidatePath(`/admin/produits/${productId}`);
+}
+
 // Supprime une image d'un produit (base + fichier UploadThing).
 export async function deleteProductImage(imageId: string) {
   if (!imageId) return;

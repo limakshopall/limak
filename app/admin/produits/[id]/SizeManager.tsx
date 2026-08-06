@@ -80,7 +80,7 @@ export default function SizeManager({
           </div>
 
           <div className="mt-3 flex flex-wrap items-start gap-2">
-            <ProductImageList images={s.images} />
+            <ProductImageList productId={productId} images={s.images} />
             <ProductImageUploader productId={productId} sizeId={s.id} />
           </div>
         </div>

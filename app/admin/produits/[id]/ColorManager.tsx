@@ -87,7 +87,7 @@ export default function ColorManager({
           </div>
 
           <div className="mt-3 flex flex-wrap items-start gap-2">
-            <ProductImageList images={c.images} />
+            <ProductImageList productId={productId} images={c.images} />
             <ProductImageUploader productId={productId} colorId={c.id} />
           </div>
         </div>

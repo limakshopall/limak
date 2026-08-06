@@ -129,7 +129,7 @@ export default async function EditProduit({
             : "Photos de l'article."}
         </p>
         <div className="flex flex-wrap items-start gap-3">
-          <ProductImageList images={produit.images} />
+          <ProductImageList productId={produit.id} images={produit.images} />
           <ProductImageUploader productId={produit.id} />
         </div>
       </div>

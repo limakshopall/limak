@@ -28,17 +28,14 @@ import {
   chargerImageDepuisDataUrl,
 } from "../../lib/canvasUtils";
 
-// Konva a besoin du DOM (canvas) : impossible à rendre côté serveur.
-const Stage = dynamic(() => import("react-konva").then((m) => m.Stage), { ssr: false });
-const Layer = dynamic(() => import("react-konva").then((m) => m.Layer), { ssr: false });
-const KRect = dynamic(() => import("react-konva").then((m) => m.Rect), { ssr: false });
-const KText = dynamic(() => import("react-konva").then((m) => m.Text), { ssr: false });
-const KImage = dynamic(() => import("react-konva").then((m) => m.Image), { ssr: false });
+// Konva a besoin du DOM (canvas) : impossible à rendre côté serveur. Le
+// canvas entier est isolé dans KonvaCanvas.tsx et chargé en un seul bloc —
+// charger Stage/Layer/Rect/Text/Image séparément casse le rendu de Konva.
+const KonvaCanvas = dynamic(() => import("./KonvaCanvas"), { ssr: false });
 
 const PREVIEW_LARGEUR = 340;
 const PREVIEW_HAUTEUR = Math.round((PREVIEW_LARGEUR * HAUTEUR_EXPORT) / LARGEUR_EXPORT);
-const ECHELLE = PREVIEW_LARGEUR / LARGEUR_EXPORT;
-const px = (n: number) => n * ECHELLE; // convertit une mesure "pleine résolution" en pixels d'aperçu
+const ECHELLE = PREVIEW_LARGEUR / LARGEUR_EXPORT; // convertit une mesure "pleine résolution" en pixels d'aperçu
 
 const FONDS: Record<CouleurFond, string> = {
   white: "#FBEEDA",
@@ -224,69 +221,23 @@ function EditeurContenu() {
             className="overflow-hidden rounded-xl border border-[#14213D]/15 shadow-sm"
             style={{ width: PREVIEW_LARGEUR, height: PREVIEW_HAUTEUR }}
           >
-            <Stage ref={stageRef} width={PREVIEW_LARGEUR} height={PREVIEW_HAUTEUR}>
-              <Layer>
-                <KRect x={0} y={0} width={LARGEUR_EXPORT} height={HAUTEUR_EXPORT} fill={FONDS[fond]} scaleX={ECHELLE} scaleY={ECHELLE} />
-
-                {boiteImage && imageAjustee && image && (
-                  <KImage
-                    image={image}
-                    x={px(boiteImage.x + (boiteImage.w - imageAjustee.largeur) / 2)}
-                    y={px(boiteImage.y + (boiteImage.h - imageAjustee.hauteur) / 2)}
-                    width={px(imageAjustee.largeur)}
-                    height={px(imageAjustee.hauteur)}
-                  />
-                )}
-
-                {boiteImage && !image && (
-                  <KRect
-                    x={px(boiteImage.x)}
-                    y={px(boiteImage.y)}
-                    width={px(boiteImage.w)}
-                    height={px(boiteImage.h)}
-                    fill={fond === "white" ? "#FBEEDA" : "rgba(255,255,255,0.12)"}
-                    dash={[8, 6]}
-                    stroke={couleurTexte}
-                    strokeWidth={1}
-                  />
-                )}
-
-                {banniereOverlay && (
-                  <KRect
-                    x={0}
-                    y={px(HAUTEUR_EXPORT - 380)}
-                    width={LARGEUR_EXPORT * ECHELLE}
-                    height={px(380)}
-                    fillLinearGradientStartPoint={{ x: 0, y: 0 }}
-                    fillLinearGradientEndPoint={{ x: 0, y: px(380) }}
-                    fillLinearGradientColorStops={[0, "rgba(20,33,61,0)", 1, "rgba(20,33,61,0.85)"]}
-                  />
-                )}
-
-                <KText
-                  text={titre}
-                  x={px(boiteTitre.x)}
-                  y={px(boiteTitre.y)}
-                  width={px(boiteTitre.w)}
-                  align={alignTexte}
-                  fontSize={px(64)}
-                  fontStyle="bold"
-                  fill={banniereOverlay ? "#FFFBF3" : couleurTexte}
-                  wrap="word"
-                />
-                <KText
-                  text={description}
-                  x={px(boiteDesc.x)}
-                  y={px(boiteDesc.y)}
-                  width={px(boiteDesc.w)}
-                  align={alignTexte}
-                  fontSize={px(36)}
-                  fill={banniereOverlay ? "#FBEEDA" : couleurTexte}
-                  opacity={0.9}
-                  wrap="word"
-                />
-              </Layer>
-            </Stage>
+            <KonvaCanvas
+              ref={stageRef}
+              largeurAffichage={PREVIEW_LARGEUR}
+              hauteurAffichage={PREVIEW_HAUTEUR}
+              echelleAffichage={ECHELLE}
+              fond={FONDS[fond]}
+              couleurTexte={couleurTexte}
+              image={image}
+              boiteImage={boiteImage}
+              imageAjustee={imageAjustee}
+              banniereOverlay={banniereOverlay}
+              titre={titre}
+              boiteTitre={boiteTitre}
+              description={description}
+              boiteDesc={boiteDesc}
+              alignTexte={alignTexte}
+            />
           </div>
           <p className="mt-2 text-center text-xs text-neutral-400 dark:text-gray-500">
             Aperçu — export réel en 1080×1920

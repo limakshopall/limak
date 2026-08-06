@@ -10,6 +10,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { frFR } from "@clerk/localizations";
 import { CartProvider } from "./lib/cart-context";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import { prisma } from "./lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
@@ -101,6 +102,7 @@ export default async function RootLayout({
             <Ticker />
             <InstallBanner />
             <div className="flex-1">{children}</div>
+            <Footer />
           </CartProvider>
         </body>
       </html>

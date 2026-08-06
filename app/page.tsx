@@ -15,7 +15,6 @@ import ProductSection, { type Disposition } from "./components/ProductSection";
 import VentesFlash from "./components/VentesFlash";
 import PromoBanner from "./components/PromoBanner";
 import Testimonials from "./components/Testimonials";
-import Footer from "./components/Footer";
 import Reveal from "./components/Reveal";
 import { toDisplayItems, epuisesEnDernier } from "./lib/displayItems";
 
@@ -330,9 +329,6 @@ export default async function Accueil() {
 
       {/* 12. TÉMOIGNAGES / CONFIANCE */}
       <Testimonials />
-
-      {/* 13. FOOTER */}
-      <Footer />
     </div>
   );
 }

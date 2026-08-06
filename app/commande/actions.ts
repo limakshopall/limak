@@ -17,6 +17,7 @@ type CartLine = { variantId: string; quantity: number };
 type OrderInput = {
   customerName: string;
   customerPhone: string;
+  customerEmail?: string | null; // facultatif — permet le rappel email après livraison
   shippingAddress: string;
   shippingCity: string;
   shippingLat?: number | null;
@@ -104,6 +105,7 @@ class StockError extends Error {}
 export async function createOrder(input: OrderInput) {
   const name = input.customerName?.trim();
   const phone = input.customerPhone?.trim();
+  const email = input.customerEmail?.trim() || null;
   const address = input.shippingAddress?.trim();
   const city = input.shippingCity?.trim();
 
@@ -204,6 +206,7 @@ export async function createOrder(input: OrderInput) {
           paymentStatus: "PENDING",
           customerName: name,
           customerPhone: phone,
+          customerEmail: email,
           shippingAddress: address,
           shippingCity: city,
           shippingLat: input.shippingLat ?? null,

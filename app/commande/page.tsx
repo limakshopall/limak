@@ -19,6 +19,7 @@ export default function CommandePage() {
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
@@ -105,6 +106,7 @@ export default function CommandePage() {
     const result = await createOrder({
       customerName: name,
       customerPhone: phone,
+      customerEmail: email.trim() || undefined,
       shippingAddress: address,
       shippingCity: address,
       shippingLat: coords?.lat,
@@ -201,6 +203,18 @@ export default function CommandePage() {
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-neutral-600 dark:text-gray-400">
+              Email <span className="text-neutral-400">(facultatif)</span>
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Pour recevoir un rappel avis après livraison"
               className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15"
             />
           </div>

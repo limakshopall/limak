@@ -172,6 +172,16 @@ function IconeCommandesMenu({ className }: { className?: string }) {
   );
 }
 
+function IconeApropos({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 16v-4" />
+      <path d="M12 8h.01" />
+    </svg>
+  );
+}
+
 function IconeAmis({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -295,6 +305,14 @@ export default function MenuLateral({ categories }: { categories: Categorie[] })
           >
             <IconeAmis className="h-4.5 w-4.5 shrink-0" />
             Mes amis
+          </Link>
+          <Link
+            href="/about"
+            onClick={() => setOuvert(false)}
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-neutral-700 transition hover:bg-[#14213D]/5 hover:text-[#14213D] dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-100"
+          >
+            <IconeApropos className="h-4.5 w-4.5 shrink-0" />
+            À propos
           </Link>
 
           <div className="my-3 border-t border-[#14213D]/10 dark:border-white/15" />

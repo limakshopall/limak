@@ -34,14 +34,16 @@ const ECHELLE = PREVIEW_LARGEUR / LARGEUR_EXPORT;
 const px = (n: number) => n * ECHELLE; // convertit une mesure "pleine résolution" en pixels d'aperçu
 
 const FONDS: Record<CouleurFond, string> = {
-  white: "#FFFBF3",
+  white: "#FBEEDA",
   dore: "#C9A84C",
   bleu: "#14213D",
+  orange: "#F1720A",
 };
 const TEXTE_SUR_FOND: Record<CouleurFond, string> = {
   white: "#14213D",
   dore: "#FFFBF3",
   bleu: "#FBEEDA",
+  orange: "#FFFBF3",
 };
 
 // Ajuste une image dans une boîte (contain, centrée) — pas de recadrage.
@@ -67,8 +69,8 @@ function EditeurContenu() {
   const templateInitial = getTemplate(searchParams.get("template") ?? TEMPLATES[0].id);
 
   const [templateId, setTemplateId] = useState(templateInitial.id);
-  const [titre, setTitre] = useState("Titre accrocheur");
-  const [description, setDescription] = useState("Description courte de l'offre.");
+  const [titre, setTitre] = useState(templateInitial.titreDefaut);
+  const [description, setDescription] = useState(templateInitial.texteDefaut);
   const [fond, setFond] = useState<CouleurFond>(templateInitial.fondParDefaut);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [projetId] = useState(() => crypto.randomUUID());
@@ -242,8 +244,11 @@ function EditeurContenu() {
             <select
               value={templateId}
               onChange={(e) => {
-                setTemplateId(e.target.value);
-                setFond(getTemplate(e.target.value).fondParDefaut);
+                const t = getTemplate(e.target.value);
+                setTemplateId(t.id);
+                setFond(t.fondParDefaut);
+                setTitre(t.titreDefaut);
+                setDescription(t.texteDefaut);
               }}
               className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
             >

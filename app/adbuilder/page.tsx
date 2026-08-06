@@ -11,9 +11,10 @@ import { TEMPLATES } from "../lib/adbuilderStore";
 export const metadata = { title: "AdBuilder" };
 
 const COULEURS_APERCU: Record<string, string> = {
-  white: "#FFFBF3",
+  white: "#FBEEDA",
   dore: "#C9A84C",
   bleu: "#14213D",
+  orange: "#F1720A",
 };
 
 export default async function AdBuilderPage() {

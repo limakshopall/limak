@@ -63,7 +63,7 @@ export default function ProductImageList({ images }: { images: Img[] }) {
             onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
             disabled={isPending}
             title="Numéro d'affichage (1 = photo principale)"
-            className="absolute bottom-1 left-1 h-6 w-9 rounded bg-[#14213D]/80 px-1 text-center text-xs font-semibold text-white outline-none focus:bg-[#14213D] disabled:opacity-50"
+            className="absolute left-1 top-1 h-6 w-6 rounded-full border-2 border-white bg-[#F1720A] p-0 text-center text-xs font-bold text-white shadow outline-none focus:bg-[#C95900] disabled:opacity-50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
           <button
             onClick={() => handleDelete(img.id)}

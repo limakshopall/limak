@@ -76,6 +76,18 @@ export default async function EditProduit({
 
         <CategoryPicker categories={categories} defaultValue={produit.categoryId ?? ""} />
 
+        <div>
+          <label className="block text-sm text-neutral-600 dark:text-gray-400">
+            Description (facultatif)
+          </label>
+          <textarea
+            name="description"
+            rows={10}
+            defaultValue={produit.description ?? ""}
+            className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
+          />
+        </div>
+
         <label className="flex items-center gap-2">
           <input name="isActive" type="checkbox" defaultChecked={produit.isActive} />
           <span className="text-sm text-neutral-700 dark:text-gray-300">

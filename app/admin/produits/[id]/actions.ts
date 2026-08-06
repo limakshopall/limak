@@ -22,6 +22,7 @@ function extractFileKey(url: string): string | null {
 export async function updateProduct(formData: FormData) {
   const id = String(formData.get("id"));
   const name = String(formData.get("name") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
   const isActive = formData.get("isActive") === "on";
   const categoryId = String(formData.get("categoryId") ?? "");
 
@@ -29,7 +30,7 @@ export async function updateProduct(formData: FormData) {
 
   await prisma.product.update({
     where: { id },
-    data: { name, isActive, categoryId: categoryId || null },
+    data: { name, description: description || null, isActive, categoryId: categoryId || null },
   });
 
   redirect("/admin/produits");

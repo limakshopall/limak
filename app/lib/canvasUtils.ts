@@ -36,3 +36,13 @@ export function chargerImageDepuisFichier(fichier: File): Promise<HTMLImageEleme
     lecteur.readAsDataURL(fichier);
   });
 }
+
+// Recharge une image déjà en data URL (projet enregistré) en élément <img>.
+export function chargerImageDepuisDataUrl(dataUrl: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+}

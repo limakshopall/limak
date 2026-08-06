@@ -33,7 +33,15 @@ export default async function AdBuilderPage() {
 
   return (
     <main className="mx-auto max-w-6xl bg-[#FBEEDA] px-4 py-10 dark:bg-[#1c2333]">
-      <h1 className="text-2xl font-bold text-[#14213D] dark:text-gray-300">AdBuilder</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-[#14213D] dark:text-gray-300">AdBuilder</h1>
+        <Link
+          href="/adbuilder/projets"
+          className="text-sm font-semibold text-[#C95900] hover:underline"
+        >
+          Mes projets →
+        </Link>
+      </div>
       <p className="mt-1 text-sm text-neutral-500 dark:text-gray-400">
         Choisis un modèle pour créer un visuel de pub (format story 1080×1920 — Facebook, Instagram, TikTok).
       </p>

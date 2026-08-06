@@ -15,11 +15,18 @@ import type Konva from "konva";
 import {
   TEMPLATES,
   getTemplate,
+  listerProjets,
   sauvegarderProjet,
   type CouleurFond,
   type Projet,
 } from "../../lib/adbuilderStore";
-import { LARGEUR_EXPORT, HAUTEUR_EXPORT, exporterStagePNG, chargerImageDepuisFichier } from "../../lib/canvasUtils";
+import {
+  LARGEUR_EXPORT,
+  HAUTEUR_EXPORT,
+  exporterStagePNG,
+  chargerImageDepuisFichier,
+  chargerImageDepuisDataUrl,
+} from "../../lib/canvasUtils";
 
 // Konva a besoin du DOM (canvas) : impossible à rendre côté serveur.
 const Stage = dynamic(() => import("react-konva").then((m) => m.Stage), { ssr: false });
@@ -66,18 +73,32 @@ function EditeurContenu() {
   const searchParams = useSearchParams();
   const stageRef = useRef<Konva.Stage | null>(null);
 
-  const templateInitial = getTemplate(searchParams.get("template") ?? TEMPLATES[0].id);
+  // Reprise d'un projet enregistré (?projet=<id>) ou nouveau modèle (?template=<id>).
+  const projetExistant = (() => {
+    const idProjet = searchParams.get("projet");
+    return idProjet ? listerProjets().find((p) => p.id === idProjet) ?? null : null;
+  })();
+  const templateInitial = getTemplate(
+    projetExistant?.templateId ?? searchParams.get("template") ?? TEMPLATES[0].id
+  );
 
   const [templateId, setTemplateId] = useState(templateInitial.id);
-  const [titre, setTitre] = useState(templateInitial.titreDefaut);
-  const [description, setDescription] = useState(templateInitial.texteDefaut);
-  const [fond, setFond] = useState<CouleurFond>(templateInitial.fondParDefaut);
+  const [titre, setTitre] = useState(projetExistant?.titre ?? templateInitial.titreDefaut);
+  const [description, setDescription] = useState(projetExistant?.description ?? templateInitial.texteDefaut);
+  const [fond, setFond] = useState<CouleurFond>(projetExistant?.fond ?? templateInitial.fondParDefaut);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
-  const [projetId] = useState(() => crypto.randomUUID());
+  const [projetId] = useState(() => projetExistant?.id ?? crypto.randomUUID());
   const [message, setMessage] = useState("");
 
   const template = getTemplate(templateId);
   const couleurTexte = TEXTE_SUR_FOND[fond];
+
+  // Recharge la photo du projet enregistré (chargement asynchrone).
+  useEffect(() => {
+    if (!projetExistant?.imageDataUrl) return;
+    chargerImageDepuisDataUrl(projetExistant.imageDataUrl).then(setImage).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!message) return;
@@ -154,12 +175,20 @@ function EditeurContenu() {
 
   return (
     <main className="mx-auto max-w-5xl bg-[#FBEEDA] px-4 py-8 dark:bg-[#1c2333]">
-      <Link
-        href="/adbuilder"
-        className="mb-4 inline-block text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400"
-      >
-        ← Retour aux modèles
-      </Link>
+      <div className="mb-4 flex items-center gap-4">
+        <Link
+          href="/adbuilder"
+          className="text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400"
+        >
+          ← Retour aux modèles
+        </Link>
+        <Link
+          href="/adbuilder/projets"
+          className="text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400"
+        >
+          Mes projets
+        </Link>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
         {/* --- APERÇU --- */}

@@ -53,20 +53,23 @@ const TEXTE_SUR_FOND: Record<CouleurFond, string> = {
   orange: "#FFFBF3",
 };
 
-// Ajuste une image dans une boîte (contain, centrée) — pas de recadrage.
+// Ajuste une image dans une boîte (contain, centrée) — jamais rognée, peut
+// laisser un espace vide autour si le format ne correspond pas à la boîte.
 function ajusterDansBoite(img: HTMLImageElement, boiteW: number, boiteH: number) {
   const ratioImg = img.width / img.height;
   const ratioBoite = boiteW / boiteH;
-  let largeur: number;
-  let hauteur: number;
   if (ratioImg > ratioBoite) {
-    largeur = boiteW;
-    hauteur = boiteW / ratioImg;
-  } else {
-    hauteur = boiteH;
-    largeur = boiteH * ratioImg;
+    return { largeur: boiteW, hauteur: boiteW / ratioImg };
   }
-  return { largeur, hauteur };
+  return { largeur: boiteH * ratioImg, hauteur: boiteH };
+}
+
+// Couvre entièrement la boîte (comme "background-size: cover") — utilisé
+// pour la position "arrière-plan", quitte à déborder hors cadre (recadré
+// par le canvas, qui n'affiche que ce qui est dans la boîte).
+function ajusterEnCouverture(img: HTMLImageElement, boiteW: number, boiteH: number) {
+  const echelle = Math.max(boiteW / img.width, boiteH / img.height);
+  return { largeur: img.width * echelle, hauteur: img.height * echelle };
 }
 
 function EditeurContenu() {
@@ -87,8 +90,13 @@ function EditeurContenu() {
   const [description, setDescription] = useState(projetExistant?.description ?? templateInitial.texteDefaut);
   const [fond, setFond] = useState<CouleurFond>(projetExistant?.fond ?? templateInitial.fondParDefaut);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [positionImage, setPositionImage] = useState<"haut" | "fond">(
+    templateInitial.layout === "overlay" ? "fond" : "haut"
+  );
+  const [echelleImage, setEchelleImage] = useState(1);
   const [projetId] = useState(() => projetExistant?.id ?? crypto.randomUUID());
   const [message, setMessage] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const template = getTemplate(templateId);
   const couleurTexte = TEXTE_SUR_FOND[fond];
@@ -111,6 +119,13 @@ function EditeurContenu() {
     if (!fichier) return;
     const img = await chargerImageDepuisFichier(fichier);
     setImage(img);
+    setEchelleImage(1);
+  }
+
+  function handleSupprimerImage() {
+    setImage(null);
+    setEchelleImage(1);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   function handleDownload() {
@@ -135,26 +150,24 @@ function EditeurContenu() {
 
   // --- Calcul des zones selon le modèle (coordonnées "pleine résolution") ---
   const marge = 60;
-  let boiteImage: { x: number; y: number; w: number; h: number } | null = null;
+  let boiteImageModele: { x: number; y: number; w: number; h: number } | null = null;
   let boiteTitre = { x: marge, y: 0, w: LARGEUR_EXPORT - marge * 2 };
   let boiteDesc = { x: marge, y: 0, w: LARGEUR_EXPORT - marge * 2 };
   let alignTexte: "left" | "center" = "center";
-  let banniereOverlay = false;
 
   switch (template.layout) {
     case "vertical":
-      boiteImage = { x: marge, y: marge, w: LARGEUR_EXPORT - marge * 2, h: 1100 };
+      boiteImageModele = { x: marge, y: marge, w: LARGEUR_EXPORT - marge * 2, h: 1100 };
       boiteTitre = { ...boiteTitre, y: 1220 };
       boiteDesc = { ...boiteDesc, y: 1340 };
       break;
     case "overlay":
-      boiteImage = { x: 0, y: 0, w: LARGEUR_EXPORT, h: HAUTEUR_EXPORT };
+      boiteImageModele = { x: 0, y: 0, w: LARGEUR_EXPORT, h: HAUTEUR_EXPORT };
       boiteTitre = { ...boiteTitre, y: HAUTEUR_EXPORT - 320 };
       boiteDesc = { ...boiteDesc, y: HAUTEUR_EXPORT - 210 };
-      banniereOverlay = true;
       break;
     case "split":
-      boiteImage = { x: 0, y: 0, w: LARGEUR_EXPORT / 2, h: HAUTEUR_EXPORT };
+      boiteImageModele = { x: 0, y: 0, w: LARGEUR_EXPORT / 2, h: HAUTEUR_EXPORT };
       boiteTitre = { x: LARGEUR_EXPORT / 2 + 50, y: 780, w: LARGEUR_EXPORT / 2 - 90 };
       boiteDesc = { x: LARGEUR_EXPORT / 2 + 50, y: 920, w: LARGEUR_EXPORT / 2 - 90 };
       alignTexte = "left";
@@ -164,14 +177,28 @@ function EditeurContenu() {
       boiteDesc = { ...boiteDesc, y: 980 };
       break;
     case "badge-centre":
-      boiteImage = { x: LARGEUR_EXPORT / 2 - 320, y: 260, w: 640, h: 640 };
+      boiteImageModele = { x: LARGEUR_EXPORT / 2 - 320, y: 260, w: 640, h: 640 };
       boiteTitre = { ...boiteTitre, y: 1000 };
       boiteDesc = { ...boiteDesc, y: 1120 };
       break;
   }
 
-  const imageAjustee =
-    image && boiteImage ? ajusterDansBoite(image, boiteImage.w, boiteImage.h) : null;
+  // "Haut" respecte la zone du modèle (ou un bandeau haut par défaut pour les
+  // modèles texte-seul) — "Arrière-plan" force la photo en plein cadre, quel
+  // que soit le modèle choisi.
+  const boiteImageHaut = boiteImageModele ?? { x: marge, y: marge, w: LARGEUR_EXPORT - marge * 2, h: 1100 };
+  const boiteImageFond = { x: 0, y: 0, w: LARGEUR_EXPORT, h: HAUTEUR_EXPORT };
+  const boiteImage = positionImage === "fond" ? boiteImageFond : boiteImageHaut;
+  const banniereOverlay = positionImage === "fond";
+
+  const imageAjusteeBase = image
+    ? positionImage === "fond"
+      ? ajusterEnCouverture(image, boiteImage.w, boiteImage.h)
+      : ajusterDansBoite(image, boiteImage.w, boiteImage.h)
+    : null;
+  const imageAjustee = imageAjusteeBase
+    ? { largeur: imageAjusteeBase.largeur * echelleImage, hauteur: imageAjusteeBase.hauteur * echelleImage }
+    : null;
 
   return (
     <main className="mx-auto max-w-5xl bg-[#FBEEDA] px-4 py-8 dark:bg-[#1c2333]">
@@ -278,6 +305,8 @@ function EditeurContenu() {
                 setFond(t.fondParDefaut);
                 setTitre(t.titreDefaut);
                 setDescription(t.texteDefaut);
+                setPositionImage(t.layout === "overlay" ? "fond" : "haut");
+                setEchelleImage(1);
               }}
               className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
             >
@@ -293,12 +322,74 @@ function EditeurContenu() {
             <label className="block text-sm font-medium text-[#14213D] dark:text-gray-300">
               Photo produit
             </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleUpload}
-              className="mt-1 block w-full text-sm text-neutral-600 dark:text-gray-400"
-            />
+            <div className="mt-1 flex items-center gap-3">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleUpload}
+                className="block flex-1 text-sm text-neutral-600 dark:text-gray-400"
+              />
+              {image && (
+                <button
+                  type="button"
+                  onClick={handleSupprimerImage}
+                  className="shrink-0 text-sm font-medium text-[#D6293E] hover:underline"
+                >
+                  Supprimer l&apos;image
+                </button>
+              )}
+            </div>
+
+            {image && (
+              <div className="mt-3 space-y-3 rounded-lg border border-[#14213D]/10 bg-[#FBEEDA] p-3 dark:border-white/15 dark:bg-[#1c2333]">
+                <div>
+                  <p className="mb-1.5 text-xs font-medium text-neutral-500 dark:text-gray-400">
+                    Position de la photo
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPositionImage("haut")}
+                      className={`flex-1 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                        positionImage === "haut"
+                          ? "bg-[#14213D] text-white"
+                          : "border border-[#14213D]/20 text-[#14213D] dark:text-gray-300"
+                      }`}
+                    >
+                      En haut
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPositionImage("fond")}
+                      className={`flex-1 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                        positionImage === "fond"
+                          ? "bg-[#14213D] text-white"
+                          : "border border-[#14213D]/20 text-[#14213D] dark:text-gray-300"
+                      }`}
+                    >
+                      Arrière-plan
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-1.5 flex items-center justify-between text-xs font-medium text-neutral-500 dark:text-gray-400">
+                    <span>Taille de la photo</span>
+                    <span>{Math.round(echelleImage * 100)}%</span>
+                  </p>
+                  <input
+                    type="range"
+                    min={0.5}
+                    max={1.8}
+                    step={0.05}
+                    value={echelleImage}
+                    onChange={(e) => setEchelleImage(parseFloat(e.target.value))}
+                    className="w-full accent-[#F1720A]"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div>

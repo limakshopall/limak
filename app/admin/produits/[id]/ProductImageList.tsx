@@ -1,19 +1,24 @@
 // ============================================================
 //  LISTE DES IMAGES D'UN PRODUIT — Client Component
-//  Affiche les images + un bouton pour en supprimer une.
+//  Affiche les images + un numéro d'ordre modifiable (1 = photo
+//  principale, affichée en premier) + un bouton pour en supprimer une.
 // ============================================================
 
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { deleteProductImage } from "./actions";
+import { deleteProductImage, updateImagePosition } from "./actions";
 
-type Img = { id: string; url: string };
+type Img = { id: string; url: string; position: number };
 
 export default function ProductImageList({ images }: { images: Img[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  // Numéros affichés localement (1-indexés) pendant la saisie, avant l'enregistrement.
+  const [numeros, setNumeros] = useState<Record<string, string>>(() =>
+    Object.fromEntries(images.map((img) => [img.id, String(img.position + 1)]))
+  );
 
   if (images.length === 0) {
     return null;
@@ -22,6 +27,19 @@ export default function ProductImageList({ images }: { images: Img[] }) {
   function handleDelete(imageId: string) {
     startTransition(async () => {
       await deleteProductImage(imageId);
+      router.refresh();
+    });
+  }
+
+  function handleNumeroChange(imageId: string, valeur: string) {
+    setNumeros((prev) => ({ ...prev, [imageId]: valeur }));
+  }
+
+  function handleNumeroValider(imageId: string) {
+    const n = parseInt(numeros[imageId], 10);
+    if (!Number.isFinite(n) || n < 1) return;
+    startTransition(async () => {
+      await updateImagePosition(imageId, n);
       router.refresh();
     });
   }
@@ -35,6 +53,17 @@ export default function ProductImageList({ images }: { images: Img[] }) {
             src={img.url}
             alt=""
             className="h-full w-full rounded-lg object-cover"
+          />
+          <input
+            type="number"
+            min={1}
+            value={numeros[img.id] ?? ""}
+            onChange={(e) => handleNumeroChange(img.id, e.target.value)}
+            onBlur={() => handleNumeroValider(img.id)}
+            onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+            disabled={isPending}
+            title="Numéro d'affichage (1 = photo principale)"
+            className="absolute bottom-1 left-1 h-6 w-9 rounded bg-[#14213D]/80 px-1 text-center text-xs font-semibold text-white outline-none focus:bg-[#14213D] disabled:opacity-50"
           />
           <button
             onClick={() => handleDelete(img.id)}

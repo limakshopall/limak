@@ -30,11 +30,11 @@ export default async function EditProduit({
       },
       colors: {
         orderBy: { position: "asc" },
-        include: { images: { orderBy: { position: "asc" }, select: { id: true, url: true } } },
+        include: { images: { orderBy: { position: "asc" }, select: { id: true, url: true, position: true } } },
       },
       sizes: {
         orderBy: { position: "asc" },
-        include: { images: { orderBy: { position: "asc" }, select: { id: true, url: true } } },
+        include: { images: { orderBy: { position: "asc" }, select: { id: true, url: true, position: true } } },
       },
       // Photos générales du produit (non rattachées à une couleur ou taille précise).
       images: { where: { colorId: null, sizeId: null }, orderBy: { position: "asc" } },

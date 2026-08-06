@@ -12,7 +12,7 @@ import { createSize, deleteSize } from "./actions";
 import ProductImageUploader from "./ProductImageUploader";
 import ProductImageList from "./ProductImageList";
 
-type Img = { id: string; url: string };
+type Img = { id: string; url: string; position: number };
 type Taille = { id: string; name: string; images: Img[] };
 
 export default function SizeManager({

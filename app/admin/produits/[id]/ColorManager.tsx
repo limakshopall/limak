@@ -12,7 +12,7 @@ import { createColor, deleteColor } from "./actions";
 import ProductImageUploader from "./ProductImageUploader";
 import ProductImageList from "./ProductImageList";
 
-type Img = { id: string; url: string };
+type Img = { id: string; url: string; position: number };
 type Couleur = { id: string; name: string; hex: string | null; images: Img[] };
 
 export default function ColorManager({

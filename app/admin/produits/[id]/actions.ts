@@ -296,6 +296,20 @@ export async function addProductImage(
   revalidatePath(`/admin/produits/${productId}`);
 }
 
+// Change le numéro d'ordre d'une image (1 = photo principale, affichée en
+// premier sur la fiche produit et les cartes). Les autres numéros ne sont
+// pas recalculés : en cas d'égalité, l'ordre entre elles n'est pas garanti.
+export async function updateImagePosition(imageId: string, position: number) {
+  if (!imageId || !Number.isFinite(position) || position < 1) return;
+
+  const image = await prisma.productImage.update({
+    where: { id: imageId },
+    data: { position: Math.floor(position) - 1 },
+  });
+
+  revalidatePath(`/admin/produits/${image.productId}`);
+}
+
 // Supprime une image d'un produit (base + fichier UploadThing).
 export async function deleteProductImage(imageId: string) {
   if (!imageId) return;

@@ -5,16 +5,27 @@
 // ============================================================
 
 export type Layout = "vertical" | "overlay" | "split" | "texte-seul" | "badge-centre";
-export type CouleurFond = "white" | "dore" | "bleu" | "orange";
+export type Police = "Arial" | "Playfair Display" | "Montserrat";
+export type TailleTexte = "petit" | "moyen" | "grand";
+
+// Couleurs libres (code hex) — les 4 couleurs LIMAK ci-dessous ne sont que des
+// raccourcis proposés dans l'éditeur, on peut choisir n'importe quelle couleur.
+export const PALETTE_LIMAK = {
+  dore: "#C9A84C",
+  bleu: "#14213D",
+  sable: "#FBEEDA",
+  orange: "#F1720A",
+} as const;
 
 export type Template = {
   id: string;
   nom: string;
   description: string; // affichée dans la galerie, pour se souvenir de l'usage du modèle
   layout: Layout;
-  fondParDefaut: CouleurFond;
+  fondParDefaut: string; // hex
   titreDefaut: string;
-  texteDefaut: string; // texte + appel à l'action, pré-rempli dans l'éditeur
+  texteDefaut: string;
+  ctaDefaut: string;
 };
 
 // 15 modèles prêts à l'emploi pour les pubs LIMAK (Facebook/Insta/TikTok).
@@ -25,135 +36,150 @@ export const TEMPLATES: Template[] = [
     nom: "Promo Flash Sale",
     description: "Urgence, grosse remise sur un article précis.",
     layout: "overlay",
-    fondParDefaut: "orange",
+    fondParDefaut: PALETTE_LIMAK.orange,
     titreDefaut: "FLASH SALE 🔥",
-    texteDefaut: "Jusqu'à -50% — Commander maintenant",
+    texteDefaut: "Jusqu'à -50%",
+    ctaDefaut: "Commander maintenant",
   },
   {
     id: "stock-limite",
     nom: "Stock Limité",
     description: "Pousser à l'achat avant rupture de stock.",
     layout: "vertical",
-    fondParDefaut: "bleu",
+    fondParDefaut: PALETTE_LIMAK.bleu,
     titreDefaut: "STOCK LIMITÉ ⚠️",
-    texteDefaut: "Dernières pièces disponibles — Acheter avant rupture",
+    texteDefaut: "Dernières pièces disponibles",
+    ctaDefaut: "Acheter avant rupture",
   },
   {
     id: "nouveau-produit",
     nom: "Nouveau Produit",
     description: "Présenter un article qui vient d'arriver.",
     layout: "split",
-    fondParDefaut: "dore",
+    fondParDefaut: PALETTE_LIMAK.dore,
     titreDefaut: "NOUVEAU 🆕",
-    texteDefaut: "Découvrez notre collection — Voir plus",
+    texteDefaut: "Découvrez notre collection",
+    ctaDefaut: "Voir plus",
   },
   {
     id: "livraison-gratuite",
     nom: "Livraison Gratuite",
     description: "Mettre en avant l'offre de livraison, sans photo produit.",
     layout: "texte-seul",
-    fondParDefaut: "white",
+    fondParDefaut: PALETTE_LIMAK.sable,
     titreDefaut: "LIVRAISON GRATUITE",
-    texteDefaut: "Partout en Côte d'Ivoire — Commandes à partir de 30 000 FCFA",
+    texteDefaut: "Partout en Côte d'Ivoire, dès 30 000 FCFA",
+    ctaDefaut: "Commander",
   },
   {
     id: "paiement-livraison",
     nom: "Paiement à la Livraison",
     description: "Rassurer sur le mode de paiement, sans photo produit.",
     layout: "texte-seul",
-    fondParDefaut: "bleu",
+    fondParDefaut: PALETTE_LIMAK.bleu,
     titreDefaut: "PAIEMENT À LA LIVRAISON",
-    texteDefaut: "Sans frais supplémentaires — Acheter en confiance",
+    texteDefaut: "Sans frais supplémentaires",
+    ctaDefaut: "Acheter en confiance",
   },
   {
     id: "avis-clients",
     nom: "Avis Clients",
     description: "Preuve sociale générale (pas un avis précis inventé).",
     layout: "badge-centre",
-    fondParDefaut: "dore",
+    fondParDefaut: PALETTE_LIMAK.dore,
     titreDefaut: "SATISFAIT OU REMBOURSÉ",
-    texteDefaut: "Nos clients nous font confiance — Voir les avis",
+    texteDefaut: "Nos clients nous font confiance",
+    ctaDefaut: "Voir les avis",
   },
   {
     id: "chaussures",
     nom: "Collection Chaussures",
     description: "Rayon chaussures — sans revendiquer l'authenticité d'une marque.",
     layout: "overlay",
-    fondParDefaut: "bleu",
+    fondParDefaut: PALETTE_LIMAK.bleu,
     titreDefaut: "CHAUSSURES",
-    texteDefaut: "Sélection vérifiée par LIMAK — Découvrir",
+    texteDefaut: "Sélection vérifiée par LIMAK",
+    ctaDefaut: "Découvrir",
   },
   {
     id: "accessoires",
     nom: "Collection Accessoires",
     description: "Rayon montres/lunettes/sacs.",
     layout: "split",
-    fondParDefaut: "dore",
+    fondParDefaut: PALETTE_LIMAK.dore,
     titreDefaut: "ACCESSOIRES",
-    texteDefaut: "Montres, lunettes, sacs — Explorer",
+    texteDefaut: "Montres, lunettes, sacs",
+    ctaDefaut: "Explorer",
   },
   {
     id: "beaute",
     nom: "Collection Beauté",
     description: "Rayon beauté/soins.",
     layout: "vertical",
-    fondParDefaut: "white",
+    fondParDefaut: PALETTE_LIMAK.sable,
     titreDefaut: "BEAUTÉ & SOINS",
-    texteDefaut: "Sérums, huiles, cosmétiques — Parcourir",
+    texteDefaut: "Sérums, huiles, cosmétiques",
+    ctaDefaut: "Parcourir",
   },
   {
     id: "bogolan",
     nom: "Bogolan Traditionnel",
     description: "Rayon accessoires traditionnels.",
     layout: "overlay",
-    fondParDefaut: "bleu",
+    fondParDefaut: PALETTE_LIMAK.bleu,
     titreDefaut: "FIERTÉ AFRICAINE",
-    texteDefaut: "Tissus bogolan authentiques — Commander",
+    texteDefaut: "Tissus bogolan authentiques",
+    ctaDefaut: "Commander",
   },
   {
     id: "montre-elegante",
     nom: "Montre Élégante",
     description: "Mettre en avant une montre précise.",
     layout: "badge-centre",
-    fondParDefaut: "dore",
+    fondParDefaut: PALETTE_LIMAK.dore,
     titreDefaut: "MONTRE ÉLÉGANCE",
-    texteDefaut: "Boîtier doré, luxe abordable — Voir la collection",
+    texteDefaut: "Boîtier doré, luxe abordable",
+    ctaDefaut: "Voir la collection",
   },
   {
     id: "soldes",
     nom: "Soldes du Mois",
     description: "Remise générale sur le catalogue (change le mois toi-même).",
     layout: "overlay",
-    fondParDefaut: "orange",
+    fondParDefaut: PALETTE_LIMAK.orange,
     titreDefaut: "SOLDES DU MOIS",
-    texteDefaut: "Jusqu'à -40% sur tout — Profiter maintenant",
+    texteDefaut: "Jusqu'à -40% sur tout",
+    ctaDefaut: "Profiter maintenant",
   },
   {
     id: "qualite-verifiee",
     nom: "Qualité Vérifiée",
     description: "Réassurance qualité — sans certificat ni promesse d'authenticité inventée.",
     layout: "texte-seul",
-    fondParDefaut: "bleu",
+    fondParDefaut: PALETTE_LIMAK.bleu,
     titreDefaut: "QUALITÉ VÉRIFIÉE LIMAK",
-    texteDefaut: "Chaque article est contrôlé avant envoi — Acheter en confiance",
+    texteDefaut: "Chaque article est contrôlé avant envoi",
+    ctaDefaut: "Acheter en confiance",
   },
   {
     id: "satisfaction",
     nom: "Satisfaction Clients",
     description: "Remerciement / fidélisation, sans photo produit.",
     layout: "texte-seul",
-    fondParDefaut: "dore",
+    fondParDefaut: PALETTE_LIMAK.dore,
     titreDefaut: "MERCI À NOS CLIENTS !",
-    texteDefaut: "Votre satisfaction est notre priorité — Nous contacter",
+    texteDefaut: "Votre satisfaction est notre priorité",
+    ctaDefaut: "Nous contacter",
   },
   {
     id: "nouvelle-collection",
     nom: "Nouvelle Collection",
     description: "Annoncer un arrivage de la semaine.",
     layout: "vertical",
-    fondParDefaut: "white",
+    fondParDefaut: PALETTE_LIMAK.sable,
     titreDefaut: "NOUVELLE COLLECTION",
-    texteDefaut: "Arrivages de la semaine — Découvrir",
+    texteDefaut: "Arrivages de la semaine",
+    ctaDefaut: "Découvrir",
   },
 ];
 
@@ -161,12 +187,32 @@ export function getTemplate(id: string): Template {
   return TEMPLATES.find((t) => t.id === id) ?? TEMPLATES[0];
 }
 
+// Formats d'export — chaque format pilote à la fois l'aperçu ET le fichier
+// téléchargé (ce que tu vois est ce que tu télécharges).
+export type Format = { id: string; nom: string; w: number; h: number };
+export const FORMATS: Format[] = [
+  { id: "facebook", nom: "Facebook (1200×628)", w: 1200, h: 628 },
+  { id: "ig-post", nom: "Instagram Post (1080×1080)", w: 1080, h: 1080 },
+  { id: "ig-story", nom: "Instagram Story (1080×1920)", w: 1080, h: 1920 },
+  { id: "tiktok", nom: "TikTok (1080×1920)", w: 1080, h: 1920 },
+];
+export function getFormat(id: string): Format {
+  return FORMATS.find((f) => f.id === id) ?? FORMATS[2];
+}
+
 export type Projet = {
   id: string;
+  nom: string;
   templateId: string;
+  formatId: string;
   titre: string;
   description: string;
-  fond: CouleurFond;
+  cta: string;
+  fond: string;
+  couleurTexte: string;
+  couleurCTA: string;
+  police: Police;
+  tailleTexte: TailleTexte;
   imageDataUrl: string | null;
   creeLe: number;
 };

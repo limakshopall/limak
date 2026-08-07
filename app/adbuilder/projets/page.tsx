@@ -76,7 +76,7 @@ export default function MesProjetsPage() {
                   )}
                 </div>
                 <div className="p-3">
-                  <p className="truncate font-semibold text-[#14213D] dark:text-gray-300">{p.titre}</p>
+                  <p className="truncate font-semibold text-[#14213D] dark:text-gray-300">{p.nom || p.titre}</p>
                   <p className="mt-0.5 text-xs text-neutral-500 dark:text-gray-400">
                     {template.nom} · {new Date(p.creeLe).toLocaleDateString("fr-FR")}
                   </p>

@@ -10,12 +10,15 @@ import { TEMPLATES } from "../lib/adbuilderStore";
 
 export const metadata = { title: "AdBuilder" };
 
-const COULEURS_APERCU: Record<string, string> = {
-  white: "#FBEEDA",
-  dore: "#C9A84C",
-  bleu: "#14213D",
-  orange: "#F1720A",
-};
+// Contraste simple (noir/blanc) selon la luminosité du fond du modèle.
+function couleurContrastee(hex: string): string {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.substring(0, 2), 16) || 0;
+  const g = parseInt(h.substring(2, 4), 16) || 0;
+  const b = parseInt(h.substring(4, 6), 16) || 0;
+  const luminosite = (r * 299 + g * 587 + b * 114) / 1000;
+  return luminosite > 150 ? "#14213D" : "#FFFBF3";
+}
 
 export default async function AdBuilderPage() {
   const { userId } = await auth();
@@ -43,7 +46,7 @@ export default async function AdBuilderPage() {
         </Link>
       </div>
       <p className="mt-1 text-sm text-neutral-500 dark:text-gray-400">
-        Choisis un modèle pour créer un visuel de pub (format story 1080×1920 — Facebook, Instagram, TikTok).
+        Choisis un modèle pour créer un visuel de pub — le format (Facebook, Instagram, TikTok) se choisit ensuite dans l&apos;éditeur.
       </p>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
@@ -54,11 +57,11 @@ export default async function AdBuilderPage() {
           >
             <div
               className="flex aspect-[9/16] items-center justify-center"
-              style={{ backgroundColor: COULEURS_APERCU[t.fondParDefaut] }}
+              style={{ backgroundColor: t.fondParDefaut }}
             >
               <span
                 className="text-xs font-semibold uppercase tracking-wide"
-                style={{ color: t.fondParDefaut === "white" ? "#14213D" : "#FFFBF3" }}
+                style={{ color: couleurContrastee(t.fondParDefaut) }}
               >
                 {t.layout}
               </span>

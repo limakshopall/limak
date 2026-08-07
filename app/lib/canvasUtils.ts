@@ -1,17 +1,13 @@
 // ============================================================
-//  ADBUILDER — utilitaires canvas (export PNG, dimensions)
+//  ADBUILDER — utilitaires canvas (export PNG, chargement image)
 // ============================================================
 
 import type Konva from "konva";
 
-// Format standard "story" (Instagram/TikTok/Facebook) : 1080x1920.
-export const LARGEUR_EXPORT = 1080;
-export const HAUTEUR_EXPORT = 1920;
-
-// Le canvas s'affiche à l'écran en plus petit (aperçu), mais l'export se
-// fait toujours à la pleine résolution grâce à `pixelRatio`.
-export function exporterStagePNG(stage: Konva.Stage, nomFichier: string) {
-  const ratioActuel = stage.width() > 0 ? LARGEUR_EXPORT / stage.width() : 1;
+// Export toujours à la pleine résolution du format choisi, quelle que soit
+// la taille d'affichage à l'écran (aperçu réduit) — grâce à `pixelRatio`.
+export function exporterStagePNG(stage: Konva.Stage, nomFichier: string, largeurCible: number) {
+  const ratioActuel = stage.width() > 0 ? largeurCible / stage.width() : 1;
   const dataUrl = stage.toDataURL({ mimeType: "image/png", pixelRatio: ratioActuel });
 
   const lien = document.createElement("a");

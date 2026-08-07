@@ -11,43 +11,60 @@
 import { forwardRef } from "react";
 import { Stage, Layer, Rect, Text, Image as KImage } from "react-konva";
 import type Konva from "konva";
-import { LARGEUR_EXPORT, HAUTEUR_EXPORT } from "../../lib/canvasUtils";
 
 type Boite = { x: number; y: number; w: number; h: number };
 
 export type ProprietesCanvas = {
+  largeurExport: number;
+  hauteurExport: number;
   largeurAffichage: number;
   hauteurAffichage: number;
   echelleAffichage: number;
   fond: string;
   couleurTexte: string;
+  police: string;
   image: HTMLImageElement | null;
   boiteImage: Boite;
   imageAjustee: { largeur: number; hauteur: number } | null;
   banniereOverlay: boolean;
   titre: string;
   boiteTitre: { x: number; y: number; w: number };
+  tailleTitre: number;
   description: string;
   boiteDesc: { x: number; y: number; w: number };
+  tailleDesc: number;
   alignTexte: "left" | "center";
+  cta: string;
+  boiteCTA: { x: number; y: number; w: number; h: number };
+  couleurCTA: string;
+  couleurTexteCTA: string;
 };
 
 const KonvaCanvas = forwardRef<Konva.Stage, ProprietesCanvas>(function KonvaCanvas(
   {
+    largeurExport,
+    hauteurExport,
     largeurAffichage,
     hauteurAffichage,
     echelleAffichage,
     fond,
     couleurTexte,
+    police,
     image,
     boiteImage,
     imageAjustee,
     banniereOverlay,
     titre,
     boiteTitre,
+    tailleTitre,
     description,
     boiteDesc,
+    tailleDesc,
     alignTexte,
+    cta,
+    boiteCTA,
+    couleurCTA,
+    couleurTexteCTA,
   },
   ref
 ) {
@@ -59,8 +76,8 @@ const KonvaCanvas = forwardRef<Konva.Stage, ProprietesCanvas>(function KonvaCanv
         <Rect
           x={0}
           y={0}
-          width={LARGEUR_EXPORT}
-          height={HAUTEUR_EXPORT}
+          width={largeurExport}
+          height={hauteurExport}
           fill={fond}
           scaleX={echelleAffichage}
           scaleY={echelleAffichage}
@@ -92,11 +109,11 @@ const KonvaCanvas = forwardRef<Konva.Stage, ProprietesCanvas>(function KonvaCanv
         {banniereOverlay && (
           <Rect
             x={0}
-            y={px(HAUTEUR_EXPORT - 380)}
-            width={px(LARGEUR_EXPORT)}
-            height={px(380)}
+            y={px(hauteurExport - hauteurExport * 0.2)}
+            width={px(largeurExport)}
+            height={px(hauteurExport * 0.2)}
             fillLinearGradientStartPoint={{ x: 0, y: 0 }}
-            fillLinearGradientEndPoint={{ x: 0, y: px(380) }}
+            fillLinearGradientEndPoint={{ x: 0, y: px(hauteurExport * 0.2) }}
             fillLinearGradientColorStops={[0, "rgba(20,33,61,0)", 1, "rgba(20,33,61,0.85)"]}
           />
         )}
@@ -107,7 +124,8 @@ const KonvaCanvas = forwardRef<Konva.Stage, ProprietesCanvas>(function KonvaCanv
           y={px(boiteTitre.y)}
           width={px(boiteTitre.w)}
           align={alignTexte}
-          fontSize={px(64)}
+          fontSize={px(tailleTitre)}
+          fontFamily={police}
           fontStyle="bold"
           fill={banniereOverlay ? "#FFFBF3" : couleurTexte}
           wrap="word"
@@ -118,11 +136,38 @@ const KonvaCanvas = forwardRef<Konva.Stage, ProprietesCanvas>(function KonvaCanv
           y={px(boiteDesc.y)}
           width={px(boiteDesc.w)}
           align={alignTexte}
-          fontSize={px(36)}
+          fontSize={px(tailleDesc)}
+          fontFamily={police}
           fill={banniereOverlay ? "#FBEEDA" : couleurTexte}
           opacity={0.9}
           wrap="word"
         />
+
+        {cta.trim() && (
+          <>
+            <Rect
+              x={px(boiteCTA.x)}
+              y={px(boiteCTA.y)}
+              width={px(boiteCTA.w)}
+              height={px(boiteCTA.h)}
+              fill={couleurCTA}
+              cornerRadius={px(boiteCTA.h) / 2}
+            />
+            <Text
+              text={cta}
+              x={px(boiteCTA.x)}
+              y={px(boiteCTA.y)}
+              width={px(boiteCTA.w)}
+              height={px(boiteCTA.h)}
+              verticalAlign="middle"
+              align="center"
+              fontSize={px(tailleDesc)}
+              fontFamily={police}
+              fontStyle="bold"
+              fill={couleurTexteCTA}
+            />
+          </>
+        )}
       </Layer>
     </Stage>
   );

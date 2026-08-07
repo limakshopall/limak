@@ -166,7 +166,7 @@ export default async function Accueil() {
           <div className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:px-0 lg:grid-cols-6">
             {categories.map((c, i) => {
               const cover =
-                c.products[0]?.images[0]?.url ?? c.products[0]?.colors[0]?.images[0]?.url ?? null;
+                c.imageUrl ?? c.products[0]?.images[0]?.url ?? c.products[0]?.colors[0]?.images[0]?.url ?? null;
               const nbArticles = c._count.products;
               return (
                 <Reveal key={c.id} delay={i * 60} className="w-36 shrink-0 snap-start sm:w-auto">

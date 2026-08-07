@@ -175,6 +175,7 @@ function EditeurContenu() {
   // --- Mockups (téléphone / ordinateur / panneau) ---
   const [imageMockup, setImageMockup] = useState<HTMLImageElement | null>(null);
   const [mockupsOuverts, setMockupsOuverts] = useState(false);
+  const refPanneauMockups = useRef<HTMLDivElement | null>(null);
   const [mockupPleinEcran, setMockupPleinEcran] = useState<TypeMockup | null>(null);
   const refMockupTelephone = useRef<Konva.Stage | null>(null);
   const refMockupOrdinateur = useRef<Konva.Stage | null>(null);
@@ -386,12 +387,21 @@ function EditeurContenu() {
   // --- Mockups en contexte réel ---
   async function handleOuvrirMockups() {
     const stage = stageRef.current;
-    if (!stage) return;
+    if (!stage) {
+      setMessage("Le canvas se charge encore, réessaie dans un instant.");
+      return;
+    }
     const dataUrl = stageEnDataUrl(stage);
     const img = await chargerImageDepuisDataUrl(dataUrl);
     setImageMockup(img);
     setMockupsOuverts(true);
   }
+
+  // Le panneau des mockups s'affiche en bas de page — sans ce scroll,
+  // on ne voit aucun changement à l'écran en cliquant sur le bouton.
+  useEffect(() => {
+    if (mockupsOuverts) refPanneauMockups.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [mockupsOuverts]);
 
   function handleTelechargerMockup(type: TypeMockup) {
     const stage = refsMockup[type].current;
@@ -1050,7 +1060,10 @@ function EditeurContenu() {
 
       {/* --- MOCKUPS EN CONTEXTE RÉEL --- */}
       {mockupsOuverts && (
-        <div className="mt-8 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 dark:border-white/15 dark:bg-[#05070d]">
+        <div
+          ref={refPanneauMockups}
+          className="mt-8 scroll-mt-24 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 dark:border-white/15 dark:bg-[#05070d]"
+        >
           <div className="mb-3 flex items-center justify-between">
             <p className="text-sm font-semibold text-[#14213D] dark:text-gray-300">Dans son contexte réel</p>
             <button

@@ -9,6 +9,7 @@ import ProduitsFiltres from "../components/ProduitsFiltres";
 import ProductSection, { type Disposition } from "../components/ProductSection";
 import Reveal from "../components/Reveal";
 import { toDisplayItems, epuisesEnDernier } from "../lib/displayItems";
+import { elargirRecherche } from "../lib/searchSynonymes";
 
 // Groupes de produits + rotation des dispositions, pour casser la monotonie en descendant la page.
 const TAILLE_GROUPE = 8;
@@ -42,12 +43,23 @@ export default async function ProduitsPage({
         ? { name: "desc" as const }
         : { createdAt: "desc" as const };
 
+  // Élargit la recherche aux synonymes connus (ex: "boubou" -> aussi "bogolan")
+  // et cherche dans le nom ET la description, pas juste le nom.
+  const termesRecherche = q ? elargirRecherche(q) : [];
+
   // Indépendantes l'une de l'autre : en parallèle plutôt qu'en série.
   const [produits, categories] = await Promise.all([
     prisma.product.findMany({
       where: {
         isActive: true,
-        ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
+        ...(termesRecherche.length
+          ? {
+              OR: termesRecherche.flatMap((t) => [
+                { name: { contains: t, mode: "insensitive" as const } },
+                { description: { contains: t, mode: "insensitive" as const } },
+              ]),
+            }
+          : {}),
         ...(categorie ? { category: { slug: categorie } } : {}),
       },
       include: {

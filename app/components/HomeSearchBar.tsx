@@ -19,7 +19,7 @@ export default function HomeSearchBar() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto flex max-w-xl items-center gap-2 px-4">
+    <form onSubmit={handleSubmit} className="mx-auto flex max-w-xl items-center gap-2">
       <div className="relative flex-1">
         <svg
           className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400"

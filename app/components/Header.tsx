@@ -9,9 +9,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useCart } from "../lib/cart-context";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import MenuLateral from "./MenuLateral";
+import HomeSearchBar from "./HomeSearchBar";
 
 function IconeArticles({ className }: { className?: string }) {
   return (
@@ -60,6 +62,8 @@ export default function Header({
   makPoints?: number;
 }) {
   const { count } = useCart();
+  const pathname = usePathname();
+  const surAccueil = pathname === "/";
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#14213D]/95 backdrop-blur supports-[backdrop-filter]:bg-[#14213D]/85">
@@ -139,6 +143,14 @@ export default function Header({
           </Show>
         </nav>
       </div>
+
+      {/* Barre de recherche — accueil seulement, dans le même header sticky
+          pour rester épinglée en haut sans calcul de décalage fragile. */}
+      {surAccueil && (
+        <div className="border-t border-white/10 px-4 py-2.5">
+          <HomeSearchBar />
+        </div>
+      )}
     </header>
   );
 }

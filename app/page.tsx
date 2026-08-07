@@ -10,7 +10,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "./lib/prisma";
 import HeroCarousel from "./components/HeroCarousel";
-import HomeSearchBar from "./components/HomeSearchBar";
 import ProductCard from "./components/ProductCard";
 import ProductSection, { type Disposition } from "./components/ProductSection";
 import VentesFlash from "./components/VentesFlash";
@@ -158,13 +157,6 @@ export default async function Accueil() {
         heightVh={heroSettings?.heightVh ?? 45}
         slideDuration={heroSettings?.slideDuration ?? 5000}
       />
-
-      {/* BARRE DE RECHERCHE */}
-      <Reveal>
-        <div className="mx-auto max-w-6xl px-4 pt-8">
-          <HomeSearchBar />
-        </div>
-      </Reveal>
 
       {/* 4. CATÉGORIES VISUELLES */}
       <Reveal>

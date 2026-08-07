@@ -8,6 +8,7 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { UploadButton } from "../../lib/uploadthing";
+import UnsplashPicker from "../../components/UnsplashPicker";
 import { updateCategoryImage } from "./actions";
 
 export default function CategoryImageForm({
@@ -35,7 +36,7 @@ export default function CategoryImageForm({
 
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium text-[#14213D] dark:text-gray-300">{name}</p>
-        <div className="mt-1">
+        <div className="mt-1 flex items-center gap-3">
           <UploadButton
             endpoint="imageUploader"
             onClientUploadComplete={async (res) => {
@@ -46,6 +47,13 @@ export default function CategoryImageForm({
               }
             }}
             onUploadError={(err: Error) => alert(`Erreur de téléversement : ${err.message}`)}
+          />
+          <UnsplashPicker
+            placeholder={`ex : ${name.toLowerCase()}`}
+            onChoisir={async (url) => {
+              await updateCategoryImage(categoryId, url);
+              router.refresh();
+            }}
           />
         </div>
       </div>

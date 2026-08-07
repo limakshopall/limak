@@ -34,7 +34,7 @@ export async function rechercherImagesUnsplash(
 
   try {
     const res = await fetch(
-      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(requete)}&per_page=12&orientation=${orientation}`,
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(requete)}&per_page=20&orientation=${orientation}`,
       { headers: { Authorization: `Client-ID ${apiKey}` } }
     );
 

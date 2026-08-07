@@ -43,6 +43,12 @@ const PREVIEW_MAX_HAUTEUR = 520;
 const POLICES: Police[] = ["Arial", "Playfair Display", "Montserrat"];
 const MULTIPLICATEUR_TAILLE: Record<TailleTexte, number> = { petit: 0.75, moyen: 1, grand: 1.3 };
 
+type ElementId = "image" | "titre" | "desc" | "cta";
+
+// Position/taille personnalisées par l'utilisateur (glisser-déposer), en
+// fractions (0-1) du format choisi — s'adaptent si on change de format.
+type BoitePerso = { x: number; y: number; w: number; h?: number };
+
 type DocEtat = {
   templateId: string;
   formatId: string;
@@ -55,6 +61,7 @@ type DocEtat = {
   police: Police;
   tailleTexte: TailleTexte;
   positionImage: "haut" | "fond";
+  boitesPerso: Partial<Record<ElementId, BoitePerso>>;
 };
 
 // Contraste simple (noir/blanc) selon la luminosité de la couleur de fond.
@@ -109,6 +116,7 @@ function EditeurContenu() {
     police: projetExistant?.police ?? "Arial",
     tailleTexte: projetExistant?.tailleTexte ?? "moyen",
     positionImage: templateInitial.layout === "overlay" ? "fond" : "haut",
+    boitesPerso: projetExistant?.boitesPerso ?? {},
   };
 
   const { etat: doc, setEtat: setDoc, setEtatLive, annuler, refaire, peutAnnuler, peutRefaire } =
@@ -119,6 +127,7 @@ function EditeurContenu() {
   const [projetId] = useState(() => projetExistant?.id ?? crypto.randomUUID());
   const [message, setMessage] = useState("");
   const [policesChargees, setPolicesChargees] = useState(false);
+  const [selection, setSelection] = useState<ElementId | null>(null);
 
   const template = getTemplate(doc.templateId);
   const format = getFormat(doc.formatId);
@@ -193,8 +202,32 @@ function EditeurContenu() {
       description: t.texteDefaut,
       cta: t.ctaDefaut,
       positionImage: t.layout === "overlay" ? "fond" : "haut",
+      boitesPerso: {},
     });
     setEchelleImage(1);
+    setSelection(null);
+  }
+
+  // Déplacement/redimensionnement libre d'un élément sur le canvas —
+  // stocké en fractions du format pour rester cohérent si on change de format.
+  function handleChangeBoite(id: ElementId, boite: { x: number; y: number; w: number; h?: number }) {
+    setDoc({
+      ...doc,
+      boitesPerso: {
+        ...doc.boitesPerso,
+        [id]: {
+          x: boite.x / W,
+          y: boite.y / H,
+          w: boite.w / W,
+          ...(boite.h !== undefined ? { h: boite.h / H } : {}),
+        },
+      },
+    });
+  }
+
+  function handleReinitialiserMiseEnPage() {
+    setDoc({ ...doc, boitesPerso: {} });
+    setSelection(null);
   }
 
   function handleDownload() {
@@ -220,6 +253,7 @@ function EditeurContenu() {
       police: doc.police,
       tailleTexte: doc.tailleTexte,
       imageDataUrl: image?.src ?? null,
+      boitesPerso: doc.boitesPerso,
       creeLe: Date.now(),
     };
     sauvegarderProjet(projet);
@@ -275,8 +309,26 @@ function EditeurContenu() {
 
   const boiteImageHaut = boiteImageModele ?? { x: marge, y: marge, w: W - marge * 2, h: H * 0.573 };
   const boiteImageFond = { x: 0, y: 0, w: W, h: H };
-  const boiteImage = doc.positionImage === "fond" ? boiteImageFond : boiteImageHaut;
   const banniereOverlay = doc.positionImage === "fond";
+
+  // Applique la position/taille personnalisée (glisser-déposer) si l'utilisateur
+  // a déplacé cet élément — sinon on garde la mise en page du modèle.
+  function avecPerso<T extends { x: number; y: number; w: number; h?: number }>(id: ElementId, base: T): T {
+    const p = doc.boitesPerso[id];
+    if (!p) return base;
+    return {
+      ...base,
+      x: p.x * W,
+      y: p.y * H,
+      w: p.w * W,
+      ...(p.h !== undefined && base.h !== undefined ? { h: p.h * H } : {}),
+    };
+  }
+
+  const boiteImage = avecPerso("image", doc.positionImage === "fond" ? boiteImageFond : boiteImageHaut);
+  boiteTitre = avecPerso("titre", boiteTitre);
+  boiteDesc = avecPerso("desc", boiteDesc);
+  boiteCTA = avecPerso("cta", boiteCTA);
 
   const imageAjusteeBase = image
     ? doc.positionImage === "fond"
@@ -367,11 +419,26 @@ function EditeurContenu() {
               boiteCTA={boiteCTA}
               couleurCTA={doc.couleurCTA}
               couleurTexteCTA={couleurContrastee(doc.couleurCTA)}
+              selection={selection}
+              onSelect={setSelection}
+              onChangeBoite={handleChangeBoite}
             />
           </div>
           <p className="mt-2 text-center text-xs text-neutral-400 dark:text-gray-500">
             Aperçu — export réel en {format.w}×{format.h}
           </p>
+          <p className="mt-1 text-center text-xs text-neutral-400 dark:text-gray-500">
+            Clique sur la photo, le titre, la description ou le bouton pour le déplacer / redimensionner.
+          </p>
+          {Object.keys(doc.boitesPerso).length > 0 && (
+            <button
+              type="button"
+              onClick={handleReinitialiserMiseEnPage}
+              className="mx-auto mt-2 block text-xs font-medium text-[#D6293E] hover:underline"
+            >
+              Réinitialiser la mise en page
+            </button>
+          )}
         </div>
 
         {/* --- PANNEAU DE RÉGLAGES --- */}

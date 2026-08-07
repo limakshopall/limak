@@ -214,6 +214,9 @@ export type Projet = {
   police: Police;
   tailleTexte: TailleTexte;
   imageDataUrl: string | null;
+  // Position/taille personnalisées (glisser-déposer) par élément, en fractions
+  // (0-1) du format — optionnel pour rester compatible avec les anciens projets.
+  boitesPerso?: Partial<Record<"image" | "titre" | "desc" | "cta", { x: number; y: number; w: number; h?: number }>>;
   creeLe: number;
 };
 

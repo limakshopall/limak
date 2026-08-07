@@ -13,12 +13,26 @@
 "use client";
 
 import { forwardRef, useEffect, useRef } from "react";
-import { Stage, Layer, Rect, Text, Image as KImage, Group, Transformer } from "react-konva";
+import { Stage, Layer, Rect, Text, Image as KImage, Group, Transformer, Line } from "react-konva";
 import type Konva from "konva";
 import type { KonvaEventObject } from "konva/lib/Node";
 
 type Boite = { x: number; y: number; w: number; h: number };
 export type SelectionId = "image" | "titre" | "desc" | "cta" | null;
+
+// Grille de magnétisme (en pixels export) et seuil d'accroche.
+const TAILLE_GRILLE = 10;
+const SEUIL_MAGNETISME = 5;
+// La grille visuelle est plus espacée que la grille de magnétisme (sinon
+// illisible sur un format 1080×1920 affiché en petit dans l'aperçu).
+const ESPACEMENT_GRILLE_VISUELLE = TAILLE_GRILLE * 5;
+
+function accrocher(valeur: number): number {
+  const reste = valeur % TAILLE_GRILLE;
+  if (reste <= SEUIL_MAGNETISME) return valeur - reste;
+  if (reste >= TAILLE_GRILLE - SEUIL_MAGNETISME) return valeur - reste + TAILLE_GRILLE;
+  return valeur;
+}
 
 export type ProprietesCanvas = {
   largeurExport: number;
@@ -48,6 +62,9 @@ export type ProprietesCanvas = {
   selection: SelectionId;
   onSelect: (id: SelectionId) => void;
   onChangeBoite: (id: Exclude<SelectionId, null>, boite: { x: number; y: number; w: number; h?: number }) => void;
+  // Grille magnétique
+  snapActif: boolean;
+  grilleVisible: boolean;
 };
 
 const KonvaCanvas = forwardRef<Konva.Stage, ProprietesCanvas>(function KonvaCanvas(
@@ -78,6 +95,8 @@ const KonvaCanvas = forwardRef<Konva.Stage, ProprietesCanvas>(function KonvaCanv
     selection,
     onSelect,
     onChangeBoite,
+    snapActif,
+    grilleVisible,
   },
   ref
 ) {
@@ -108,6 +127,16 @@ const KonvaCanvas = forwardRef<Konva.Stage, ProprietesCanvas>(function KonvaCanv
 
   function deselectionnerSiFond(e: KonvaEventObject<MouseEvent | TouchEvent>) {
     if (e.target === e.target.getStage()) onSelect(null);
+  }
+
+  // Magnétisme en direct pendant le glissement (pas seulement à la fin).
+  function onDragMoveAvecSnap(e: KonvaEventObject<DragEvent>) {
+    if (!snapActif) return;
+    const node = e.target;
+    const xExport = node.x() / echelleAffichage;
+    const yExport = node.y() / echelleAffichage;
+    node.x(accrocher(xExport) * echelleAffichage);
+    node.y(accrocher(yExport) * echelleAffichage);
   }
 
   // Fin de glissement : rapporte la nouvelle position (en pixels export).
@@ -169,6 +198,7 @@ const KonvaCanvas = forwardRef<Konva.Stage, ProprietesCanvas>(function KonvaCanv
           onClick={() => onSelect("image")}
           onTap={() => onSelect("image")}
           onDragStart={() => onSelect("image")}
+          onDragMove={onDragMoveAvecSnap}
           onDragEnd={creerOnDragEnd("image", { w: boiteImage.w, h: boiteImage.h })}
           onTransformEnd={creerOnTransformEnd("image", { w: boiteImage.w, h: boiteImage.h })}
         >
@@ -218,6 +248,7 @@ const KonvaCanvas = forwardRef<Konva.Stage, ProprietesCanvas>(function KonvaCanv
           onClick={() => onSelect("titre")}
           onTap={() => onSelect("titre")}
           onDragStart={() => onSelect("titre")}
+          onDragMove={onDragMoveAvecSnap}
           onDragEnd={creerOnDragEnd("titre", { w: boiteTitre.w })}
           onTransformEnd={creerOnTransformEnd("titre", { w: boiteTitre.w })}
         >
@@ -242,6 +273,7 @@ const KonvaCanvas = forwardRef<Konva.Stage, ProprietesCanvas>(function KonvaCanv
           onClick={() => onSelect("desc")}
           onTap={() => onSelect("desc")}
           onDragStart={() => onSelect("desc")}
+          onDragMove={onDragMoveAvecSnap}
           onDragEnd={creerOnDragEnd("desc", { w: boiteDesc.w })}
           onTransformEnd={creerOnTransformEnd("desc", { w: boiteDesc.w })}
         >
@@ -267,6 +299,7 @@ const KonvaCanvas = forwardRef<Konva.Stage, ProprietesCanvas>(function KonvaCanv
             onClick={() => onSelect("cta")}
             onTap={() => onSelect("cta")}
             onDragStart={() => onSelect("cta")}
+            onDragMove={onDragMoveAvecSnap}
             onDragEnd={creerOnDragEnd("cta", { w: boiteCTA.w, h: boiteCTA.h })}
             onTransformEnd={creerOnTransformEnd("cta", { w: boiteCTA.w, h: boiteCTA.h })}
           >
@@ -285,6 +318,31 @@ const KonvaCanvas = forwardRef<Konva.Stage, ProprietesCanvas>(function KonvaCanv
             />
           </Group>
         )}
+
+        {/* Grille visuelle optionnelle (aide au repérage, plus espacée que le
+            pas de magnétisme réel pour rester lisible en petit aperçu). */}
+        {grilleVisible &&
+          Array.from({ length: Math.floor(largeurExport / ESPACEMENT_GRILLE_VISUELLE) + 1 }, (_, i) => (
+            <Line
+              key={`v${i}`}
+              name="grille-apercu"
+              points={[px(i * ESPACEMENT_GRILLE_VISUELLE), 0, px(i * ESPACEMENT_GRILLE_VISUELLE), px(hauteurExport)]}
+              stroke="rgba(20,33,61,0.15)"
+              strokeWidth={1}
+              listening={false}
+            />
+          ))}
+        {grilleVisible &&
+          Array.from({ length: Math.floor(hauteurExport / ESPACEMENT_GRILLE_VISUELLE) + 1 }, (_, i) => (
+            <Line
+              key={`h${i}`}
+              name="grille-apercu"
+              points={[0, px(i * ESPACEMENT_GRILLE_VISUELLE), px(largeurExport), px(i * ESPACEMENT_GRILLE_VISUELLE)]}
+              stroke="rgba(20,33,61,0.15)"
+              strokeWidth={1}
+              listening={false}
+            />
+          ))}
 
         {/* Poignées de sélection — largeur seule pour le texte, coins pour photo/CTA. */}
         <Transformer

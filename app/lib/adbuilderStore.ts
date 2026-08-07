@@ -244,3 +244,64 @@ export function supprimerProjet(id: string): void {
   const projets = listerProjets().filter((p) => p.id !== id);
   window.localStorage.setItem(CLE_STOCKAGE, JSON.stringify(projets));
 }
+
+// --- Historique des textes générés par IA (5 derniers lots) ---
+export type LotTextesGeneres = {
+  id: string;
+  description: string;
+  titres: string[];
+  descriptions: string[];
+  ctas: string[];
+  creeLe: number;
+};
+
+const CLE_TEXTES_GENERES = "limak-adbuilder-textes-generes";
+const LIMITE_TEXTES_GENERES = 5;
+
+export function listerTextesGeneres(): LotTextesGeneres[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const brut = window.localStorage.getItem(CLE_TEXTES_GENERES);
+    return brut ? (JSON.parse(brut) as LotTextesGeneres[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function sauvegarderTextesGeneres(lot: LotTextesGeneres): void {
+  if (typeof window === "undefined") return;
+  const lots = [lot, ...listerTextesGeneres()].slice(0, LIMITE_TEXTES_GENERES);
+  window.localStorage.setItem(CLE_TEXTES_GENERES, JSON.stringify(lots));
+}
+
+// --- Historique des images cherchées (10 dernières) ---
+export type ImageRecherchee = {
+  id: string;
+  urlThumb: string;
+  urlFull: string;
+  urlTelechargement: string; // pour le ping "download" exigé par Unsplash
+  auteurNom: string;
+  auteurProfil: string;
+};
+
+const CLE_IMAGES_RECHERCHEES = "limak-adbuilder-images-recherchees";
+const LIMITE_IMAGES_RECHERCHEES = 10;
+
+export function listerImagesRecherchees(): ImageRecherchee[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const brut = window.localStorage.getItem(CLE_IMAGES_RECHERCHEES);
+    return brut ? (JSON.parse(brut) as ImageRecherchee[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function sauvegarderImageRecherchee(image: ImageRecherchee): void {
+  if (typeof window === "undefined") return;
+  const images = [image, ...listerImagesRecherchees().filter((i) => i.id !== image.id)].slice(
+    0,
+    LIMITE_IMAGES_RECHERCHEES
+  );
+  window.localStorage.setItem(CLE_IMAGES_RECHERCHEES, JSON.stringify(images));
+}

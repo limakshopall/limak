@@ -8,7 +8,7 @@
 
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState, type RefObject } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -21,27 +21,45 @@ import {
   getFormat,
   listerProjets,
   sauvegarderProjet,
+  sauvegarderTextesGeneres,
+  sauvegarderImageRecherchee,
   type Police,
   type TailleTexte,
   type Projet,
+  type ImageRecherchee,
 } from "../../lib/adbuilderStore";
 import {
   exporterStagePNG,
   chargerImageDepuisFichier,
   chargerImageDepuisDataUrl,
+  stageEnDataUrl,
 } from "../../lib/canvasUtils";
 import { useHistorique } from "../../lib/useHistorique";
+import { genererComboCouleurs, type ComboCouleurs } from "../../lib/couleurTheorie";
+import type { TypeMockup } from "./MockupCanvas";
+import { TAILLES_MOCKUP } from "./MockupCanvas";
 
 // Konva a besoin du DOM (canvas) : impossible à rendre côté serveur. Le
 // canvas entier est isolé dans KonvaCanvas.tsx et chargé en un seul bloc —
 // charger Stage/Layer/Rect/Text/Image séparément casse le rendu de Konva.
 const KonvaCanvas = dynamic(() => import("./KonvaCanvas"), { ssr: false });
+const MockupCanvas = dynamic(() => import("./MockupCanvas"), { ssr: false });
 
 const PREVIEW_MAX_LARGEUR = 340;
 const PREVIEW_MAX_HAUTEUR = 520;
 
 const POLICES: Police[] = ["Arial", "Playfair Display", "Montserrat"];
 const MULTIPLICATEUR_TAILLE: Record<TailleTexte, number> = { petit: 0.75, moyen: 1, grand: 1.3 };
+
+// Aperçu responsive : simule la place qu'occuperait la pub dans un fil
+// d'actualité selon la taille d'écran du visiteur (pas une vraie mise en
+// page web — une image de pub reste une image de taille fixe à l'export).
+const ECRANS_APERCU = {
+  bureau: { w: 1920, h: 1080, nom: "Bureau", facteurLargeur: 0.22 },
+  tablette: { w: 768, h: 1024, nom: "Tablette", facteurLargeur: 0.42 },
+  mobile: { w: 375, h: 667, nom: "Mobile", facteurLargeur: 0.82 },
+} as const;
+type EcranApercu = keyof typeof ECRANS_APERCU;
 
 type ElementId = "image" | "titre" | "desc" | "cta";
 
@@ -128,6 +146,44 @@ function EditeurContenu() {
   const [message, setMessage] = useState("");
   const [policesChargees, setPolicesChargees] = useState(false);
   const [selection, setSelection] = useState<ElementId | null>(null);
+
+  // --- Grille magnétique ---
+  const [snapActif, setSnapActif] = useState(true);
+  const [grilleVisible, setGrilleVisible] = useState(false);
+
+  // --- Aperçu responsive ---
+  const [ecranApercu, setEcranApercu] = useState<EcranApercu>("bureau");
+
+  // --- Génération de textes par IA ---
+  const [descriptionProduit, setDescriptionProduit] = useState("");
+  const [chargementIA, setChargementIA] = useState(false);
+  const [erreurIA, setErreurIA] = useState("");
+  const [resultatIA, setResultatIA] = useState<{ titres: string[]; descriptions: string[]; ctas: string[] } | null>(
+    null
+  );
+
+  // --- Recherche d'images (Unsplash) ---
+  const [requeteImage, setRequeteImage] = useState("");
+  const [chargementImages, setChargementImages] = useState(false);
+  const [erreurImages, setErreurImages] = useState("");
+  const [resultatsImages, setResultatsImages] = useState<ImageRecherchee[]>([]);
+  const [creditImageActive, setCreditImageActive] = useState<{ nom: string; profil: string } | null>(null);
+
+  // --- Théorie des couleurs ---
+  const [comboCouleurs, setComboCouleurs] = useState<ComboCouleurs | null>(null);
+
+  // --- Mockups (téléphone / ordinateur / panneau) ---
+  const [imageMockup, setImageMockup] = useState<HTMLImageElement | null>(null);
+  const [mockupsOuverts, setMockupsOuverts] = useState(false);
+  const [mockupPleinEcran, setMockupPleinEcran] = useState<TypeMockup | null>(null);
+  const refMockupTelephone = useRef<Konva.Stage | null>(null);
+  const refMockupOrdinateur = useRef<Konva.Stage | null>(null);
+  const refMockupPanneau = useRef<Konva.Stage | null>(null);
+  const refsMockup: Record<TypeMockup, RefObject<Konva.Stage | null>> = {
+    telephone: refMockupTelephone,
+    ordinateur: refMockupOrdinateur,
+    panneau: refMockupPanneau,
+  };
 
   const template = getTemplate(doc.templateId);
   const format = getFormat(doc.formatId);
@@ -228,6 +284,120 @@ function EditeurContenu() {
   function handleReinitialiserMiseEnPage() {
     setDoc({ ...doc, boitesPerso: {} });
     setSelection(null);
+  }
+
+  // --- IA : génération de titres/descriptions/CTA ---
+  async function handleGenererTextes() {
+    if (!descriptionProduit.trim()) {
+      setErreurIA("Décris ton produit avant de générer.");
+      return;
+    }
+    setChargementIA(true);
+    setErreurIA("");
+    try {
+      const res = await fetch("/api/adbuilder/generer-textes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: descriptionProduit }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErreurIA(data.erreur ?? "La génération a échoué.");
+        return;
+      }
+      setResultatIA(data);
+      sauvegarderTextesGeneres({
+        id: crypto.randomUUID(),
+        description: descriptionProduit,
+        titres: data.titres,
+        descriptions: data.descriptions,
+        ctas: data.ctas,
+        creeLe: Date.now(),
+      });
+    } catch {
+      setErreurIA("La génération a échoué. Vérifie ta connexion.");
+    } finally {
+      setChargementIA(false);
+    }
+  }
+
+  // --- Recherche d'images (Unsplash) ---
+  async function handleChercherImages() {
+    if (!requeteImage.trim()) {
+      setErreurImages("Tape un mot-clé avant de chercher.");
+      return;
+    }
+    setChargementImages(true);
+    setErreurImages("");
+    try {
+      const res = await fetch(`/api/adbuilder/chercher-images?q=${encodeURIComponent(requeteImage)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        setErreurImages(data.erreur ?? "La recherche a échoué.");
+        return;
+      }
+      setResultatsImages(data.images);
+    } catch {
+      setErreurImages("La recherche a échoué. Vérifie ta connexion.");
+    } finally {
+      setChargementImages(false);
+    }
+  }
+
+  async function handleChoisirImageRecherchee(img: ImageRecherchee) {
+    try {
+      const el = new window.Image();
+      el.crossOrigin = "anonymous";
+      await new Promise<void>((resolve, reject) => {
+        el.onload = () => resolve();
+        el.onerror = () => reject(new Error("Échec de chargement de l'image"));
+        el.src = img.urlFull;
+      });
+      setImage(el);
+      setEchelleImage(1);
+      setCreditImageActive({ nom: img.auteurNom, profil: img.auteurProfil });
+      sauvegarderImageRecherchee(img);
+      // Ping "download" exigé par Unsplash quand une photo est effectivement utilisée.
+      fetch("/api/adbuilder/chercher-images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ urlTelechargement: img.urlTelechargement }),
+      }).catch(() => {});
+    } catch {
+      setErreurImages("Impossible de charger cette image.");
+    }
+  }
+
+  // --- Théorie des couleurs ---
+  function handleGenererCombo() {
+    setComboCouleurs(genererComboCouleurs(doc.fond));
+  }
+
+  function handleAppliquerCombo(combo: ComboCouleurs) {
+    setDoc({
+      ...doc,
+      fond: combo.base,
+      couleurCTA: combo.complementaire,
+      couleurTexte: couleurContrastee(combo.base),
+    });
+    setComboCouleurs(null);
+  }
+
+  // --- Mockups en contexte réel ---
+  async function handleOuvrirMockups() {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const dataUrl = stageEnDataUrl(stage);
+    const img = await chargerImageDepuisDataUrl(dataUrl);
+    setImageMockup(img);
+    setMockupsOuverts(true);
+  }
+
+  function handleTelechargerMockup(type: TypeMockup) {
+    const stage = refsMockup[type].current;
+    if (!stage) return;
+    const { w } = TAILLES_MOCKUP[type];
+    exporterStagePNG(stage, `limak-pub-mockup-${type}`, w * 2);
   }
 
   function handleDownload() {
@@ -343,9 +513,12 @@ function EditeurContenu() {
   const tailleTitre = H * 0.0333 * multiplicateur;
   const tailleDesc = H * 0.01875 * multiplicateur;
 
-  // Aperçu : on garde le format proportionnel, limité à une taille raisonnable.
+  // Aperçu : on garde le format proportionnel, limité à une taille raisonnable,
+  // réduite en plus selon l'écran simulé (aperçu responsive — voir ECRANS_APERCU).
   const ratioFormat = W / H;
-  let previewLargeur = PREVIEW_MAX_LARGEUR;
+  const ecran = ECRANS_APERCU[ecranApercu];
+  const plafondResponsive = ecran.w * ecran.facteurLargeur;
+  let previewLargeur = Math.min(PREVIEW_MAX_LARGEUR, plafondResponsive);
   let previewHauteur = previewLargeur / ratioFormat;
   if (previewHauteur > PREVIEW_MAX_HAUTEUR) {
     previewHauteur = PREVIEW_MAX_HAUTEUR;
@@ -422,6 +595,8 @@ function EditeurContenu() {
               selection={selection}
               onSelect={setSelection}
               onChangeBoite={handleChangeBoite}
+              snapActif={snapActif}
+              grilleVisible={grilleVisible}
             />
           </div>
           <p className="mt-2 text-center text-xs text-neutral-400 dark:text-gray-500">
@@ -439,6 +614,59 @@ function EditeurContenu() {
               Réinitialiser la mise en page
             </button>
           )}
+
+          {/* --- GRILLE MAGNÉTIQUE --- */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSnapActif(!snapActif)}
+              title="Accroche les éléments à une grille invisible pendant le glissement"
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                snapActif ? "bg-[#14213D] text-white" : "border border-[#14213D]/20 text-[#14213D] dark:text-gray-300"
+              }`}
+            >
+              🧲 Grille magnétique {snapActif ? "activée" : "désactivée"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setGrilleVisible(!grilleVisible)}
+              title="Affiche des repères visuels sur le canvas"
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                grilleVisible ? "bg-[#14213D] text-white" : "border border-[#14213D]/20 text-[#14213D] dark:text-gray-300"
+              }`}
+            >
+              ▦ Grille visible
+            </button>
+          </div>
+
+          {/* --- APERÇU RESPONSIVE --- */}
+          <div className="mt-4">
+            <label className="block text-center text-xs font-medium text-neutral-500 dark:text-gray-400">
+              Aperçu taille écran
+            </label>
+            <select
+              value={ecranApercu}
+              onChange={(e) => setEcranApercu(e.target.value as EcranApercu)}
+              className="mx-auto mt-1 block rounded-lg border border-[#14213D]/15 px-3 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
+            >
+              <option value="bureau">Bureau (1920×1080)</option>
+              <option value="tablette">Tablette (768×1024)</option>
+              <option value="mobile">Mobile (375×667)</option>
+            </select>
+            <p className="mt-1 text-center text-xs text-neutral-400 dark:text-gray-500">
+              Simule la place occupée dans un fil — résolution : {ECRANS_APERCU[ecranApercu].w}×
+              {ECRANS_APERCU[ecranApercu].h}
+            </p>
+          </div>
+
+          {/* --- MOCKUP EN CONTEXTE RÉEL --- */}
+          <button
+            type="button"
+            onClick={handleOuvrirMockups}
+            className="mx-auto mt-4 block rounded-full border border-[#14213D]/20 px-4 py-1.5 text-sm font-semibold text-[#14213D] transition hover:bg-[#14213D]/5 dark:text-gray-300"
+          >
+            📱 Voir dans contexte réel
+          </button>
         </div>
 
         {/* --- PANNEAU DE RÉGLAGES --- */}
@@ -543,6 +771,118 @@ function EditeurContenu() {
                 </div>
               </div>
             )}
+
+            {creditImageActive && (
+              <p className="mt-2 text-xs text-neutral-400 dark:text-gray-500">
+                Photo par{" "}
+                <a
+                  href={creditImageActive.profil}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="underline hover:text-[#F1720A]"
+                >
+                  {creditImageActive.nom}
+                </a>{" "}
+                sur Unsplash
+              </p>
+            )}
+
+            {/* --- RECHERCHE D'IMAGE (Unsplash) --- */}
+            <div className="mt-3 rounded-lg border border-[#14213D]/10 p-3 dark:border-white/15">
+              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-gray-400">
+                Ou chercher une image
+              </p>
+              <div className="flex gap-2">
+                <input
+                  value={requeteImage}
+                  onChange={(e) => setRequeteImage(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleChercherImages()}
+                  placeholder="ex : chaussures de luxe"
+                  className="flex-1 rounded-lg border border-[#14213D]/15 px-3 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
+                />
+                <button
+                  type="button"
+                  onClick={handleChercherImages}
+                  disabled={chargementImages}
+                  className="shrink-0 rounded-lg bg-[#14213D] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#1c2d54] disabled:opacity-50"
+                >
+                  {chargementImages ? "Recherche…" : "Chercher"}
+                </button>
+              </div>
+              {erreurImages && <p className="mt-2 text-xs text-[#D6293E]">{erreurImages}</p>}
+              {resultatsImages.length > 0 && (
+                <div className="mt-3 grid grid-cols-4 gap-1.5">
+                  {resultatsImages.map((img) => (
+                    <button
+                      key={img.id}
+                      type="button"
+                      onClick={() => handleChoisirImageRecherchee(img)}
+                      title={`Photo par ${img.auteurNom}`}
+                      className="aspect-square overflow-hidden rounded-md border border-[#14213D]/10 transition hover:ring-2 hover:ring-[#F1720A]"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img.urlThumb} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* --- IA : GÉNÉRATION DE TEXTES --- */}
+          <div className="space-y-3 rounded-lg border border-[#14213D]/10 p-3 dark:border-white/15">
+            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-gray-400">
+              ✨ Générer des textes par IA
+            </p>
+            <div className="flex gap-2">
+              <input
+                value={descriptionProduit}
+                onChange={(e) => setDescriptionProduit(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleGenererTextes()}
+                placeholder="Décris ton produit (ex : chaussures de luxe en CI)"
+                className="flex-1 rounded-lg border border-[#14213D]/15 px-3 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#05070d] dark:text-gray-300"
+              />
+              <button
+                type="button"
+                onClick={handleGenererTextes}
+                disabled={chargementIA}
+                className="shrink-0 rounded-lg bg-[#14213D] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#1c2d54] disabled:opacity-50"
+              >
+                {chargementIA ? "Génération…" : "Générer des textes"}
+              </button>
+            </div>
+            {erreurIA && <p className="text-xs text-[#D6293E]">{erreurIA}</p>}
+            {resultatIA && (
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                {(
+                  [
+                    { titreCol: "Titres", liste: resultatIA.titres, champ: "titre" as const },
+                    { titreCol: "Descriptions", liste: resultatIA.descriptions, champ: "description" as const },
+                    { titreCol: "CTA", liste: resultatIA.ctas, champ: "cta" as const },
+                  ]
+                ).map(({ titreCol, liste, champ }) => (
+                  <div key={champ}>
+                    <p className="mb-1 font-semibold text-neutral-500 dark:text-gray-400">{titreCol}</p>
+                    <div className="space-y-1">
+                      {liste.map((valeur, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setDoc({ ...doc, [champ]: valeur })}
+                          className={`block w-full rounded-md border px-2 py-1 text-left transition hover:border-[#F1720A] ${
+                            doc[champ] === valeur
+                              ? "border-[#F1720A] bg-[#F1720A]/10"
+                              : "border-[#14213D]/15 dark:border-white/15"
+                          }`}
+                        >
+                          {valeur}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* --- TEXTE --- */}
@@ -635,6 +975,39 @@ function EditeurContenu() {
                 </div>
               </div>
             ))}
+
+            <div>
+              <button
+                type="button"
+                onClick={handleGenererCombo}
+                className="rounded-full border border-[#14213D]/20 px-3 py-1.5 text-xs font-semibold text-[#14213D] transition hover:bg-[#14213D]/5 dark:text-gray-300"
+              >
+                🎨 Couleurs complémentaires
+              </button>
+              {comboCouleurs && (
+                <div className="mt-2 flex items-center gap-2 rounded-lg border border-[#14213D]/10 p-2 dark:border-white/15">
+                  <div className="flex gap-1">
+                    {[
+                      comboCouleurs.base,
+                      comboCouleurs.complementaire,
+                      comboCouleurs.analogue1,
+                      comboCouleurs.analogue2,
+                      comboCouleurs.clair,
+                      comboCouleurs.fonce,
+                    ].map((c) => (
+                      <span key={c} className="h-6 w-6 rounded-full border border-[#14213D]/15" style={{ backgroundColor: c }} />
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleAppliquerCombo(comboCouleurs)}
+                    className="ml-auto shrink-0 rounded-full bg-[#F1720A] px-3 py-1 text-xs font-semibold text-white transition hover:bg-[#C95900]"
+                  >
+                    Appliquer
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* --- POLICE --- */}
@@ -674,6 +1047,76 @@ function EditeurContenu() {
           </div>
         </div>
       </div>
+
+      {/* --- MOCKUPS EN CONTEXTE RÉEL --- */}
+      {mockupsOuverts && (
+        <div className="mt-8 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 dark:border-white/15 dark:bg-[#05070d]">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-sm font-semibold text-[#14213D] dark:text-gray-300">Dans son contexte réel</p>
+            <button
+              type="button"
+              onClick={() => setMockupsOuverts(false)}
+              className="text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400"
+            >
+              Fermer ✕
+            </button>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {(Object.keys(TAILLES_MOCKUP) as TypeMockup[]).map((type) => {
+              const taille = TAILLES_MOCKUP[type];
+              const echelleMockup = 220 / taille.w;
+              return (
+                <div key={type} className="text-center">
+                  <div
+                    className="mx-auto overflow-hidden rounded-lg border border-[#14213D]/10"
+                    style={{ width: taille.w * echelleMockup, height: taille.h * echelleMockup }}
+                  >
+                    <div style={{ transform: `scale(${echelleMockup})`, transformOrigin: "top left" }}>
+                      <MockupCanvas ref={refsMockup[type]} type={type} image={imageMockup} />
+                    </div>
+                  </div>
+                  <p className="mt-2 text-xs font-medium text-neutral-500 dark:text-gray-400">{taille.nom}</p>
+                  <div className="mt-1 flex items-center justify-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setMockupPleinEcran(type)}
+                      className="text-xs font-medium text-[#F1720A] hover:underline"
+                    >
+                      Plein écran
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleTelechargerMockup(type)}
+                      className="text-xs font-medium text-[#14213D] hover:underline dark:text-gray-300"
+                    >
+                      Télécharger
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* --- PLEIN ÉCRAN D'UN MOCKUP --- */}
+      {mockupPleinEcran && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6"
+          onClick={() => setMockupPleinEcran(null)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <MockupCanvas type={mockupPleinEcran} image={imageMockup} />
+          </div>
+          <button
+            type="button"
+            onClick={() => setMockupPleinEcran(null)}
+            className="absolute right-6 top-6 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#14213D]"
+          >
+            Fermer ✕
+          </button>
+        </div>
+      )}
     </main>
   );
 }

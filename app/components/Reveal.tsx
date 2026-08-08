@@ -19,21 +19,49 @@ export default function Reveal({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const visibleRef = useRef(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    const reveal = () => {
+      if (visibleRef.current) return;
+      visibleRef.current = true;
+      setVisible(true);
+      observer.disconnect();
+      window.removeEventListener("scroll", filetDeSecurite);
+      window.removeEventListener("resize", filetDeSecurite);
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
+        if (entry.isIntersecting) reveal();
       },
-      { threshold: 0.15 }
+      { threshold: 0.15, rootMargin: "200px 0px" }
     );
     observer.observe(el);
-    return () => observer.disconnect();
+
+    // Filet de sécurité : un défilement instantané (touche Fin, clic sur la
+    // barre de défilement, capture d'écran automatisée...) peut faire "sauter"
+    // par-dessus une section sans jamais la faire passer devant l'écran ->
+    // l'IntersectionObserver ne se déclenche alors jamais et la section reste
+    // invisible pour toujours (un grand carré vide). On vérifie donc aussi sa
+    // position réelle à chaque arrêt de défilement.
+    const filetDeSecurite = () => {
+      if (visibleRef.current) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight) reveal();
+    };
+    window.addEventListener("scroll", filetDeSecurite, { passive: true });
+    window.addEventListener("resize", filetDeSecurite);
+    filetDeSecurite(); // au cas où déjà visible/dépassée au montage
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", filetDeSecurite);
+      window.removeEventListener("resize", filetDeSecurite);
+    };
   }, []);
 
   return (

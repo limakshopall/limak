@@ -59,7 +59,6 @@ export default function ProductCard({
   stock?: number;
   isNew?: boolean;
   premium?: boolean;
-  large?: boolean;
 }) {
   const epuise = stock !== undefined && stock <= 0;
   // En promo si comparePrice existe, est plus élevé que le prix actuel,

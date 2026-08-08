@@ -1,7 +1,7 @@
 // ============================================================
-//  SECTION PRODUITS — disposition variable selon la section
-//  "grille" : grille classique · "scroll" : défilement horizontal
-//  "decale" : cartes décalées (effet zig-zag)
+//  SECTION PRODUITS — disposition selon la section
+//  "grille" : grille classique, cartes toutes de même taille, alignées
+//  "scroll" : défilement horizontal (carrousel)
 //  Une seule carte produit (ProductCard) partout, pour une présentation
 //  cohérente d'une section à l'autre.
 // ============================================================
@@ -27,30 +27,14 @@ type Produit = {
   note?: Note;
 };
 
-export type Disposition = "grille" | "scroll" | "decale";
-
-// Motifs de tuiles "grandes" (sur 8 positions) : change d'un bloc à l'autre
-// pour que la grille ne se répète pas exactement de la même façon partout.
-const MOTIFS_TAILLE: number[][] = [
-  [0, 5],
-  [2, 6],
-  [1, 4, 7],
-  [3],
-];
-
-function estGrande(i: number, variante: number) {
-  const motif = MOTIFS_TAILLE[variante % MOTIFS_TAILLE.length];
-  return motif.includes(i % 8);
-}
+export type Disposition = "grille" | "scroll";
 
 export default function ProductSection({
   produits,
   disposition,
-  variante = 0,
 }: {
   produits: Produit[];
   disposition: Disposition;
-  variante?: number;
 }) {
   if (disposition === "scroll") {
     return (
@@ -78,37 +62,28 @@ export default function ProductSection({
     );
   }
 
-  // "grille" (classique) et "decale" (zig-zag) partagent la même grille de base
+  // Grille droite et uniforme : toutes les cartes ont la même taille, pas de
+  // décalage ni de tuile géante — l'espace est occupé de façon régulière.
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-      {produits.map((p, i) => {
-        const grande = estGrande(i, variante);
-        return (
-          <div
-            key={p.id}
-            className={`${grande ? "col-span-2" : ""} ${
-              disposition === "decale" && i % 2 === 1 && !grande ? "mt-5" : ""
-            }`}
-          >
-            <ProductCard
-              slug={p.slug}
-              colorId={p.colorId}
-              name={p.name}
-              price={p.price}
-              comparePrice={p.comparePrice}
-              imageUrl={p.imageUrl}
-              imageAlt={p.imageAlt}
-              imageWidth={p.imageWidth}
-              imageHeight={p.imageHeight}
-              imageUrlHover={p.imageUrlHover}
-              note={p.note}
-              stock={p.stock}
-              isNew={p.isNew}
-              large={grande}
-            />
-          </div>
-        );
-      })}
+      {produits.map((p) => (
+        <ProductCard
+          key={p.id}
+          slug={p.slug}
+          colorId={p.colorId}
+          name={p.name}
+          price={p.price}
+          comparePrice={p.comparePrice}
+          imageUrl={p.imageUrl}
+          imageAlt={p.imageAlt}
+          imageWidth={p.imageWidth}
+          imageHeight={p.imageHeight}
+          imageUrlHover={p.imageUrlHover}
+          note={p.note}
+          stock={p.stock}
+          isNew={p.isNew}
+        />
+      ))}
     </div>
   );
 }

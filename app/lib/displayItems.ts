@@ -104,3 +104,22 @@ export function toDisplayItems(product: ProductForDisplay, note?: Note): Display
 export function epuisesEnDernier(items: DisplayItem[]): DisplayItem[] {
   return [...items].sort((a, b) => Number(a.stock <= 0) - Number(b.stock <= 0));
 }
+
+// Forme de la photo (portrait / carrée / paysage), pour rapprocher les
+// cartes qui se ressemblent visuellement et éviter qu'une photo très haute
+// se retrouve à côté d'une très large dans la même ligne de la grille.
+// Pas de dimensions connues (anciennes photos) -> traité comme carré, même
+// repli que ProductPhoto.
+function formeImage({ imageWidth: w, imageHeight: h }: DisplayItem): 0 | 1 | 2 {
+  if (!w || !h) return 1;
+  const ratio = w / h;
+  if (ratio < 0.85) return 0; // portrait
+  if (ratio > 1.15) return 2; // paysage
+  return 1; // carré
+}
+
+// Regroupe les articles par forme de photo proche (tri stable : au sein
+// d'un même groupe, l'ordre d'origine — prix, nouveauté… — est conservé).
+export function regrouperParFormeImage(items: DisplayItem[]): DisplayItem[] {
+  return [...items].sort((a, b) => formeImage(a) - formeImage(b));
+}

@@ -19,7 +19,7 @@ import Reveal from "./components/Reveal";
 import { toDisplayItems, epuisesEnDernier } from "./lib/displayItems";
 
 // Rotation des dispositions pour casser la monotonie en descendant la page.
-const ROTATION_DISPOSITIONS: Disposition[] = ["grille", "scroll", "decale"];
+const ROTATION_DISPOSITIONS: Disposition[] = ["grille", "scroll"];
 // Au-delà, une "promo" ressemble plus à une erreur de saisie qu'à une vraie remise.
 const REDUCTION_MAX_CREDIBLE = 60;
 
@@ -296,7 +296,7 @@ export default async function Accueil() {
               Voir tout →
             </Link>
           </div>
-          <ProductSection disposition={ROTATION_DISPOSITIONS[0]} variante={0} produits={nouveautesAffichees} />
+          <ProductSection disposition={ROTATION_DISPOSITIONS[0]} produits={nouveautesAffichees} />
         </section>
       </Reveal>
 
@@ -315,7 +315,6 @@ export default async function Accueil() {
             </div>
             <ProductSection
               disposition={ROTATION_DISPOSITIONS[(i + 1) % ROTATION_DISPOSITIONS.length]}
-              variante={i + 1}
               produits={epuisesEnDernier(c.products.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id))))}
             />
           </section>

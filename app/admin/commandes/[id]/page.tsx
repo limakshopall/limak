@@ -6,6 +6,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "../../../lib/prisma";
 import OrderStatusForm from "../OrderStatusForm";
+import DeleteOrderButton from "../DeleteOrderButton";
 
 const STATUTS: Record<string, string> = {
   PENDING: "En attente",
@@ -35,12 +36,15 @@ export default async function DetailCommande({
 
   return (
     <main className="mx-auto max-w-3xl bg-[#FBEEDA] px-4 py-8 dark:bg-[#1c2333]">
-      <Link
-        href="/admin/commandes"
-        className="mb-6 inline-block text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400"
-      >
-        ← Retour aux commandes
-      </Link>
+      <div className="mb-6 flex items-center justify-between">
+        <Link
+          href="/admin/commandes"
+          className="inline-block text-sm text-neutral-500 hover:text-[#14213D] dark:text-gray-400"
+        >
+          ← Retour aux commandes
+        </Link>
+        <DeleteOrderButton id={cmd.id} ref={ref} />
+      </div>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-[#14213D] dark:text-gray-300">Commande n°{ref}</h1>

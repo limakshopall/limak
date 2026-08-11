@@ -7,6 +7,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useHydrated } from "./useHydrated";
+import { trackerMetaPixel } from "./metaPixel";
 
 // La forme d'un article dans le panier
 // (une ligne = une variante précise : ex. "Basket rouge, taille 42")
@@ -73,6 +74,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Ajouter un article (s'il y est déjà, on augmente la quantité de 1,
   // sans jamais dépasser le stock connu).
   function addItem(item: Omit<CartItem, "quantity">) {
+    trackerMetaPixel("AddToCart", {
+      content_name: item.name,
+      content_ids: [item.productId],
+      content_type: "product",
+      value: item.price,
+      currency: "XOF",
+    });
     setItems((prev) => {
       const existing = prev.find((i) => i.variantId === item.variantId);
       if (existing) {

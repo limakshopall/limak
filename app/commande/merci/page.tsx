@@ -5,6 +5,7 @@
 
 import Link from "next/link";
 import { prisma } from "../../lib/prisma";
+import PurchasePixel from "../../components/PurchasePixel";
 
 export default async function MerciPage({
   searchParams,
@@ -13,8 +14,16 @@ export default async function MerciPage({
 }) {
   const { id } = await searchParams;
   const order = id
-    ? await prisma.order.findUnique({ where: { id } })
+    ? await prisma.order.findUnique({
+        where: { id },
+        include: { items: { include: { variant: { select: { productId: true } } } } },
+      })
     : null;
+
+  // Ids produits (uniques) des articles achetés — pour l'événement Purchase.
+  const contentIds = order
+    ? Array.from(new Set(order.items.map((i) => i.variant?.productId).filter((v): v is string => !!v)))
+    : [];
 
   return (
     <main className="mx-auto max-w-2xl bg-[#FBEEDA] px-4 py-16 text-center dark:bg-[#1c2333]">
@@ -24,6 +33,8 @@ export default async function MerciPage({
         </svg>
       </div>
       <h1 className="mt-4 text-2xl font-bold text-[#14213D] dark:text-gray-300">Merci pour votre commande !</h1>
+
+      {order && <PurchasePixel orderId={order.id} value={order.total} contentIds={contentIds} />}
 
       {order ? (
         <>

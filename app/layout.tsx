@@ -2,6 +2,7 @@ import WhatsAppButton from "./components/WhatsAppButton";
 import Ticker from "./components/Ticker";
 import InstallBanner from "./components/InstallBanner";
 import RouteLoadingOverlay from "./components/RouteLoadingOverlay";
+import MetaPixel from "./components/MetaPixel";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
@@ -97,6 +98,7 @@ export default async function RootLayout({
           }}
         />
         <body className="min-h-full flex flex-col">
+          <MetaPixel />
           <WhatsAppButton />
           <Suspense fallback={null}>
             <RouteLoadingOverlay />

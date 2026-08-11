@@ -6,22 +6,10 @@
 import type { Metadata } from "next";
 import { prisma } from "../lib/prisma";
 import ProduitsFiltres from "../components/ProduitsFiltres";
-import ProductSection, { type Disposition } from "../components/ProductSection";
+import ProductSection from "../components/ProductSection";
 import Reveal from "../components/Reveal";
-import { toDisplayItems, epuisesEnDernier } from "../lib/displayItems";
+import { toDisplayItems, epuisesEnDernier, regrouperParFormeImage } from "../lib/displayItems";
 import { elargirRecherche } from "../lib/searchSynonymes";
-
-// Groupes de produits + rotation des dispositions, pour casser la monotonie en descendant la page.
-const TAILLE_GROUPE = 8;
-const ROTATION_DISPOSITIONS: Disposition[] = ["grille", "scroll", "decale"];
-
-function decouper<T>(liste: T[], taille: number): T[][] {
-  const groupes: T[][] = [];
-  for (let i = 0; i < liste.length; i += taille) {
-    groupes.push(liste.slice(i, i + taille));
-  }
-  return groupes;
-}
 
 export const metadata: Metadata = {
   title: "Nos articles",
@@ -102,10 +90,12 @@ export default async function ProduitsPage({
   } else if (tri === "prix-desc") {
     produitsAffiches = [...produitsAffiches].sort((a, b) => b.price - a.price);
   }
-  // Épuisés en fin de liste, sans casser le tri choisi ci-dessus.
+  // Regroupe par forme de photo proche (portrait/carré/paysage), sans casser
+  // le tri choisi ci-dessus au sein de chaque groupe.
+  produitsAffiches = regrouperParFormeImage(produitsAffiches);
+  // Épuisés en fin de liste (par-dessus le regroupement précédent, donc
+  // globalement tout en bas, eux-mêmes regroupés par forme).
   produitsAffiches = epuisesEnDernier(produitsAffiches);
-
-  const groupes = decouper(produitsAffiches, TAILLE_GROUPE);
 
   return (
     <main className="mx-auto max-w-6xl px-4 pb-28 pt-10 sm:pb-10">
@@ -124,17 +114,9 @@ export default async function ProduitsPage({
           Aucun article ne correspond à votre recherche.
         </p>
       ) : (
-        <div className="flex flex-col gap-10">
-          {groupes.map((groupe, i) => (
-            <Reveal key={i}>
-              <ProductSection
-                produits={groupe}
-                disposition={ROTATION_DISPOSITIONS[i % ROTATION_DISPOSITIONS.length]}
-                variante={i}
-              />
-            </Reveal>
-          ))}
-        </div>
+        <Reveal>
+          <ProductSection produits={produitsAffiches} disposition="grille" />
+        </Reveal>
       )}
     </main>
   );

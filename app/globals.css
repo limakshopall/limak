@@ -102,6 +102,44 @@ body {
   }
 }
 
+/* Badge de réduction "feu" : dégradé qui vacille comme une braise. Couleurs
+   (doux -> rouge), vitesse et halo pilotés en inline style selon
+   l'intensité de la réduction (ProductCard.tsx). */
+.limak-badge-feu {
+  animation-name: limak-badge-feu;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes limak-badge-feu {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .limak-badge-feu {
+    animation: none;
+    background-position: 50% 50%;
+  }
+}
+
+/* Petites flammes au-dessus du badge de réduction : vacillent (taille/glow
+   gérés en inline style selon l'intensité, voir FlammesBadge dans ProductCard.tsx) */
+.limak-flamme {
+  animation-name: limak-flamme;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  transform-origin: 50% 100%;
+}
+@keyframes limak-flamme {
+  0%, 100% { transform: translateX(-50%) scale(1) rotate(-4deg); }
+  50% { transform: translateX(-50%) scale(1.15) rotate(4deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .limak-flamme {
+    animation: none;
+  }
+}
+
 /* Pulsation douce du bouton CTA du carrousel d'accueil */
 .limak-cta-pulse {
   animation: limak-cta-pulse 2.4s ease-in-out infinite;

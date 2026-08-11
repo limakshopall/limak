@@ -6,6 +6,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useId } from "react";
 import ProductPhoto from "./ProductPhoto";
 
 function Stars({ value }: { value: number }) {
@@ -18,6 +19,73 @@ function Stars({ value }: { value: number }) {
         </span>
       ))}
     </span>
+  );
+}
+
+// Dégradé du badge "feu" : à t=0 (petite réduction) un ton doux orange/or, qui
+// vire de plus en plus vers le rouge à mesure que t approche 1 (réduction
+// max crédible) — pas de noir, juste une chaleur croissante.
+function hexVersRgb(hex: string): [number, number, number] {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function teinteFeu(t: number, [c0, c1]: [string, string]): string {
+  const tc = Math.max(0, Math.min(t, 1));
+  const [r1, g1, b1] = hexVersRgb(c0);
+  const [r2, g2, b2] = hexVersRgb(c1);
+  const r = r1 + (r2 - r1) * tc;
+  const g = g1 + (g2 - g1) * tc;
+  const b = b1 + (b2 - b1) * tc;
+  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+}
+const BORD_FEU: [string, string] = ["#F1720A", "#D6293E"]; // mangue -> hibiscus (rouge)
+const CENTRE_FEU: [string, string] = ["#FFD98A", "#F1720A"]; // or pâle -> mangue
+
+// Petites flammes visibles au-dessus du badge : plus `intensite` (0 à 1) est
+// élevée, plus elles sont grandes et débordent des dimensions du badge.
+function FlammesBadge({ intensite }: { intensite: number }) {
+  const id = useId();
+  const t = Math.max(0, Math.min(intensite, 1));
+  const bordCouleur = teinteFeu(t, BORD_FEU);
+  const centreCouleur = teinteFeu(t, CENTRE_FEU);
+  const positions = [
+    { gauche: "18%", echelle: 0.8, delai: "0s" },
+    { gauche: "50%", echelle: 1, delai: "0.15s" },
+    { gauche: "82%", echelle: 0.8, delai: "0.3s" },
+  ];
+  return (
+    <>
+      {positions.map((p, i) => {
+        const hauteur = (9 + t * 13) * p.echelle; // 9px -> 22px : dépasse le badge (~18px) à mesure que t grandit
+        return (
+          <svg
+            key={i}
+            viewBox="0 0 24 24"
+            width={hauteur * 0.62}
+            height={hauteur}
+            aria-hidden
+            className="limak-flamme pointer-events-none absolute bottom-2 -translate-x-1/2"
+            style={{
+              left: p.gauche,
+              animationDuration: `${1.1 - t * 0.5}s`,
+              animationDelay: p.delai,
+              filter: `drop-shadow(0 0 ${2 + t * 5}px rgba(241, 114, 10, ${0.5 + t * 0.4}))`,
+            }}
+          >
+            <defs>
+              <linearGradient id={`${id}-${i}`} x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%" stopColor={bordCouleur} />
+                <stop offset="100%" stopColor={centreCouleur} />
+              </linearGradient>
+            </defs>
+            <path
+              fill={`url(#${id}-${i})`}
+              d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"
+            />
+          </svg>
+        );
+      })}
+    </>
   );
 }
 
@@ -59,7 +127,6 @@ export default function ProductCard({
   stock?: number;
   isNew?: boolean;
   premium?: boolean;
-  large?: boolean;
 }) {
   const epuise = stock !== undefined && stock <= 0;
   // En promo si comparePrice existe, est plus élevé que le prix actuel,
@@ -70,6 +137,8 @@ export default function ProductCard({
       : 0;
   const enPromo = reductionBrute > 0 && reductionBrute <= REDUCTION_MAX_CREDIBLE;
   const reduction = enPromo ? reductionBrute : 0;
+  // 0 (petite réduction) -> 1 (réduction max crédible) : pilote l'intensité du badge "feu".
+  const intensitePromo = reduction / REDUCTION_MAX_CREDIBLE;
   // Urgence : affiché seulement quand le stock est réellement bas, pour garder le signal fort.
   const stockBas = stock !== undefined && stock > 0 && stock <= SEUIL_STOCK_BAS;
 
@@ -112,12 +181,8 @@ export default function ProductCard({
           </div>
         )}
 
-        {/* Badge en haut à droite : promo, sinon "Nouveau" — un seul à la fois pour rester lisible */}
-        {enPromo && !epuise && (
-          <span className="absolute right-1.5 top-1.5 rounded-full bg-[#D6293E] px-1.5 py-0.5 text-[10px] font-bold text-white">
-            -{reduction}%
-          </span>
-        )}
+        {/* Badge "Nouveau" en haut à droite — le badge promo est plus bas, sorti de ce
+            conteneur (overflow-hidden) pour que ses flammes aient la place de déborder. */}
         {!enPromo && isNew && !epuise && (
           <span className="absolute right-1.5 top-1.5 rounded-full bg-[#E8C255] px-1.5 py-0.5 text-[10px] font-bold text-[#14213D]">
             Nouveau
@@ -136,6 +201,29 @@ export default function ProductCard({
           </span>
         )}
       </div>
+
+      {/* Badge promo, sorti du conteneur photo (overflow-hidden) pour que les
+          flammes puissent visiblement déborder au-dessus du badge. Offset
+          14px = mêmes 6px qu'avant + les 8px de padding (p-2) du conteneur. */}
+      {enPromo && !epuise && (
+        <span className="absolute right-3.5 top-3.5 z-10">
+          <span className="relative inline-block">
+            <FlammesBadge intensite={intensitePromo} />
+            <span
+              className="limak-badge-feu relative block rounded-full px-1.5 py-0.5 text-[10px] font-bold text-white"
+              style={{
+                backgroundImage: `linear-gradient(120deg, ${teinteFeu(intensitePromo, BORD_FEU)} 0%, ${teinteFeu(intensitePromo, CENTRE_FEU)} 50%, ${teinteFeu(intensitePromo, BORD_FEU)} 100%)`,
+                backgroundSize: "300% 100%",
+                animationDuration: `${1.8 - intensitePromo * 1.1}s`,
+                boxShadow: `0 0 ${2 + intensitePromo * 10}px rgba(241, 114, 10, ${0.4 + intensitePromo * 0.5})`,
+              }}
+            >
+              -{reduction}%
+            </span>
+          </span>
+        </span>
+      )}
+
       <div className="p-1.5 pt-2">
         <h3
           className={`line-clamp-2 min-h-[2.2em] font-semibold leading-tight text-[#14213D] dark:text-gray-300 ${

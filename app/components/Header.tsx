@@ -10,10 +10,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useRef } from "react";
 import { useCart } from "../lib/cart-context";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import MenuLateral from "./MenuLateral";
 import HomeSearchBar from "./HomeSearchBar";
+import WaterHeaderBackground from "./WaterHeaderBackground";
 
 function IconeArticles({ className }: { className?: string }) {
   return (
@@ -64,10 +66,14 @@ export default function Header({
   const { count } = useCart();
   const pathname = usePathname();
   const surAccueil = pathname === "/";
+  const headerRef = useRef<HTMLElement>(null);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#14213D]/95 backdrop-blur supports-[backdrop-filter]:bg-[#14213D]/85">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:py-4">
+    <header ref={headerRef} className="sticky top-0 z-40 overflow-hidden border-b border-white/10">
+      {/* Fond "eau" interactif (canvas) — derrière tout le contenu, z-0 */}
+      <WaterHeaderBackground containerRef={headerRef} />
+
+      <div className="relative z-10 mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:py-4">
         <div className="flex shrink-0 items-center gap-3">
           <MenuLateral categories={categories} />
           <Link
@@ -147,7 +153,7 @@ export default function Header({
       {/* Barre de recherche — accueil seulement, dans le même header sticky
           pour rester épinglée en haut sans calcul de décalage fragile. */}
       {surAccueil && (
-        <div className="border-t border-white/10 px-4 py-2.5">
+        <div className="relative z-10 border-t border-white/10 px-4 py-2.5">
           <HomeSearchBar />
         </div>
       )}

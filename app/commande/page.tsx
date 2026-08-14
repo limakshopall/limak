@@ -214,7 +214,7 @@ export default function CommandePage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Pour recevoir un rappel avis après livraison"
+              placeholder="Pour recevoir la confirmation et le suivi de votre commande"
               className="mt-1 w-full rounded-lg border border-[#14213D]/15 px-3 py-2 outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15"
             />
           </div>

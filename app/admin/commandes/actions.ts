@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "../../lib/prisma";
-import { sendOrderStatusSms } from "../../lib/sms";
+import { sendOrderStatusEmail } from "../../lib/email";
 import { annulerCommandeEtRestaurerStock, livrerCommandeEtCrediterMakPoints } from "../../lib/orders";
 
 export async function updateOrderStatus(orderId: string, status: string) {
@@ -21,10 +21,10 @@ export async function updateOrderStatus(orderId: string, status: string) {
           });
   if (!order) return;
 
-  if (status !== "PENDING") {
+  if (status !== "PENDING" && order.customerEmail) {
     const orderRef = order.id.slice(-6).toUpperCase();
-    await sendOrderStatusSms({
-      phone: order.customerPhone,
+    await sendOrderStatusEmail({
+      email: order.customerEmail,
       orderId: orderRef,
       status: status as "CONFIRMED" | "SHIPPED" | "DELIVERED" | "CANCELLED",
     });

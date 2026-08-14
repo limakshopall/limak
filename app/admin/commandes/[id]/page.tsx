@@ -70,6 +70,13 @@ export default async function DetailCommande({
           <h2 className="mb-2 font-semibold text-[#14213D] dark:text-gray-300">Client</h2>
           <p className="text-sm text-neutral-800 dark:text-gray-300">{cmd.customerName}</p>
           <p className="text-sm text-neutral-600 dark:text-gray-400">{cmd.customerPhone}</p>
+          {cmd.customerEmail ? (
+            <p className="text-sm text-neutral-600 dark:text-gray-400">{cmd.customerEmail}</p>
+          ) : (
+            <p className="mt-1 text-sm font-semibold text-[#D6293E]">
+              ⚠️ Pas d&apos;email — à appeler directement pour confirmer/suivre la commande.
+            </p>
+          )}
         </div>
 
         <div className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d]">
@@ -145,11 +152,12 @@ export default async function DetailCommande({
         </div>
       </div>
 
-      {/* Changer le statut (envoie le SMS de suivi au client) */}
+      {/* Changer le statut (envoie un email de suivi au client, si son email est connu) */}
       <div className="mt-4 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d]">
         <h2 className="mb-1 font-semibold text-[#14213D] dark:text-gray-300">Statut de la commande</h2>
         <p className="mb-2 text-xs text-neutral-500 dark:text-gray-400">
-          Changer le statut envoie automatiquement un SMS au client.
+          Changer le statut envoie automatiquement un email de suivi au client
+          {!cmd.customerEmail && " (aucun email connu pour cette commande — rien ne sera envoyé)"}.
         </p>
         <OrderStatusForm orderId={cmd.id} currentStatus={cmd.status} />
       </div>

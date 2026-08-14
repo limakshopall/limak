@@ -3,16 +3,20 @@
 //  - Recalcule les prix côté serveur
 //  - Vérifie ET diminue le stock de façon sûre (pas de survente)
 //  - Rattache au compte Clerk si connecté
-//  - Envoie un SMS de confirmation au client + un email d'alerte à l'admin
-//    (l'admin était avant alerté par SMS, changé pour réduire les coûts)
+//  - Envoie un email de confirmation au client + un email d'alerte à l'admin
+//    (les deux étaient avant en SMS — Africa's Talking mis de côté, voir
+//    app/lib/email.ts pour le pourquoi)
 // ============================================================
 
 "use server";
 
 import { prisma } from "../lib/prisma";
 import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
-import { sendOrderConfirmationSms, sendGiftNotificationSms } from "../lib/sms";
-import { sendAdminOrderAlertEmail } from "../lib/email";
+import {
+  sendOrderConfirmationEmail,
+  sendGiftNotificationEmail,
+  sendAdminOrderAlertEmail,
+} from "../lib/email";
 
 type CartLine = { variantId: string; quantity: number };
 
@@ -235,16 +239,18 @@ export async function createOrder(input: OrderInput) {
   const orderRef = order.id.slice(-6).toUpperCase();
   const itemCount = orderItems.reduce((n, i) => n + i.quantity, 0);
 
-  if (isGift && giftFromName) {
-    // Le destinataire reçoit une notification cadeau (jamais le prix).
-    await sendGiftNotificationSms({ phone, orderId: orderRef, giftFromName });
-  } else {
-    await sendOrderConfirmationSms({
-      phone,
-      orderId: orderRef,
-      customerName: name,
-      total,
-    });
+  if (email) {
+    if (isGift && giftFromName) {
+      // Le destinataire reçoit une notification cadeau (jamais le prix).
+      await sendGiftNotificationEmail({ email, orderId: orderRef, giftFromName });
+    } else {
+      await sendOrderConfirmationEmail({
+        email,
+        orderId: orderRef,
+        customerName: name,
+        total,
+      });
+    }
   }
 
   await sendAdminOrderAlertEmail({
@@ -255,6 +261,7 @@ export async function createOrder(input: OrderInput) {
     shippingAddress: address,
     total,
     itemCount,
+    clientSansEmail: !email,
   });
 
   return { ok: true as const, orderId: order.id, total };

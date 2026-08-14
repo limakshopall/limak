@@ -61,7 +61,17 @@ export default async function AdminCommandes({
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="font-semibold text-[#14213D] dark:text-gray-300">{cmd.customerName}</p>
+                  <p className="font-semibold text-[#14213D] dark:text-gray-300">
+                    {cmd.customerName}
+                    {!cmd.customerEmail && (
+                      <span
+                        title="Pas d'email — à appeler directement"
+                        className="ml-1.5 rounded-full bg-[#D6293E]/10 px-1.5 py-0.5 text-[10px] font-bold text-[#D6293E]"
+                      >
+                        ⚠️ Pas d&apos;email
+                      </span>
+                    )}
+                  </p>
                   <p className="text-sm text-neutral-500 dark:text-gray-400">{cmd.customerPhone}</p>
                   <p className="text-sm text-neutral-500 dark:text-gray-400">
                     {cmd.shippingAddress}, {cmd.shippingCity}

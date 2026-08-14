@@ -67,3 +67,65 @@ export async function sendReviewReminderEmail(input: RappelAvisInput): Promise<v
     console.error("[Email:rappel-avis] Échec réseau:", err);
   }
 }
+
+type AlerteAdminInput = {
+  orderId: string | number;
+  customerName: string;
+  customerPhone: string;
+  shippingCity: string;
+  shippingAddress: string;
+  total: number;
+  itemCount: number;
+};
+
+// Alerte envoyée à TOI (l'admin) à chaque nouvelle commande — remplace
+// l'ancienne alerte par SMS (coût réduit, un SMS reste réservé au client).
+export async function sendAdminOrderAlertEmail(input: AlerteAdminInput): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!apiKey) {
+    console.warn("[Email:admin] RESEND_API_KEY manquant — alerte non envoyée.");
+    return;
+  }
+  if (!adminEmail) {
+    console.warn("[Email:admin] ADMIN_EMAIL manquant dans .env — alerte non envoyée.");
+    return;
+  }
+
+  const { orderId, customerName, customerPhone, shippingCity, shippingAddress, total, itemCount } = input;
+  const resend = new Resend(apiKey);
+  const lienCommande = `${BASE_URL}/admin/commandes`;
+
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: adminEmail,
+      subject: `🛎️ Nouvelle commande LIMAK n°${orderId} — ${Number(total).toLocaleString("fr-FR")} FCFA`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #14213D;">
+          <h1 style="color: #14213D; font-size: 20px;">Nouvelle commande !</h1>
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <tr><td style="padding: 6px 0; color: #6b7280;">Commande</td><td style="padding: 6px 0; font-weight: 600;">n°${orderId}</td></tr>
+            <tr><td style="padding: 6px 0; color: #6b7280;">Client</td><td style="padding: 6px 0;">${customerName}</td></tr>
+            <tr><td style="padding: 6px 0; color: #6b7280;">Téléphone</td><td style="padding: 6px 0;">${customerPhone}</td></tr>
+            <tr><td style="padding: 6px 0; color: #6b7280;">Livraison</td><td style="padding: 6px 0;">${shippingAddress}, ${shippingCity}</td></tr>
+            <tr><td style="padding: 6px 0; color: #6b7280;">Articles</td><td style="padding: 6px 0;">${itemCount}</td></tr>
+            <tr><td style="padding: 6px 0; color: #6b7280;">Total</td><td style="padding: 6px 0; font-weight: 700;">${Number(total).toLocaleString("fr-FR")} FCFA</td></tr>
+          </table>
+          <p style="text-align: center; margin: 28px 0;">
+            <a href="${lienCommande}" style="background:#F1720A; color:#fff; padding:12px 24px; border-radius:999px; text-decoration:none; font-weight:600;">
+              Voir dans l'admin
+            </a>
+          </p>
+        </div>
+      `,
+    });
+    if (error) {
+      console.error("[Email:admin] Erreur Resend:", error);
+      return;
+    }
+    console.log(`[Email:admin] Envoyé à ${adminEmail} pour la commande ${orderId}.`);
+  } catch (err) {
+    console.error("[Email:admin] Échec réseau:", err);
+  }
+}

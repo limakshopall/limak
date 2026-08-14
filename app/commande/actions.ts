@@ -3,14 +3,16 @@
 //  - Recalcule les prix côté serveur
 //  - Vérifie ET diminue le stock de façon sûre (pas de survente)
 //  - Rattache au compte Clerk si connecté
-//  - Envoie 2 SMS : confirmation au client + alerte à l'admin
+//  - Envoie un SMS de confirmation au client + un email d'alerte à l'admin
+//    (l'admin était avant alerté par SMS, changé pour réduire les coûts)
 // ============================================================
 
 "use server";
 
 import { prisma } from "../lib/prisma";
 import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
-import { sendOrderConfirmationSms, sendAdminOrderAlertSms, sendGiftNotificationSms } from "../lib/sms";
+import { sendOrderConfirmationSms, sendGiftNotificationSms } from "../lib/sms";
+import { sendAdminOrderAlertEmail } from "../lib/email";
 
 type CartLine = { variantId: string; quantity: number };
 
@@ -245,11 +247,12 @@ export async function createOrder(input: OrderInput) {
     });
   }
 
-  await sendAdminOrderAlertSms({
+  await sendAdminOrderAlertEmail({
     orderId: orderRef,
     customerName: isGift ? `${name} (🎁 cadeau de ${giftFromName})` : name,
     customerPhone: phone,
     shippingCity: city,
+    shippingAddress: address,
     total,
     itemCount,
   });

@@ -9,7 +9,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { deleteOrder } from "./actions";
 
-export default function DeleteOrderButton({ id, ref: reference }: { id: string; ref: string }) {
+export default function DeleteOrderButton({ id, reference }: { id: string; reference: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 

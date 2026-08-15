@@ -43,7 +43,7 @@ export default async function DetailCommande({
         >
           ← Retour aux commandes
         </Link>
-        <DeleteOrderButton id={cmd.id} ref={ref} />
+        <DeleteOrderButton id={cmd.id} reference={ref} />
       </div>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">

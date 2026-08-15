@@ -50,8 +50,10 @@ function IconeTout({ className }: { className?: string }) {
 
 export default function ProduitsFiltres({
   categories,
+  sousCategories = [],
 }: {
   categories: Categorie[];
+  sousCategories?: Categorie[];
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -167,6 +169,27 @@ export default function ProduitsFiltres({
           </button>
         ))}
       </div>
+
+      {/* Sous-catégories (ex: marques de montres) — visibles seulement quand
+          la catégorie sélectionnée en a. */}
+      {sousCategories.length > 0 && (
+        <div className="scrollbar-none mt-3 flex gap-2 overflow-x-auto pb-1">
+          {sousCategories.map((c) => (
+            <button
+              key={c.slug}
+              type="button"
+              onClick={() => setParam("categorie", c.slug)}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                categorie === c.slug
+                  ? "border-[#E8C255] bg-[#E8C255]/15 text-[#E8C255]"
+                  : "border-white/15 text-white/60 hover:border-white/30"
+              }`}
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

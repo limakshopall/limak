@@ -36,7 +36,7 @@ export default async function ProduitsPage({
   const termesRecherche = q ? elargirRecherche(q) : [];
 
   // Indépendantes l'une de l'autre : en parallèle plutôt qu'en série.
-  const [produits, categories] = await Promise.all([
+  const [produits, categories, sousCategories] = await Promise.all([
     prisma.product.findMany({
       where: {
         isActive: true,
@@ -48,7 +48,9 @@ export default async function ProduitsPage({
               ]),
             }
           : {}),
-        ...(categorie ? { category: { slug: categorie } } : {}),
+        // Filtre par catégorie OU sa sous-catégorie (ex: "Montres" affiche
+        // aussi les montres rangées dans "Casio", "Rolex"...).
+        ...(categorie ? { category: { OR: [{ slug: categorie }, { parent: { slug: categorie } }] } } : {}),
       },
       include: {
         images: { where: { colorId: null }, orderBy: { position: "asc" }, take: 1 },
@@ -60,10 +62,20 @@ export default async function ProduitsPage({
       },
       orderBy,
     }),
+    // Barre du haut : uniquement les catégories principales (pas les sous-catégories).
     prisma.category.findMany({
+      where: { parentId: null },
       orderBy: { name: "asc" },
       select: { slug: true, name: true, imageUrl: true },
     }),
+    // Sous-catégories de la catégorie actuellement sélectionnée (ex: marques de montres).
+    categorie
+      ? prisma.category.findMany({
+          where: { parent: { slug: categorie } },
+          orderBy: { name: "asc" },
+          select: { slug: true, name: true, imageUrl: true },
+        })
+      : Promise.resolve([]),
   ]);
 
   // Notes moyennes par produit (pour les étoiles sur les cartes) — dépend des ids ci-dessus.
@@ -107,7 +119,7 @@ export default async function ProduitsPage({
         </p>
       </div>
 
-      <ProduitsFiltres categories={categories} />
+      <ProduitsFiltres categories={categories} sousCategories={sousCategories} />
 
       {produitsAffiches.length === 0 ? (
         <p className="text-neutral-500 dark:text-gray-400">

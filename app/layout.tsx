@@ -65,6 +65,7 @@ export default async function RootLayout({
   // sur CHAQUE page du site (une requête série ici ralentit tout le site).
   const [categories, { userId }] = await Promise.all([
     prisma.category.findMany({
+      where: { parentId: null }, // menu du site : catégories principales seulement
       orderBy: { name: "asc" },
       select: { name: true, slug: true },
     }),

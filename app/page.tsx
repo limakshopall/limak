@@ -48,7 +48,11 @@ export default async function Accueil() {
   ] = await Promise.all([
       prisma.heroSlide.findMany({ where: { isActive: true }, orderBy: { position: "asc" } }),
       prisma.heroSettings.findFirst(),
+      // Catégories principales seulement — les produits d'une sous-catégorie
+      // (ex: "Casio" sous "Montres") sont fusionnés dans leur catégorie mère
+      // juste après la requête, pour ne pas casser le compte d'articles.
       prisma.category.findMany({
+        where: { parentId: null },
         include: {
           products: {
             where: { isActive: true },
@@ -56,6 +60,16 @@ export default async function Accueil() {
             take: 4,
           },
           _count: { select: { products: { where: { isActive: true } } } },
+          children: {
+            include: {
+              products: {
+                where: { isActive: true },
+                include: { images: IMAGES_GENERALES, colors: COULEURS, variants: VARIANTS_COMPLET },
+                take: 4,
+              },
+              _count: { select: { products: { where: { isActive: true } } } },
+            },
+          },
         },
         orderBy: { name: "asc" },
       }),
@@ -89,7 +103,18 @@ export default async function Accueil() {
       }),
     ]);
 
-  const categoriesAvecProduits = categories.filter((c) => c.products.length > 0);
+  // Fusionne les produits/compteurs des sous-catégories (ex: "Casio") dans
+  // leur catégorie mère (ex: "Montres"), pour que l'accueil affiche le
+  // total réel sans se soucier de la profondeur de rangement.
+  const categoriesFusionnees = categories.map((c) => ({
+    ...c,
+    products: [...c.products, ...c.children.flatMap((enfant) => enfant.products)].slice(0, 4),
+    _count: {
+      products: c._count.products + c.children.reduce((somme, enfant) => somme + enfant._count.products, 0),
+    },
+  }));
+
+  const categoriesAvecProduits = categoriesFusionnees.filter((c) => c.products.length > 0);
 
   // "Premium Spotlight" : les 3 articles les plus chers (prix de la variante la moins chère).
   const idsPremium = [...prixTousActifs]
@@ -116,7 +141,7 @@ export default async function Accueil() {
           in: Array.from(
             new Set([
               ...nouveautes.map((p) => p.id),
-              ...categories.flatMap((c) => c.products.map((p) => p.id)),
+              ...categoriesFusionnees.flatMap((c) => c.products.map((p) => p.id)),
               ...produitsAvecPromo.map((p) => p.id),
               ...idsPremium,
             ])
@@ -164,7 +189,7 @@ export default async function Accueil() {
           <h2 className="mb-1 text-2xl font-bold text-[#14213D] dark:text-gray-300">Explorez nos catégories</h2>
           <span className="mb-6 block h-1 w-14 rounded-full bg-[#E8C255]" aria-hidden />
           <div className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:px-0 lg:grid-cols-6">
-            {categories.map((c, i) => {
+            {categoriesFusionnees.map((c, i) => {
               const cover =
                 c.imageUrl ?? c.products[0]?.images[0]?.url ?? c.products[0]?.colors[0]?.images[0]?.url ?? null;
               const nbArticles = c._count.products;

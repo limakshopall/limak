@@ -263,9 +263,13 @@ model Order {
   giftMessage         String? // message personnel optionnel
 
   subtotal      Int           // total des articles (FCFA)
-  shipping      Int           @default(0) // frais de livraison
+  shipping      Int           @default(0) // frais de livraison facturés au client
   total         Int           // subtotal + shipping
   currency      String        @default("XOF") // code du franc CFA
+  // Ce que LIMAK a réellement payé pour livrer CETTE commande (coursier...).
+  // Différent de "shipping" ci-dessus (facturé au client, souvent 0/gratuit) —
+  // sert au calcul du bénéfice réel dans /admin/comptabilite.
+  coutTransport Int           @default(0)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
@@ -397,4 +401,42 @@ model HeroSettings {
   id            String @id @default(cuid())
   heightVh      Int    @default(45) // hauteur du carrousel, en % de la hauteur d'écran
   slideDuration Int    @default(5000) // temps entre 2 diapositives, en millisecondes
+}
+
+// ============================================================
+//  COMPTABILITÉ — /admin/comptabilite
+//  Tout est en texte libre (motif, catégorie, personne, source) pour que
+//  l'admin garde la main sur ses propres libellés, pas de liste figée.
+// ============================================================
+
+// Une sortie d'argent : achat de stock, transport, salaire, loyer...
+// (un paiement de salaire = une Depense avec categorie "Salaire").
+model Depense {
+  id        String   @id @default(cuid())
+  motif     String
+  categorie String   @default("Autre") // ex: Achat stock / Transport / Salaire / Loyer / Autre
+  montant   Int // FCFA
+  date      DateTime // date réelle de la dépense (pas forcément aujourd'hui)
+  personne  String // qui a fait/engagé la dépense
+  source    String // source du fond utilisé (ex: "Caisse LIMAK", "Apport Abdallah")
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+  @@index([categorie])
+}
+
+// Une entrée d'argent extérieure à l'activité de vente (apport personnel,
+// prêt, investisseur...) — vient s'ajouter à la caisse LIMAK.
+model ApportExterieur {
+  id        String   @id @default(cuid())
+  montant   Int // FCFA
+  date      DateTime
+  personne  String // qui a apporté le fond
+  motif     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
 }

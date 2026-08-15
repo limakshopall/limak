@@ -236,6 +236,16 @@ export default async function AdminHome() {
             Diapositives, taille et vitesse de défilement
           </p>
         </Link>
+
+        <Link
+          href="/admin/comptabilite"
+          className="rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-6 shadow-sm transition hover:shadow-md dark:border-white/15 dark:bg-[#05070d]"
+        >
+          <h2 className="font-semibold text-[#14213D] dark:text-gray-300">Comptabilité</h2>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-gray-400">
+            Chiffre d&apos;affaires, bénéfice, dépenses, apports, caisse
+          </p>
+        </Link>
       </div>
     </main>
   );

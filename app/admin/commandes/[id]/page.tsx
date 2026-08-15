@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "../../../lib/prisma";
 import OrderStatusForm from "../OrderStatusForm";
 import DeleteOrderButton from "../DeleteOrderButton";
+import { updateCoutTransport } from "../actions";
 
 const STATUTS: Record<string, string> = {
   PENDING: "En attente",
@@ -150,6 +151,31 @@ export default async function DetailCommande({
             <span>{new Intl.NumberFormat("fr-FR").format(cmd.total)} FCFA</span>
           </div>
         </div>
+      </div>
+
+      {/* Coût de transport réel (pour le calcul du bénéfice, /admin/comptabilite) */}
+      <div className="mt-4 rounded-xl border border-[#14213D]/10 bg-[#FFFBF3] p-4 shadow-sm dark:border-white/15 dark:bg-[#05070d]">
+        <h2 className="mb-1 font-semibold text-[#14213D] dark:text-gray-300">Coût de transport réel</h2>
+        <p className="mb-2 text-xs text-neutral-500 dark:text-gray-400">
+          Ce que LIMAK a payé pour livrer cette commande (coursier...) — sert au calcul du bénéfice, différent des
+          frais de livraison facturés au client (gratuits ici).
+        </p>
+        <form action={updateCoutTransport.bind(null, cmd.id)} className="flex items-center gap-2">
+          <input
+            name="coutTransport"
+            type="number"
+            min={0}
+            defaultValue={cmd.coutTransport}
+            className="w-40 rounded-lg border border-[#14213D]/15 px-3 py-1.5 text-sm outline-none focus:border-[#F1720A] focus:ring-1 focus:ring-[#F1720A] dark:border-white/15 dark:bg-[#1c2333] dark:text-gray-300"
+          />
+          <span className="text-sm text-neutral-500 dark:text-gray-400">FCFA</span>
+          <button
+            type="submit"
+            className="rounded-full bg-[#14213D] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#14213D]/85"
+          >
+            Enregistrer
+          </button>
+        </form>
       </div>
 
       {/* Changer le statut (envoie un email de suivi au client, si son email est connu) */}

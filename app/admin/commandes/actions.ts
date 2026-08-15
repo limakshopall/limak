@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "../../lib/prisma";
+import { revalidatePath } from "next/cache";
 import { sendOrderStatusEmail } from "../../lib/email";
 import { annulerCommandeEtRestaurerStock, livrerCommandeEtCrediterMakPoints } from "../../lib/orders";
 
@@ -41,4 +42,14 @@ export async function deleteOrder(orderId: string): Promise<{ ok: boolean; error
   } catch {
     return { ok: false, error: "Erreur lors de la suppression." };
   }
+}
+
+// Ce que LIMAK a réellement payé pour livrer cette commande (coursier...) —
+// sert au calcul du bénéfice dans /admin/comptabilite.
+export async function updateCoutTransport(orderId: string, formData: FormData): Promise<void> {
+  const coutTransport = parseInt(String(formData.get("coutTransport") ?? "0"), 10);
+  if (!orderId || Number.isNaN(coutTransport) || coutTransport < 0) return;
+  await prisma.order.update({ where: { id: orderId }, data: { coutTransport } });
+  revalidatePath(`/admin/commandes/${orderId}`);
+  revalidatePath("/admin/comptabilite");
 }

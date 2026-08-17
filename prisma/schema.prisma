@@ -138,12 +138,11 @@ model Product {
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
-  images      ProductImage[]
-  colors      ProductColor[]
-  sizes       ProductSize[]
-  variants    ProductVariant[] // un produit a TOUJOURS au moins une variante
-  reviews     Review[]
-  stockAlerts StockAlert[]
+  images   ProductImage[]
+  colors   ProductColor[]
+  sizes    ProductSize[]
+  variants ProductVariant[] // un produit a TOUJOURS au moins une variante
+  reviews  Review[]
 
   @@index([vendorId])
   @@index([categoryId])
@@ -181,9 +180,8 @@ model ProductColor {
   hex       String? // ex: "#D6293E" — pour afficher un carré de couleur (facultatif)
   position  Int     @default(0)
 
-  images      ProductImage[]
-  variants    ProductVariant[]
-  stockAlerts StockAlert[]
+  images   ProductImage[]
+  variants ProductVariant[]
 
   @@index([productId])
 }
@@ -222,7 +220,8 @@ model ProductVariant {
   costPrice    Int?    // prix fournisseur (FCFA) — INTERNE, jamais exposé aux clients (visible admin only)
   stock        Int     @default(0) // quantité disponible
 
-  orderItems OrderItem[]
+  orderItems  OrderItem[]
+  stockAlerts StockAlert[]
 
   @@index([productId])
   @@index([colorId])
@@ -317,25 +316,23 @@ model Review {
 
 // ============================================================
 //  ALERTES DE RETOUR EN STOCK — bouton "Me prévenir" sur un produit
-//  épuisé. colorId = null pour un produit sans déclinaison couleur,
-//  sinon la couleur précise suivie (aligné sur le regroupement des
-//  cartes produit). notifiedAt reste vide tant que le SMS n'est pas
-//  parti ; une fois envoyé, l'alerte n'est plus jamais redéclenchée.
+//  épuisé. Rattachée à la VARIANTE précise (couleur+taille exactes
+//  choisies) : un produit peut avoir une taille épuisée et une autre
+//  disponible, seule la variante suivie doit déclencher le SMS.
+//  notifiedAt reste vide tant que le SMS n'est pas parti ; une fois
+//  envoyé, l'alerte n'est plus jamais redéclenchée.
 // ============================================================
 
 model StockAlert {
-  id          String        @id @default(cuid())
-  productId   String
-  product     Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
-  colorId     String?
-  color       ProductColor? @relation(fields: [colorId], references: [id], onDelete: Cascade)
-  phone       String
-  notifiedAt  DateTime?
-  createdAt   DateTime      @default(now())
+  id         String         @id @default(cuid())
+  variantId  String
+  variant    ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  phone      String
+  notifiedAt DateTime?
+  createdAt  DateTime       @default(now())
 
-  @@unique([productId, colorId, phone])
-  @@index([productId])
-  @@index([colorId])
+  @@unique([variantId, phone])
+  @@index([variantId])
 }
 
 // ============================================================

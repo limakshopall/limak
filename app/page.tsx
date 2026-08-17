@@ -16,7 +16,7 @@ import VentesFlash from "./components/VentesFlash";
 import PromoBanner from "./components/PromoBanner";
 import Testimonials from "./components/Testimonials";
 import Reveal from "./components/Reveal";
-import { toDisplayItems, epuisesEnDernier } from "./lib/displayItems";
+import { toDisplayItems, epuisesEnDernier, regrouperParFormeImage } from "./lib/displayItems";
 
 // Rotation des dispositions pour casser la monotonie en descendant la page.
 const ROTATION_DISPOSITIONS: Disposition[] = ["grille", "scroll"];
@@ -165,12 +165,16 @@ export default async function Accueil() {
   const nouveautesAffichees = epuisesEnDernier(
     nouveautes.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id)))
   );
+  // Regroupées par forme de photo proche (portrait/carré/paysage), comme le
+  // catalogue, pour un défilement visuellement homogène ; épuisés en dernier.
   const ventesFlash = epuisesEnDernier(
-    produitsAvecPromo.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id))).filter((item) => {
-      if (item.comparePrice == null || item.comparePrice <= item.price) return false;
-      const reduction = Math.round(((item.comparePrice - item.price) / item.comparePrice) * 100);
-      return reduction <= REDUCTION_MAX_CREDIBLE;
-    })
+    regrouperParFormeImage(
+      produitsAvecPromo.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id))).filter((item) => {
+        if (item.comparePrice == null || item.comparePrice <= item.price) return false;
+        const reduction = Math.round(((item.comparePrice - item.price) / item.comparePrice) * 100);
+        return reduction <= REDUCTION_MAX_CREDIBLE;
+      })
+    )
   );
   const premiumAffiches = premiumSpotlight.flatMap((p) => toDisplayItems(p, notesParProduit.get(p.id))).slice(0, 3);
 

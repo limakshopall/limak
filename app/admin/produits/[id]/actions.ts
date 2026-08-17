@@ -6,6 +6,7 @@
 "use server";
 
 import { prisma } from "../../../lib/prisma";
+import { notifierRetourEnStock } from "../../../lib/stockAlerts";
 import { Prisma } from "../../../generated/prisma/client";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -199,7 +200,7 @@ export async function updateVariantPricing(formData: FormData) {
 
   if (!variantId || !Number.isFinite(price) || !Number.isFinite(stock)) return;
 
-  await prisma.productVariant.update({
+  const variant = await prisma.productVariant.update({
     where: { id: variantId },
     data: {
       price,
@@ -210,6 +211,10 @@ export async function updateVariantPricing(formData: FormData) {
   });
 
   revalidatePath(`/admin/produits/${productId}`);
+
+  // Best-effort, après coup : prévient les clients en attente si ce
+  // produit/cette couleur repasse en stock.
+  await notifierRetourEnStock(variant.productId, variant.colorId);
 }
 
 // Applique le même prix/promo/prix fournisseur à TOUTES les variantes du

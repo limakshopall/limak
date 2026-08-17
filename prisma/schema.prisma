@@ -138,11 +138,12 @@ model Product {
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
-  images   ProductImage[]
-  colors   ProductColor[]
-  sizes    ProductSize[]
-  variants ProductVariant[] // un produit a TOUJOURS au moins une variante
-  reviews  Review[]
+  images      ProductImage[]
+  colors      ProductColor[]
+  sizes       ProductSize[]
+  variants    ProductVariant[] // un produit a TOUJOURS au moins une variante
+  reviews     Review[]
+  stockAlerts StockAlert[]
 
   @@index([vendorId])
   @@index([categoryId])
@@ -180,8 +181,9 @@ model ProductColor {
   hex       String? // ex: "#D6293E" — pour afficher un carré de couleur (facultatif)
   position  Int     @default(0)
 
-  images   ProductImage[]
-  variants ProductVariant[]
+  images      ProductImage[]
+  variants    ProductVariant[]
+  stockAlerts StockAlert[]
 
   @@index([productId])
 }
@@ -311,6 +313,29 @@ model Review {
 
   @@unique([productId, clerkUserId]) // un seul avis par produit et par client
   @@index([productId])
+}
+
+// ============================================================
+//  ALERTES DE RETOUR EN STOCK — bouton "Me prévenir" sur un produit
+//  épuisé. colorId = null pour un produit sans déclinaison couleur,
+//  sinon la couleur précise suivie (aligné sur le regroupement des
+//  cartes produit). notifiedAt reste vide tant que le SMS n'est pas
+//  parti ; une fois envoyé, l'alerte n'est plus jamais redéclenchée.
+// ============================================================
+
+model StockAlert {
+  id          String        @id @default(cuid())
+  productId   String
+  product     Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  colorId     String?
+  color       ProductColor? @relation(fields: [colorId], references: [id], onDelete: Cascade)
+  phone       String
+  notifiedAt  DateTime?
+  createdAt   DateTime      @default(now())
+
+  @@unique([productId, colorId, phone])
+  @@index([productId])
+  @@index([colorId])
 }
 
 // ============================================================

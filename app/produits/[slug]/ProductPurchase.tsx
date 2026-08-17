@@ -11,6 +11,7 @@ import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useCart } from "../../lib/cart-context";
 import ProductGallery from "./ProductGallery";
+import StockAlertForm from "./StockAlertForm";
 
 type Img = { id: string; url: string; alt: string | null };
 type ColorOption = { id: string; name: string; hex: string | null; images: Img[] };
@@ -216,9 +217,12 @@ export default function ProductPurchase({
           ) : (
             <>
               {epuise && (
-                <p className="mb-3 text-sm font-medium text-[#D6293E]">
-                  Rupture de stock — revient bientôt.
-                </p>
+                <>
+                  <p className="mb-3 text-sm font-medium text-[#D6293E]">
+                    Rupture de stock — revient bientôt.
+                  </p>
+                  <StockAlertForm productId={productId} colorId={colorId} />
+                </>
               )}
               {!epuise && stock <= 3 && (
                 <p className="mb-3 text-sm font-medium text-[#D6293E]">

@@ -131,3 +131,17 @@ export async function sendOrderStatusSms(input: StatusSmsInput): Promise<void> {
 
   await sendSms(phone, messages[status], `statut-${status}`);
 }
+
+type StockAlertSmsInput = {
+  phone: string;
+  productName: string;
+};
+
+// 5) SMS envoyé quand un produit épuisé suivi via "Me prévenir" repasse en stock.
+export async function sendStockAlertSms(input: StockAlertSmsInput): Promise<void> {
+  const { phone, productName } = input;
+  const message =
+    `Bonne nouvelle ! "${productName}" est de nouveau disponible sur LIMAK. ` +
+    `Commandez vite avant la prochaine rupture.`;
+  await sendSms(phone, message, "stock");
+}
